@@ -12,9 +12,32 @@ import {
   Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import type { SettingsScreenProps, StudentData } from '../types/navigation';
-import { capitalizeFirst } from '../utils/validation';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { COLORS, FONT_SIZES, SPACING } from '../constants/colors';
+import { capitalizeFirst } from '../utils/validation';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // ADD THIS
+
+// ------------------ Types -------------------
+
+export interface StudentData {
+  full_name: string;
+  roll_no: string;
+  mobile_no: string;
+  email: string;
+  email_verified?: number;
+  gender: string;
+  profile_pic_url?: string;
+  room_no?: string;
+  hostel_no?: string;
+}
+
+type RootStackParamList = {
+  Settings: { studentData?: StudentData };
+  Home: { studentData?: StudentData };
+  Welcome: undefined;
+};
+
+type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 interface InfoItem {
   id: string;
@@ -39,16 +62,18 @@ interface NavItem {
   active?: boolean;
 }
 
+// ------------------ Component -------------------
+
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) => {
-  const studentData: StudentData | undefined = route?.params?.studentData;
+  const studentData = route.params?.studentData;
 
   const getDefaultProfileImage = useCallback((gender?: string): string => {
-    return gender === 'female' 
+    return gender === 'female'
       ? 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400'
       : 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=400';
   }, []);
 
-  const handleLogout = useCallback((): void => {
+  const handleLogout = useCallback(() => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -63,33 +88,36 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     ]);
   }, [navigation]);
 
-  const handleEditProfile = useCallback((): void => {
+  const handleEditProfile = useCallback(() => {
     Alert.alert('Feature', 'Edit Profile feature coming soon!');
   }, []);
 
-  const handleChangePassword = useCallback((): void => {
+  const handleChangePassword = useCallback(() => {
     Alert.alert('Feature', 'Change Password feature coming soon!');
   }, []);
 
-  const handleNotifications = useCallback((): void => {
+  const handleNotifications = useCallback(() => {
     Alert.alert('Feature', 'Notifications settings coming soon!');
   }, []);
 
-  const handlePrivacy = useCallback((): void => {
+  const handlePrivacy = useCallback(() => {
     Alert.alert('Feature', 'Privacy & Security settings coming soon!');
   }, []);
 
-  const handleHelp = useCallback((): void => {
+  const handleHelp = useCallback(() => {
     Alert.alert('Feature', 'Help & Support coming soon!');
   }, []);
 
-  const handleHome = useCallback((): void => {
-    navigation.navigate('Home', { studentData });
+  const handleHome = useCallback(() => {
+    navigation.navigate('Home', studentData ? { studentData } : {});
   }, [navigation, studentData]);
 
-  const handleDiagnostics = useCallback((): void => {
+
+  const handleDiagnostics = useCallback(() => {
     Alert.alert('Feature', 'Diagnostics feature coming soon!');
   }, []);
+
+  const handleSettingsPress = useCallback(() => { }, []);
 
   const profileInfo: InfoItem[] = [
     {
@@ -117,18 +145,27 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       value: capitalizeFirst(studentData?.gender || ''),
       icon: studentData?.gender === 'female' ? 'user-x' : 'user-check',
     },
-    ...(studentData?.room_no ? [{
-      id: 'room',
-      label: 'Room Number',
-      value: studentData.room_no,
-      icon: 'home' as const,
-    }] : []),
-    ...(studentData?.hostel_no ? [{
-      id: 'hostel',
-      label: 'Hostel Number',
-      value: studentData.hostel_no,
-      icon: 'building' as const,
-    }] : []),
+    ...(studentData?.room_no
+      ? [
+        {
+          id: 'room',
+          label: 'Room Number',
+          value: studentData.room_no,
+          icon: 'home' as keyof typeof Feather.glyphMap,
+        },
+      ]
+      : []),
+    ...(studentData?.hostel_no
+      ? [
+        {
+          id: 'hostel',
+          label: 'Hostel Number',
+          value: studentData.hostel_no,
+          icon: 'building' as keyof typeof Feather.glyphMap,
+        },
+      ]
+      : []),
+
   ];
 
   const settingItems: SettingItem[] = [
@@ -181,7 +218,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       id: 'settings',
       title: 'Settings',
       icon: 'settings',
-      onPress: () => {},
+      onPress: handleSettingsPress,
       active: true,
     },
   ];
@@ -190,7 +227,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLORS.background} barStyle="dark-content" />
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={{ width: 24 }} />
         <Text style={styles.headerTitle}>Settings</Text>
@@ -198,11 +234,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Section */}
         <View style={styles.profileSection}>
           <Image
             source={{
-              uri: studentData?.profile_pic_url || getDefaultProfileImage(studentData?.gender)
+              uri:
+                studentData?.profile_pic_url ??
+                getDefaultProfileImage(studentData?.gender),
             }}
             style={styles.profileImage}
           />
@@ -211,18 +248,18 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
               {studentData?.full_name || 'Student Name'}
             </Text>
             <View style={styles.verifiedBadge}>
-              <Feather name="check" size={12} color={COLORS.white} />
+              <MaterialCommunityIcons name="check-decagram" size={18} color="green" />
             </View>
+
           </View>
           <Text style={styles.profileRoll}>
             Roll No: {studentData?.roll_no || 'N/A'}
           </Text>
         </View>
 
-        {/* Profile Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Profile Information</Text>
-          
+
           {profileInfo.map((item, index) => (
             <View
               key={item.id}
@@ -247,10 +284,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           ))}
         </View>
 
-        {/* Account Settings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Settings</Text>
-          
+
           {settingItems.map((item, index) => (
             <TouchableOpacity
               key={item.id}
@@ -270,7 +306,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           ))}
         </View>
 
-        {/* Logout */}
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Feather name="log-out" size={20} color={COLORS.error} />
@@ -279,7 +314,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <View style={styles.bottomNavigation}>
         {navItems.map((item) => (
           <TouchableOpacity
@@ -307,6 +341,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     </SafeAreaView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -361,10 +397,9 @@ const styles = StyleSheet.create({
   verifiedBadge: {
     width: 18,
     height: 18,
-    borderRadius: 9,
-    backgroundColor: COLORS.info,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
   },
   profileRoll: {
     fontSize: FONT_SIZES.sm,

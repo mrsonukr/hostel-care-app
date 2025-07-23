@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import {
   View,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   TextInputProps,
+  TextInput as RNTextInput,
   ViewStyle,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -14,33 +15,36 @@ interface PasswordInputProps extends Omit<TextInputProps, 'secureTextEntry'> {
   containerStyle?: ViewStyle;
 }
 
-export const PasswordInput: React.FC<PasswordInputProps> = ({
-  containerStyle,
-  style,
-  ...props
-}) => {
-  const [showPassword, setShowPassword] = useState(false);
+// ⬇️ Add forwardRef support here
+export const PasswordInput = forwardRef<RNTextInput, PasswordInputProps>(
+  ({ containerStyle, style, ...props }, ref) => {
+    const [showPassword, setShowPassword] = useState(false);
 
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <TextInput
-        style={[styles.input, style]}
-        secureTextEntry={!showPassword}
-        {...props}
-      />
-      <TouchableOpacity
-        onPress={() => setShowPassword(!showPassword)}
-        style={styles.eyeButton}
-      >
-        <Feather
-          name={showPassword ? 'eye' : 'eye-off'}
-          size={22}
-          color={COLORS.textSecondary}
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <RNTextInput
+          ref={ref}
+          style={[styles.input, style]}
+          secureTextEntry={!showPassword}
+          {...props}
         />
-      </TouchableOpacity>
-    </View>
-  );
-};
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.eyeButton}
+        >
+          <Feather
+            name={showPassword ? 'eye' : 'eye-off'}
+            size={22}
+            color={COLORS.textSecondary}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+);
+
+// Optional: give component a display name for debugging
+PasswordInput.displayName = 'PasswordInput';
 
 const styles = StyleSheet.create({
   container: {

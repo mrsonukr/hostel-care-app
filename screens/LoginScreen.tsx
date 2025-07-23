@@ -121,7 +121,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             returnKeyType="done"
             onSubmitEditing={handleLogin}
           />
-
           <LoadingButton
             title="Log In"
             onPress={handleLogin}
@@ -129,7 +128,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             style={styles.loginButton}
           />
 
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleForgotPassword}
             disabled={isLoading}
             style={styles.forgotPasswordButton}
