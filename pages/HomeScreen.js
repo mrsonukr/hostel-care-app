@@ -9,11 +9,20 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useState, useEffect } from "react";
 import { Feather } from "@expo/vector-icons";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const [studentData, setStudentData] = useState(null);
+
+  useEffect(() => {
+    if (route?.params?.studentData) {
+      setStudentData(route.params.studentData);
+    }
+  }, [route]);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -43,7 +52,7 @@ const HomeScreen = () => {
   };
 
   const handleSettings = () => {
-    Alert.alert("Feature", "Settings feature coming soon!");
+    navigation.navigate('Settings', { studentData });
   };
 
   return (

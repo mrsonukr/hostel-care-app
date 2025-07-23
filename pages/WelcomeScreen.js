@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     padding: 20,
-    paddingBottom: Platform.OS === "android" ? 30 : 20, // Extra bottom padding for Android
+    paddingBottom: Platform.OS === "android" ? 50 : 10, // Extra bottom padding for Android
   },
   buttonRow: {
     flexDirection: "row",

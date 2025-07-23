@@ -10,6 +10,7 @@ import ForgotPasswordScreen1 from './pages/ForgotPasswordScreen1';
 import ForgotPasswordScreen2 from './pages/ForgotPasswordScreen2';
 import ForgotPasswordScreen3 from './pages/ForgotPasswordScreen3';
 import HomeScreen from './pages/HomeScreen';
+import SettingsScreen from './pages/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,7 @@ export default function App() {
         <Stack.Screen name="ForgotPasswordScreen2" component={ForgotPasswordScreen2} />
         <Stack.Screen name="ForgotPasswordScreen3" component={ForgotPasswordScreen3} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 60,
     marginBottom: 20,
+    marginLeft: -10,
   },
   backIcon: {
     paddingRight: 8,

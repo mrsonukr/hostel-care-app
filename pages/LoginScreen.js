@@ -16,6 +16,8 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
+const API_BASE_URL = 'https://hostelapis.mssonutech.workers.dev/api';
+
 const LoginScreen = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -38,20 +40,41 @@ const LoginScreen = () => {
       return;
     }
 
-    // Check for admin credentials
-    if (identifier === 'admin' && password === '12345') {
-      setIsLoading(true);
-      
-      // Simulate loading time
-      setTimeout(() => {
-        setIsLoading(false);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Home' }],
-        });
-      }, 2000);
-    } else {
-      Alert.alert('Error', 'Invalid credentials. Use admin/12345 for demo.');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: identifier,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Store user data if needed (you can use AsyncStorage later)
+        Alert.alert('Success', 'Login successful!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.reset({
+              index: 0,
+              routes: [{ name: 'Home', params: { studentData: data.student } }],
+            }),
+          },
+        ]);
+      } else {
+        Alert.alert('Error', data.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Network error. Please check your connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
