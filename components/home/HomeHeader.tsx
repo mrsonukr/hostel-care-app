@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants/colors';
 
@@ -9,21 +16,26 @@ interface HomeHeaderProps {
 
 export const HomeHeader: React.FC<HomeHeaderProps> = ({ onLogout }) => {
   return (
-    <View style={styles.header}>
-      <View style={styles.headerLeft}>
-        <Feather name="home" size={24} color={COLORS.primary} />
-        <Text style={styles.headerTitle}>HostelCare</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Feather name="home" size={24} color={COLORS.primary} />
+          <Text style={styles.headerTitle}>HostelCare</Text>
+        </View>
+        <TouchableOpacity onPress={onLogout} activeOpacity={0.7}>
+          <Feather name="log-out" size={22} color={COLORS.primary} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={onLogout} activeOpacity={0.7}>
-        <Feather name="log-out" size={22} color={COLORS.primary} />
-      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
+  container: {
     backgroundColor: COLORS.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+  },
+  header: {
     paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.lg,
     flexDirection: 'row',

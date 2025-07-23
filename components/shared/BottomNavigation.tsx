@@ -1,6 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants/colors';
 
 interface NavItem {
@@ -16,8 +22,19 @@ interface BottomNavigationProps {
 }
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({ items }) => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.bottomNavigation}>
+    <SafeAreaView
+      edges={['bottom']}
+      style={[
+        styles.safeAreaContainer,
+        {
+          paddingBottom:
+            Platform.OS === 'android' ? 0 : -40,
+        },
+      ]}
+    >
       {items.map((item) => (
         <TouchableOpacity
           key={item.id}
@@ -30,39 +47,34 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ items }) => 
             size={24}
             color={item.active ? COLORS.primary : COLORS.textTertiary}
           />
-          <Text
-            style={[
-              styles.navText,
-              item.active && styles.activeNavText,
-            ]}
-          >
+          <Text style={[styles.navText, item.active && styles.activeNavText]}>
             {item.title}
           </Text>
         </TouchableOpacity>
       ))}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  bottomNavigation: {
-    backgroundColor: COLORS.background,
+  safeAreaContainer: {
     flexDirection: 'row',
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.xl,
+    backgroundColor: COLORS.background,
     borderTopWidth: 0.5,
     borderTopColor: COLORS.border,
-    paddingBottom: Platform.OS === 'ios' ? SPACING.xs : SPACING.xs,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.sm,
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    justifyContent: 'center',
+    paddingVertical: 10,
   },
   navText: {
     fontSize: FONT_SIZES.xs,
     color: COLORS.textTertiary,
-    marginTop: SPACING.xs,
+    marginTop: 2,
     fontWeight: '500',
   },
   activeNavText: {

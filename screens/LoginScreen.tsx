@@ -53,15 +53,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const response = await ApiService.login(identifier, password);
 
       if (response.success && response.student) {
-        Alert.alert('Success', 'Login successful!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.reset({
-              index: 0,
-              routes: [{ name: 'Home', params: { studentData: response.student } }],
-            }),
-          },
-        ]);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home', params: { studentData: response.student } }],
+        });
+
       } else {
         Alert.alert('Error', response.error || 'Login failed');
       }

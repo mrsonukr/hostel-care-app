@@ -23,7 +23,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
+      {/* ✅ Updated status bar color and style */}
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
       <View style={styles.content}>
         <Image
@@ -63,7 +64,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#FFFFFF', // ✅ Ensure white background for Android
   },
   content: {
     flex: 1,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     padding: SPACING.xl,
-    paddingBottom: Platform.OS === 'android' ? 50 : SPACING.sm,
+    paddingBottom: Platform.OS === 'android' ? 80 : 20,
   },
   buttonRow: {
     flexDirection: 'row',

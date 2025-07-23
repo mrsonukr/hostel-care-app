@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -25,6 +26,9 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <SafeAreaView edges={['top']} style={[styles.safeArea, style]}>
+      {/* ✅ Status bar background and icon style */}
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
+      
       <View style={styles.header}>
         <View style={styles.leftContainer}>
           {onBackPress && (
@@ -44,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: COLORS.background,
+    backgroundColor: '#FFFFFF', // ✅ White background
   },
   header: {
     flexDirection: 'row',
