@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -7,18 +7,19 @@ import {
   StatusBar,
   SafeAreaView,
   Image,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+  Platform,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function WelcomeScreen() {
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    navigation.navigate('Login');
+    navigation.navigate("Login");
   };
 
   const handleSignup = () => {
-    navigation.navigate('RegisterScreen1');
+    navigation.navigate("RegisterScreen1");
   };
 
   return (
@@ -28,7 +29,7 @@ export default function WelcomeScreen() {
       {/* Main content */}
       <View style={styles.content}>
         <Image
-          source={require('../assets/vectors/students.png')}
+          source={require("../assets/vectors/students.png")}
           style={styles.image}
           resizeMode="contain"
         />
@@ -57,12 +58,12 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 30,
   },
   image: {
@@ -72,49 +73,50 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#333",
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginBottom: 20,
   },
   bottomContainer: {
     padding: 20,
+    paddingBottom: Platform.OS === "android" ? 30 : 20, // Extra bottom padding for Android
   },
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10, // Use this if your RN version supports it
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10, // if supported
   },
   loginButton: {
     flex: 1,
-    backgroundColor: '#007B5D',
+    backgroundColor: "#007B5D",
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
-    marginRight: 5, // For spacing on older RN versions
+    alignItems: "center",
+    marginRight: 5,
   },
   loginButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   signupButton: {
     flex: 1,
-    backgroundColor: '#007B5D',
+    backgroundColor: "#007B5D",
     paddingVertical: 14,
     borderRadius: 10,
-    alignItems: 'center',
-    marginLeft: 5, // For spacing on older RN versions
+    alignItems: "center",
+    marginLeft: 5,
   },
   signupButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
