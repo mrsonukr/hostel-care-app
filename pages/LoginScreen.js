@@ -63,7 +63,7 @@ const LoginScreen = () => {
             text: 'OK',
             onPress: () => navigation.reset({
               index: 0,
-              routes: [{ name: 'Home', params: { studentData: data.student } }],
+              routes: [{ name: 'MainTabs', params: { studentData: data.student } }],
             }),
           },
         ]);

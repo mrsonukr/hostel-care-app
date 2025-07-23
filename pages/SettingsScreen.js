@@ -12,12 +12,19 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useState, useEffect } from 'react';
 import { Feather } from '@expo/vector-icons';
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const studentData = route?.params?.studentData;
+  const [studentData, setStudentData] = useState(null);
+
+  useEffect(() => {
+    if (route?.params?.studentData) {
+      setStudentData(route.params.studentData);
+    }
+  }, [route]);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -55,7 +62,8 @@ const SettingsScreen = () => {
   };
 
   const handleHome = () => {
-    navigation.navigate('Home', { studentData });
+    // Home tab will be handled by tab navigator
+    // No need to navigate manually
   };
 
   const handleDiagnostics = () => {
@@ -220,23 +228,6 @@ const SettingsScreen = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navItem} onPress={handleHome}>
-          <Feather name="home" size={24} color="#8E8E93" />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={handleDiagnostics}>
-          <Feather name="activity" size={24} color="#8E8E93" />
-          <Text style={styles.navText}>Diagnostics</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="settings" size={24} color="#007B5D" />
-          <Text style={[styles.navText, styles.activeNavText]}>Settings</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };

@@ -52,7 +52,8 @@ const HomeScreen = () => {
   };
 
   const handleSettings = () => {
-    navigation.navigate('Settings', { studentData });
+    // Settings tab will be handled by tab navigator
+    // No need to navigate manually
   };
 
   return (
@@ -108,23 +109,6 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="home" size={24} color="#007B5D" />
-          <Text style={[styles.navText, styles.activeNavText]}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={handleDiagnostics}>
-          <Feather name="activity" size={24} color="#8E8E93" />
-          <Text style={styles.navText}>Diagnostics</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={handleSettings}>
-          <Feather name="settings" size={24} color="#8E8E93" />
-          <Text style={styles.navText}>Settings</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };
