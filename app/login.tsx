@@ -106,6 +106,7 @@ export default function LoginScreen() {
             editable={!isLoading}
             returnKeyType="next"
             onSubmitEditing={() => passwordRef.current?.focus()}
+            multiline={false}
           />
 
           <Text style={styles.label}>Password</Text>

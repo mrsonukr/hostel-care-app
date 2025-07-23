@@ -28,10 +28,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const handleIdentifierChange = useCallback((text: string): void => {
     setIdentifier(text);
-
-    if (/^\d{10}$/.test(text)) {
-      passwordRef.current?.focus();
-    }
   }, []);
 
   const validateInput = useCallback((): boolean => {
@@ -40,14 +36,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       return false;
     }
 
-    // Validate email or phone format if applicable
-    if (identifier.includes('@') && !validateEmail(identifier)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return false;
-    }
-
-    if (/^\d+$/.test(identifier) && !validatePhone(identifier)) {
-      Alert.alert('Error', 'Please enter a valid 10-digit phone number');
+    if (password.length < 5) {
+      Alert.alert('Error', 'Password must be at least 5 characters long');
       return false;
     }
 
@@ -94,13 +84,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     navigation.goBack();
   }, [navigation]);
 
-  const getKeyboardType = useCallback(() => {
-    if (/^\d+$/.test(identifier)) {
-      return 'number-pad' as const;
-    }
-    return 'email-address' as const;
-  }, [identifier]);
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -119,12 +102,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             placeholderTextColor={COLORS.textPlaceholder}
             value={identifier}
             onChangeText={handleIdentifierChange}
-            keyboardType={getKeyboardType()}
+            keyboardType="default"
             autoCapitalize="none"
-            maxLength={/^\d+$/.test(identifier) ? 10 : undefined}
             editable={!isLoading}
             returnKeyType="next"
             onSubmitEditing={() => passwordRef.current?.focus()}
+            multiline={false}
           />
 
           <Text style={styles.label}>Password</Text>

@@ -26,16 +26,20 @@ const ForgotPasswordScreen2: React.FC<ForgotPasswordScreen2Props> = ({ navigatio
   const [canResend, setCanResend] = useState<boolean>(false);
 
   const otpRefs = useRef<(TextInput | null)[]>([]);
-
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
     if (timer > 0) {
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         setTimer(prev => prev - 1);
       }, 1000);
-      return () => clearInterval(interval);
     } else {
       setCanResend(true);
     }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [timer]);
 
   const handleOtpChange = useCallback((value: string, index: number): void => {
@@ -47,6 +51,10 @@ const ForgotPasswordScreen2: React.FC<ForgotPasswordScreen2Props> = ({ navigatio
 
     if (value && index < 5) {
       otpRefs.current[index + 1]?.focus();
+    }
+
+    if (newOtp.every(d => d !== '')) {
+      handleVerifyOTP(); // optional: auto-submit when 6 digits entered
     }
   }, [otp]);
 
@@ -73,7 +81,6 @@ const ForgotPasswordScreen2: React.FC<ForgotPasswordScreen2Props> = ({ navigatio
     // Simulate API call - replace with actual API call
     setTimeout(() => {
       setIsLoading(false);
-      // Mock OTP verification - in real app, verify with backend
       if (otpString === '123456') {
         navigation.navigate('ForgotPasswordScreen3', { rollNumber, email });
       } else {
@@ -119,7 +126,9 @@ const ForgotPasswordScreen2: React.FC<ForgotPasswordScreen2Props> = ({ navigatio
             {otp.map((digit, index) => (
               <TextInput
                 key={index}
-                ref={(ref) => (otpRefs.current[index] = ref)}
+                ref={(ref) => {
+                  otpRefs.current[index] = ref;
+                }}
                 style={styles.otpInput}
                 value={digit}
                 onChangeText={(value) => handleOtpChange(value, index)}
@@ -137,6 +146,7 @@ const ForgotPasswordScreen2: React.FC<ForgotPasswordScreen2Props> = ({ navigatio
             title="Verify OTP"
             onPress={handleVerifyOTP}
             loading={isLoading}
+            disabled={otp.join('').length !== 6 || isLoading}
             style={styles.verifyButton}
           />
 
@@ -169,6 +179,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginBottom: SPACING.sm,
     lineHeight: 22,
+    marginTop: 20,
     textAlign: 'center',
   },
   maskedEmail: {
