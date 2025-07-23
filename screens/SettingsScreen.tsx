@@ -1,41 +1,24 @@
 import React, { useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  TouchableOpacity,
   StatusBar,
   SafeAreaView,
   ScrollView,
-  Image,
   Alert,
-  Platform,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { COLORS, FONT_SIZES, SPACING } from '../constants/colors';
+import type { StudentData, RootStackParamList } from '../types/navigation';
+import { COLORS, SPACING } from '../constants/colors';
 import { capitalizeFirst } from '../utils/validation';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // ADD THIS
+import { SettingsHeader } from '../components/settings/SettingsHeader';
+import { ProfileSection } from '../components/settings/ProfileSection';
+import { ProfileInfoSection } from '../components/settings/ProfileInfoSection';
+import { AccountSettingsSection } from '../components/settings/AccountSettingsSection';
+import { LogoutSection } from '../components/settings/LogoutSection';
+import { BottomNavigation } from '../components/shared/BottomNavigation';
 
 // ------------------ Types -------------------
-
-export interface StudentData {
-  full_name: string;
-  roll_no: string;
-  mobile_no: string;
-  email: string;
-  email_verified?: number;
-  gender: string;
-  profile_pic_url?: string;
-  room_no?: string;
-  hostel_no?: string;
-}
-
-type RootStackParamList = {
-  Settings: { studentData?: StudentData };
-  Home: { studentData?: StudentData };
-  Welcome: undefined;
-};
 
 type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -43,21 +26,21 @@ interface InfoItem {
   id: string;
   label: string;
   value: string;
-  icon: keyof typeof Feather.glyphMap;
+  icon: keyof typeof import('@expo/vector-icons').Feather.glyphMap;
   showWarning?: boolean;
 }
 
 interface SettingItem {
   id: string;
   label: string;
-  icon: keyof typeof Feather.glyphMap;
+  icon: keyof typeof import('@expo/vector-icons').Feather.glyphMap;
   onPress: () => void;
 }
 
 interface NavItem {
   id: string;
   title: string;
-  icon: keyof typeof Feather.glyphMap;
+  icon: keyof typeof import('@expo/vector-icons').Feather.glyphMap;
   onPress: () => void;
   active?: boolean;
 }
@@ -114,7 +97,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
 
 
   const handleDiagnostics = useCallback(() => {
-    Alert.alert('Feature', 'Diagnostics feature coming soon!');
+    navigation.navigate('Notifications');
   }, []);
 
   const handleSettingsPress = useCallback(() => { }, []);
@@ -151,7 +134,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           id: 'room',
           label: 'Room Number',
           value: studentData.room_no,
-          icon: 'home' as keyof typeof Feather.glyphMap,
+          icon: 'home' as keyof typeof import('@expo/vector-icons').Feather.glyphMap,
         },
       ]
       : []),
@@ -161,7 +144,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           id: 'hostel',
           label: 'Hostel Number',
           value: studentData.hostel_no,
-          icon: 'building' as keyof typeof Feather.glyphMap,
+          icon: 'building' as keyof typeof import('@expo/vector-icons').Feather.glyphMap,
         },
       ]
       : []),
@@ -209,9 +192,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       onPress: handleHome,
     },
     {
-      id: 'diagnostics',
-      title: 'Diagnostics',
-      icon: 'activity',
+      id: 'notifications',
+      title: 'Notifications',
+      icon: 'bell',
       onPress: handleDiagnostics,
     },
     {
@@ -227,117 +210,22 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor={COLORS.background} barStyle="dark-content" />
 
-      <View style={styles.header}>
-        <View style={{ width: 24 }} />
-        <Text style={styles.headerTitle}>Settings</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <SettingsHeader />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileSection}>
-          <Image
-            source={{
-              uri:
-                studentData?.profile_pic_url ??
-                getDefaultProfileImage(studentData?.gender),
-            }}
-            style={styles.profileImage}
-          />
-          <View style={styles.nameContainer}>
-            <Text style={styles.profileName}>
-              {studentData?.full_name || 'Student Name'}
-            </Text>
-            <View style={styles.verifiedBadge}>
-              <MaterialCommunityIcons name="check-decagram" size={18} color="green" />
-            </View>
-
-          </View>
-          <Text style={styles.profileRoll}>
-            Roll No: {studentData?.roll_no || 'N/A'}
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Profile Information</Text>
-
-          {profileInfo.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.infoItem,
-                index === profileInfo.length - 1 && styles.lastInfoItem,
-              ]}
-            >
-              <View style={styles.infoLeft}>
-                <Feather name={item.icon} size={20} color={COLORS.primary} />
-                <Text style={styles.infoLabel}>{item.label}</Text>
-              </View>
-              <View style={styles.emailRow}>
-                <Text style={styles.infoValue}>{item.value}</Text>
-                {item.showWarning && (
-                  <View style={styles.notVerifiedIcon}>
-                    <Text style={styles.exclamationText}>!</Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Settings</Text>
-
-          {settingItems.map((item, index) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.settingItem,
-                index === settingItems.length - 1 && styles.lastSettingItem,
-              ]}
-              onPress={item.onPress}
-              activeOpacity={0.7}
-            >
-              <View style={styles.settingLeft}>
-                <Feather name={item.icon} size={20} color={COLORS.primary} />
-                <Text style={styles.settingLabel}>{item.label}</Text>
-              </View>
-              <Feather name="chevron-right" size={18} color={COLORS.gray} />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Feather name="log-out" size={20} color={COLORS.error} />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
+        <ProfileSection 
+          studentData={studentData} 
+          getDefaultProfileImage={getDefaultProfileImage} 
+        />
+        
+        <ProfileInfoSection profileInfo={profileInfo} />
+        
+        <AccountSettingsSection settingItems={settingItems} />
+        
+        <LogoutSection onLogout={handleLogout} />
       </ScrollView>
 
-      <View style={styles.bottomNavigation}>
-        {navItems.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.navItem}
-            onPress={item.onPress}
-            activeOpacity={0.7}
-          >
-            <Feather
-              name={item.icon}
-              size={24}
-              color={item.active ? COLORS.primary : COLORS.textTertiary}
-            />
-            <Text
-              style={[
-                styles.navText,
-                item.active && styles.activeNavText,
-              ]}
-            >
-              {item.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <BottomNavigation items={navItems} />
     </SafeAreaView>
   );
 };
@@ -349,176 +237,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  header: {
-    backgroundColor: COLORS.background,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
-  },
-  headerTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: COLORS.text,
-  },
   content: {
     flex: 1,
     paddingHorizontal: SPACING.xl,
     backgroundColor: COLORS.backgroundSecondary,
-  },
-  profileSection: {
-    backgroundColor: COLORS.background,
-    alignItems: 'center',
-    paddingVertical: SPACING.xxxl,
-    marginTop: SPACING.xl,
-    borderRadius: 12,
-    marginBottom: SPACING.xl,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: SPACING.md,
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  profileName: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginRight: SPACING.xs,
-  },
-  verifiedBadge: {
-    width: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 4,
-  },
-  profileRoll: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-  },
-  section: {
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    marginBottom: SPACING.xl,
-    overflow: 'hidden',
-  },
-  sectionTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.text,
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.xl,
-    paddingBottom: SPACING.md,
-  },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
-  },
-  lastInfoItem: {
-    borderBottomWidth: 0,
-  },
-  infoLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    marginLeft: SPACING.md,
-  },
-  infoValue: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
-    textAlign: 'right',
-  },
-  emailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  notVerifiedIcon: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: COLORS.error,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: SPACING.xs,
-  },
-  exclamationText: {
-    fontSize: 10,
-    color: COLORS.white,
-    fontWeight: 'bold',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLORS.border,
-  },
-  lastSettingItem: {
-    borderBottomWidth: 0,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingLabel: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-    marginLeft: SPACING.md,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: SPACING.lg,
-  },
-  logoutText: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.error,
-    fontWeight: '500',
-    marginLeft: SPACING.sm,
-  },
-  bottomNavigation: {
-    backgroundColor: COLORS.background,
-    flexDirection: 'row',
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.xl,
-    borderTopWidth: 0.5,
-    borderTopColor: COLORS.border,
-    paddingBottom: Platform.OS === 'ios' ? SPACING.xs : SPACING.xs,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-  },
-  navText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textTertiary,
-    marginTop: SPACING.xs,
-    fontWeight: '500',
-  },
-  activeNavText: {
-    color: COLORS.primary,
   },
 });
 

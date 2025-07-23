@@ -24,6 +24,7 @@ export type RootStackParamList = {
   Settings: {
     studentData?: StudentData;
   };
+  Notifications: undefined;
 };
 
 export type StudentData = {

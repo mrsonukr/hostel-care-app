@@ -15,6 +15,7 @@ import ForgotPasswordScreen2 from './screens/ForgotPasswordScreen2';
 import ForgotPasswordScreen3 from './screens/ForgotPasswordScreen3';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import NotificationScreen from './screens/NotificationScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,6 +39,7 @@ const App: React.FC = () => {
           <Stack.Screen name="ForgotPasswordScreen3" component={ForgotPasswordScreen3} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Notifications" component={NotificationScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar style="auto" />
