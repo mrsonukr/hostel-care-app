@@ -180,7 +180,7 @@ const Settings: React.FC = () => {
                   <Text className="text-xl font-semibold text-black mr-2">
                     {student.full_name || 'Student Name'}
                   </Text>
-                  <MaterialCommunityIcons name="check-decagram" size={20} color="#0D0D0D" />
+                  <MaterialCommunityIcons name="check-decagram" size={20} color="#1DA1F2" />
                 </View>
                 <Text className="text-sm font-okra text-gray-500">Roll No: {student.roll_no}</Text>
               </View>

@@ -43,7 +43,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 onPress={() => onChangeText(option)}
                 className={`
                   flex-1 items-center py-3 rounded-full
-                  ${selected ? 'bg-black' : 'bg-[#f5f9ff]'}
+                  ${selected ? 'bg-black' : 'bg-blue-50'}
                   ${error && !selected ? 'border border-[#FF3B30]' : ''}
                 `}
               >
@@ -62,7 +62,7 @@ const InputField: React.FC<InputFieldProps> = ({
       ) : (
         <TextInput
           className={`
-            px-4 py-[12px] rounded-full bg-[#f5f9ff]
+            px-4 py-[12px] rounded-full bg-blue-50
             text-[16px] font-okra text-black
             ${error ? 'border border-[#FF3B30]' : ''}
           `}

@@ -1,6 +1,6 @@
 import { Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import CustomHeader from '../../../components/CustomHeader';
+import CustomHeader from '../../components/CustomHeader';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const hostels = [
@@ -59,7 +59,7 @@ export default function HostelListScreen() {
 
                             {/* Hostel Info */}
                             <View className="flex-1 flex-row justify-between items-center">
-                                <Text className="text-base font-medium text-black font-okra">
+                                <Text className="text-lg font-medium text-black font-okra">
                                     Hostel {hostel.number}
                                 </Text>
                                 <Text className="text-sm text-gray-500 font-okra">
