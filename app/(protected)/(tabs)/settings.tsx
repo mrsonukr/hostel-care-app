@@ -9,7 +9,6 @@ import {
   Image,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -29,6 +28,24 @@ interface Student {
   profile_pic_url?: string | null;
 }
 
+type SettingsRoute =
+  | '/(protected)/editprofile'
+  | '/(protected)/hostel-details'
+  | '/';
+
+const settingsItems: {
+  icon: keyof typeof Feather.glyphMap;
+  label: string;
+  route?: SettingsRoute;
+}[] = [
+    { icon: 'user', label: 'Profile Information', route: '/(protected)/editprofile' },
+    { icon: 'home', label: 'Hostel Details', route: '/(protected)/hostel-details' },
+    { icon: 'lock', label: 'Change Password' },
+    { icon: 'bell', label: 'Notifications' },
+    { icon: 'file-text', label: 'Privacy Policy' },
+    { icon: 'help-circle', label: 'Help & Support' },
+  ];
+
 const Settings: React.FC = () => {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,34 +55,27 @@ const Settings: React.FC = () => {
 
   const fetchStudentData = useCallback(async () => {
     try {
-      const studentData = await AsyncStorage.getItem('student');
-      if (studentData) {
-        const parsedData: Student = JSON.parse(studentData);
-        setStudent(parsedData);
-
-        const response = await fetch(
-          `https://hostelapis.mssonutech.workers.dev/api/student/${parsedData.roll_no}`,
-          {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          }
-        );
-        const data = await response.json();
-
-        if (response.status === 200 && data.success) {
-          setStudent(data.student);
-          await AsyncStorage.setItem('student', JSON.stringify(data.student));
-        } else {
-          console.warn('API error:', data.error);
-          Alert.alert('Error', data.error || 'Failed to fetch latest data.');
-        }
-      } else {
+      const local = await AsyncStorage.getItem('student');
+      if (!local) {
         Alert.alert('Error', 'Please log in again.');
-        router.replace('/(auth)/login');
+        return router.replace('/(auth)/login');
       }
-    } catch (error: unknown) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'Failed to load user data.');
+
+      const parsed: Student = JSON.parse(local);
+      setStudent(parsed);
+
+      const res = await fetch(`https://hostelapis.mssonutech.workers.dev/api/student/${parsed.roll_no}`);
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setStudent(data.student);
+        await AsyncStorage.setItem('student', JSON.stringify(data.student));
+      } else {
+        Alert.alert('Error', data.error || 'Could not fetch profile.');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'Something went wrong.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -76,27 +86,21 @@ const Settings: React.FC = () => {
     fetchStudentData();
   }, [fetchStudentData]);
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = () => {
     setRefreshing(true);
-    await fetchStudentData();
-  }, [fetchStudentData]);
+    fetchStudentData();
+  };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
+    Alert.alert('Logout', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Logout',
         style: 'destructive',
         onPress: async () => {
-          try {
-            await AsyncStorage.removeItem('student');
-            // Force a complete app restart by replacing the entire navigation stack
-            router.dismissAll();
-            router.replace('/');
-          } catch (error: unknown) {
-            console.error('Logout error:', error);
-            Alert.alert('Error', 'Failed to log out.');
-          }
+          await AsyncStorage.removeItem('student');
+          router.dismissAll();
+          router.replace('/');
         },
       },
     ]);
@@ -109,49 +113,25 @@ const Settings: React.FC = () => {
 
   const SkeletonLoader = () => {
     const animatedValue = useRef(new Animated.Value(0)).current;
-
     useEffect(() => {
-      const animation = Animated.loop(
+      const loop = Animated.loop(
         Animated.sequence([
-          Animated.timing(animatedValue, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(animatedValue, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
+          Animated.timing(animatedValue, { toValue: 1, duration: 800, useNativeDriver: true }),
+          Animated.timing(animatedValue, { toValue: 0, duration: 800, useNativeDriver: true }),
         ])
       );
-      animation.start();
-      return () => animation.stop();
+      loop.start();
+      return () => loop.stop();
     }, []);
-
-    const opacity = animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.3, 0.7],
-    });
-
-    return (
-      <Animated.View
-        style={[
-          styles.profileImage,
-          {
-            backgroundColor: '#E5E5EA',
-            opacity,
-          },
-        ]}
-      />
-    );
+    const opacity = animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.7] });
+    return <Animated.View className="w-[60px] h-[60px] rounded-2xl bg-gray-300" style={{ opacity }} />;
   };
 
   if (loading) {
     return (
       <>
         <CustomHeader title="Settings" />
-        <View style={styles.container}>
+        <View className="flex-1 bg-white justify-center items-center">
           <ActivityIndicator size="large" color="#0D0D0D" />
         </View>
       </>
@@ -162,8 +142,8 @@ const Settings: React.FC = () => {
     return (
       <>
         <CustomHeader title="Settings" />
-        <View style={styles.container}>
-          <Text style={styles.error}>No user data found</Text>
+        <View className="flex-1 bg-white justify-center items-center">
+          <Text className="text-lg text-red-500">No user data found</Text>
         </View>
       </>
     );
@@ -173,55 +153,38 @@ const Settings: React.FC = () => {
     <>
       <CustomHeader title="Settings" />
       <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#0D0D0D"
-          />
-        }
+        className="flex-1 bg-white"
+        contentContainerStyle={{ padding: 20 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D0D0D" />}
       >
         {/* Profile Section */}
-        <View style={styles.profileSection}>
-          <View style={styles.profileRow}>
-            <View style={styles.profileLeft}>
-              <View style={styles.profileImageContainer}>
+        <View className="mb-6">
+          <View className="flex-row justify-between items-center">
+            <View className="flex-row items-center">
+              <View className="w-[60px] h-[60px] rounded-2xl overflow-hidden mr-4 relative justify-center items-center">
                 {imageLoading && <SkeletonLoader />}
                 <Image
                   source={
-                    student.profile_pic_url && student.profile_pic_url.startsWith('http')
+                    student.profile_pic_url?.startsWith('http')
                       ? { uri: student.profile_pic_url }
                       : getDefaultProfileImage(student.gender)
                   }
-                  style={[
-                    styles.profileImage,
-                    { opacity: imageLoading ? 0 : 1, position: 'absolute' },
-                  ]}
+                  className="w-[60px] h-[60px] rounded-2xl absolute"
                   onLoadStart={() => setImageLoading(true)}
-                  onLoad={() => setImageLoading(false)}
-                  onError={() => setImageLoading(false)}
+                  onLoadEnd={() => setImageLoading(false)}
+                  style={{ opacity: imageLoading ? 0 : 1 }}
                 />
               </View>
-
-              <View style={styles.nameBlock}>
-                <View style={styles.nameContainer}>
-                  <Text style={styles.profileName}>
+              <View>
+                <View className="flex-row items-center mb-1">
+                  <Text className="text-xl font-semibold text-black mr-2">
                     {student.full_name || 'Student Name'}
                   </Text>
-                  <View style={styles.verifiedBadge}>
-                    <MaterialCommunityIcons
-                      name="check-decagram"
-                      size={18}
-                      color="#0D0D0D"
-                    />
-                  </View>
+                  <MaterialCommunityIcons name="check-decagram" size={20} color="#0D0D0D" />
                 </View>
-                <Text style={styles.profileRoll}>Roll No: {student.roll_no}</Text>
+                <Text className="text-sm text-gray-500">Roll No: {student.roll_no}</Text>
               </View>
             </View>
-
             <TouchableOpacity onPress={handleLogout}>
               <Feather name="log-out" size={24} color="#000" />
             </TouchableOpacity>
@@ -229,144 +192,26 @@ const Settings: React.FC = () => {
         </View>
 
         {/* Settings Menu */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/(protected)/editprofile')}>
-            <View style={styles.settingLeft}>
-              <Feather name="user" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Profile Information</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/(protected)/hostel-details')}>
-            <View style={styles.settingLeft}>
-              <Feather name="home" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Hostel Details</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Feature coming soon')}>
-            <View style={styles.settingLeft}>
-              <Feather name="lock" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Change Password</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Feature coming soon')}>
-            <View style={styles.settingLeft}>
-              <Feather name="bell" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Notifications</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Feature coming soon')}>
-            <View style={styles.settingLeft}>
-              <Feather name="file-text" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Privacy Policy</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Feature coming soon')}>
-            <View style={styles.settingLeft}>
-              <Feather name="help-circle" size={20} color="#0D0D0D" />
-              <Text style={styles.settingLabel}>Help & Support</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color="#000" />
-          </TouchableOpacity>
+        <View>
+          {settingsItems.map(({ icon, label, route }, idx) => (
+            <TouchableOpacity
+              key={idx}
+              className="flex-row items-center justify-between py-5"
+              onPress={
+                route ? () => router.push(route) : () => Alert.alert('Feature coming soon')
+              }
+            >
+              <View className="flex-row items-center">
+                <Feather name={icon} size={22} color="#0D0D0D" />
+                <Text className="ml-4 text-lg text-black">{label}</Text>
+              </View>
+              <Feather name="chevron-right" size={22} color="#000" />
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  contentContainer: { padding: 20, paddingBottom: 20 },
-
-  profileSection: {
-    paddingVertical: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-  },
-  profileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  profileLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  profileImageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    marginRight: 12,
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-  },
-  nameBlock: {
-    justifyContent: 'center',
-  },
-  nameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  profileName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
-    marginRight: 6,
-  },
-  verifiedBadge: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileRoll: {
-    fontSize: 14,
-    color: '#666',
-  },
-
-  section: {},
-
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 18,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: '#000',
-    marginLeft: 12,
-  },
-
-  error: {
-    fontSize: 18,
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default Settings;

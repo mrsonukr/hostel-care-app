@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  StyleSheet,
   Text,
   TextInput,
   TextInputProps,
@@ -14,7 +13,7 @@ interface InputFieldProps extends TextInputProps {
   options?: string[];
   value: string;
   onChangeText: (value: string) => void;
-  error?: string; // ✅ Added error prop
+  error?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -29,28 +28,30 @@ const InputField: React.FC<InputFieldProps> = ({
   const isOptionsField = Array.isArray(options);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+    <View className="mb-4">
+      <Text className="text-[16px] font-medium text-[#434343] mb-1.5 ml-1.5">
+        {label}
+      </Text>
 
       {isOptionsField ? (
-        <View style={styles.optionsRow}>
+        <View className="flex-row gap-2">
           {options!.map((option) => {
             const selected = value === option;
             return (
               <TouchableOpacity
                 key={option}
                 onPress={() => onChangeText(option)}
-                style={[
-                  styles.optionButton,
-                  selected && styles.optionSelected,
-                  error && styles.optionErrorBorder, // red border if error
-                ]}
+                className={`
+                  flex-1 items-center py-3 rounded-full
+                  ${selected ? 'bg-black' : 'bg-[#f5f9ff]'}
+                  ${error && !selected ? 'border border-[#FF3B30]' : ''}
+                `}
               >
                 <Text
-                  style={[
-                    styles.optionText,
-                    selected && styles.optionTextSelected,
-                  ]}
+                  className={`
+                    text-[14px] font-medium
+                    ${selected ? 'text-white' : 'text-black'}
+                  `}
                 >
                   {option}
                 </Text>
@@ -60,80 +61,25 @@ const InputField: React.FC<InputFieldProps> = ({
         </View>
       ) : (
         <TextInput
-          style={[
-            styles.input,
-            error && styles.inputError, // red border if error
-          ]}
+          className={`
+            px-4 py-[12px] rounded-full bg-[#f5f9ff] text-[16px] text-black
+            ${error ? 'border border-[#FF3B30]' : ''}
+          `}
+          placeholderTextColor="#979797"
           secureTextEntry={secure}
-          placeholderTextColor="#979797ff"
           value={value}
           onChangeText={onChangeText}
           {...props}
         />
       )}
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && (
+        <Text className="text-[#FF3B30] text-[13px] mt-1.5 ml-1.5">
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#434343ff',
-    marginBottom: 6,
-    marginLeft: 6,
-  },
-  input: {
-    backgroundColor: '#f5f9ffff',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-    fontSize: 16,
-    color: '#000',
-  },
-  inputError: {
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-  },
-  optionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  optionButton: {
-    flex: 1,
-    backgroundColor: '#f5f9ffff',
-    paddingVertical: 12,
-    borderRadius: 50,
-    alignItems: 'center',
-  },
-  optionSelected: {
-    backgroundColor: '#0D0D0D',
-    borderColor: '#0D0D0D',
-  },
-  optionErrorBorder: {
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-  },
-  optionText: {
-    fontSize: 14,
-    color: '#000',
-    fontWeight: '500',
-  },
-  optionTextSelected: {
-    color: '#fff',
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 13,
-    marginTop: 6,
-    marginLeft: 6,
-  },
-});
 
 export default InputField;

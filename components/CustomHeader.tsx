@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 
 interface CustomHeaderProps {
   title: string;
@@ -16,61 +16,34 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.container}>
-        <View style={styles.content}>
+      <View
+        className={`bg-white ${Platform.OS === 'ios' ? 'pt-11' : 'pt-[30px]'}`}
+      >
+        <View className="flex-row items-center justify-between h-11 px-4">
           {showBackButton ? (
             <TouchableOpacity
               onPress={onBackPress}
-              style={styles.backButton}
+              className="w-8 h-8 justify-center items-start"
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Ionicons name="chevron-back" size={24} color="#000000" />
             </TouchableOpacity>
           ) : (
-            <View style={styles.backButton} />
+            <View className="w-8 h-8" />
           )}
 
-          <Text style={styles.title} numberOfLines={1}>
+          <Text
+            numberOfLines={1}
+            className="flex-1 text-center mx-4 text-lg font-semibold text-black"
+          >
             {title}
           </Text>
 
-          <View style={styles.rightSpace} />
+          <View className="w-8" />
         </View>
       </View>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    paddingTop: Platform.OS === 'ios' ? 44 : 30, // Don't use StatusBar.currentHeight
-  },
-
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    height: 44,
-    paddingHorizontal: 16,
-  },
-  backButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000000',
-    textAlign: 'center',
-    marginHorizontal: 16,
-  },
-  rightSpace: {
-    width: 32,
-  },
-});
 
 export default CustomHeader;

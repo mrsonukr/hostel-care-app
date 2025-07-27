@@ -26,12 +26,12 @@ export default function SignupScreen() {
     password: '',
     confirmPassword: '',
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    // Basic validation
     if (!formData.rollNo.trim() || !formData.fullName.trim() || !formData.password.trim()) {
       Alert.alert('Error', 'Please fill in all required fields.');
       return;
@@ -66,12 +66,11 @@ export default function SignupScreen() {
       });
 
       const data = await response.json();
-
       setLoading(false);
 
       if (response.status === 201 && data.success) {
         Alert.alert('Success', 'Account created successfully! Please login.', [
-          { text: 'OK', onPress: () => router.replace('/(auth)/login') }
+          { text: 'OK', onPress: () => router.replace('/(auth)/login') },
         ]);
       } else {
         Alert.alert('Error', data.error || 'Failed to create account.');
@@ -86,60 +85,30 @@ export default function SignupScreen() {
   return (
     <PaperProvider>
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: 'white' }}
+        className="flex-1 bg-white"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 60 }}>
-            {/* Heading */}
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#0B2447', marginBottom: 8 }}>
-              Sign Up
-            </Text>
-            <Text style={{ fontSize: 16, color: '#666', marginBottom: 32 }}>
-              Create your account
-            </Text>
+          <View className="flex-1 px-5 pt-16">
+            <Text className="text-[28px] font-bold text-[#0B2447] mb-2">Sign Up</Text>
+            <Text className="text-base text-[#666] mb-8">Create your account</Text>
 
-            {/* Roll Number */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 16,
-              }}
-            >
+            {/* Roll No */}
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="account-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Roll Number *"
                 placeholderTextColor="#999"
                 value={formData.rollNo}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, rollNo: text }))}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
             </View>
 
-            {/* Mobile Number */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 16,
-              }}
-            >
+            {/* Mobile No */}
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="phone-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Mobile Number *"
@@ -148,28 +117,13 @@ export default function SignupScreen() {
                 onChangeText={(text) => setFormData(prev => ({ ...prev, mobileNo: text }))}
                 keyboardType="phone-pad"
                 maxLength={10}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
             </View>
 
             {/* Email */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 16,
-              }}
-            >
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="email-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Email *"
@@ -178,28 +132,13 @@ export default function SignupScreen() {
                 onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
             </View>
 
             {/* Password */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 16,
-              }}
-            >
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Password *"
@@ -207,12 +146,7 @@ export default function SignupScreen() {
                 value={formData.password}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
                 secureTextEntry={!showPassword}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -225,17 +159,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Confirm Password */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 24,
-              }}
-            >
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-6">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Confirm Password *"
@@ -243,12 +167,7 @@ export default function SignupScreen() {
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
                 secureTextEntry={!showConfirmPassword}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -266,29 +185,21 @@ export default function SignupScreen() {
               onPress={handleSignup}
               disabled={loading}
               style={{
-                height: 50,
                 borderRadius: 30,
-                justifyContent: 'center',
-                backgroundColor: '#0D0D0D',
                 marginBottom: 20,
+                backgroundColor: '#0D0D0D',
               }}
-              contentStyle={{
-                height: 50,
-              }}
-              labelStyle={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: 'white',
-              }}
+              contentStyle={{ height: 50 }}
+              labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
             >
               {loading ? <RNActivityIndicator color="#fff" /> : 'Sign Up'}
             </Button>
 
-            {/* Login Link */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <Text style={{ color: '#666' }}>Already have an account? </Text>
+            {/* Sign In Link */}
+            <View className="flex-row justify-center">
+              <Text className="text-[#666]">Already have an account? </Text>
               <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-                <Text style={{ color: '#0B2447', fontWeight: 'bold' }}>Sign In</Text>
+                <Text className="text-[#0B2447] font-bold">Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>

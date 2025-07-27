@@ -7,12 +7,12 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator as RNActivityIndicator,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ActivityIndicator as RNActivityIndicator,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
 
@@ -48,7 +48,6 @@ export default function LoginScreen() {
       setLoading(false);
 
       if (response.status === 200 && data.success) {
-        // Save student data to AsyncStorage
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         router.replace('/(protected)/(tabs)');
       } else {
@@ -64,60 +63,31 @@ export default function LoginScreen() {
   return (
     <PaperProvider>
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: 'white' }}
+        className="flex-1 bg-white"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 60 }}>
-            {/* Heading and Description */}
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#0B2447', marginBottom: 8 }}>
-              Login
-            </Text>
-            <Text style={{ fontSize: 16, color: '#666', marginBottom: 32 }}>
-              Please sign in to continue
-            </Text>
+          <View className="flex-1 px-5 pt-16">
+            {/* Heading */}
+            <Text className="text-[28px] font-bold text-[#0B2447] mb-2">Login</Text>
+            <Text className="text-base text-[#666] mb-8">Please sign in to continue</Text>
 
             {/* Username Input */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 16,
-              }}
-            >
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="account-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Roll Number or Mobile Number"
                 placeholderTextColor="#999"
                 value={username}
                 onChangeText={setUsername}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
             </View>
 
             {/* Password Input */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#f2f4f7',
-                borderRadius: 30,
-                paddingHorizontal: 16,
-                height: 50,
-                marginBottom: 24,
-              }}
-            >
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-6">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Password"
@@ -125,12 +95,7 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
-                style={{
-                  flex: 1,
-                  marginLeft: 12,
-                  fontSize: 16,
-                  color: 'black',
-                }}
+                className="flex-1 ml-3 text-[16px] text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -142,35 +107,23 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Sign In Button */}
+            {/* Login Button */}
             <Button
               mode="contained"
               onPress={handleLogin}
               disabled={loading}
-              style={{
-                height: 50,
-                borderRadius: 30,
-                justifyContent: 'center',
-                backgroundColor: '#0D0D0D',
-                marginBottom: 20,
-              }}
-              contentStyle={{
-                height: 50,
-              }}
-              labelStyle={{
-                fontSize: 16,
-                fontWeight: 'bold',
-                color: 'white',
-              }}
+              style={{ borderRadius: 30, marginBottom: 20, backgroundColor: '#0D0D0D' }}
+              contentStyle={{ height: 50 }}
+              labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
             >
               {loading ? <RNActivityIndicator color="#fff" /> : 'Sign In'}
             </Button>
 
-            {/* Signup Link */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <Text style={{ color: '#666' }}>Don't have an account? </Text>
+            {/* Sign up */}
+            <View className="flex-row justify-center">
+              <Text className="text-[#666]">Don'have an account? </Text>
               <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-                <Text style={{ color: '#0B2447', fontWeight: 'bold' }}>Sign Up</Text>
+                <Text className="text-[#0B2447] font-bold">Sign Up</Text>
               </TouchableOpacity>
             </View>
           </View>

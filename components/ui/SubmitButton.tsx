@@ -1,12 +1,11 @@
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
-import type { DimensionValue } from 'react-native';
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  View,
+  type DimensionValue,
 } from 'react-native';
 
 interface SubmitButtonProps {
@@ -31,50 +30,35 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      style={[
-        styles.button,
-        { backgroundColor: color, width: width as DimensionValue },
-        (loading || disabled) && styles.disabled,
-      ]}
       onPress={onPress}
       disabled={loading || disabled}
+      style={{
+        backgroundColor: color,
+        width: width,
+        opacity: loading || disabled ? 0.8 : 1,
+        alignSelf: 'center',
+      }}
+      className="py-[14px] rounded-full mt-6 items-center justify-center"
     >
       {loading ? (
         <ActivityIndicator color="#fff" />
       ) : (
-        <View style={styles.content}>
-          {icon && <Feather name={icon} size={18} color="#fff" style={styles.icon} />}
-          <Text style={styles.text}>{title}</Text>
+        <View className="flex-row items-center">
+          {icon && (
+            <Feather
+              name={icon}
+              size={18}
+              color="#fff"
+              style={{ marginRight: 8 }}
+            />
+          )}
+          <Text className="text-white text-[16px] font-semibold">
+            {title}
+          </Text>
         </View>
       )}
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 24,
-    alignSelf: 'center',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  icon: {
-    marginRight: 8,
-  },
-  text: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  disabled: {
-    opacity: 0.8,
-  },
-});
 
 export default SubmitButton;
