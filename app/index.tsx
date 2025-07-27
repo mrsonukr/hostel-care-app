@@ -48,10 +48,10 @@ export default function WelcomeScreen() {
 
                 {/* Welcome Text */}
                 <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#0D0D0D' }}>
+                    <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#0D0D0D', fontFamily: 'Okra-Bold' }}>
                         Welcome to HostelCare
                     </Text>
-                    <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 10, color: '#555' }}>
+                    <Text style={{ fontSize: 16, textAlign: 'center', marginTop: 10, color: '#555', fontFamily: 'Okra-Regular' }}>
                         Start your journey with us. Explore, engage, and enjoy!
                     </Text>
                 </View>

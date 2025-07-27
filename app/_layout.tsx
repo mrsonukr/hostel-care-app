@@ -3,13 +3,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
-import "../global.css"; // NativeWind global styles
+import "../global.css"
+
+// Prevent the splash screen from auto-hiding before asset loading is complete
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [fontsLoaded] = Font.useFonts({
+  const [fontsLoaded, fontError] = Font.useFonts({
     'Okra-Regular': require('../assets/fonts/okra_regular.ttf'),
     'Okra-Bold': require('../assets/fonts/okra_bold.ttf'),
     'Okra-Light': require('../assets/fonts/okra_light.ttf'),
@@ -24,6 +28,12 @@ export default function RootLayout() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
   const checkAuthStatus = async () => {
     try {
       const studentData = await AsyncStorage.getItem('student');
@@ -34,7 +44,11 @@ export default function RootLayout() {
     }
   };
 
-  if (!fontsLoaded || isAuthenticated === null) {
+  if (!fontsLoaded && !fontError) {
+    return null; // Keep splash screen visible while fonts load
+  }
+
+  if (isAuthenticated === null) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
         <ActivityIndicator size="large" color="#0D0D0D" />

@@ -22,7 +22,7 @@ export default function ProtectedLayout() {
   };
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false }} >
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="profile-info" options={{ presentation: 'card' }} />
       <Stack.Screen name="hostel-details" options={{ presentation: 'card' }} />

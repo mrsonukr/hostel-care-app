@@ -60,7 +60,7 @@ const EditProfile = () => {
               style={{ marginLeft: 6 }}
             />
           </View>
-          <Text className="text-sm text-neutral-500 mt-1">Roll No: {student.roll_no}</Text>
+          <Text className="text-sm font-okra text-neutral-500 mt-1">Roll No: {student.roll_no}</Text>
         </View>
 
         <InputField

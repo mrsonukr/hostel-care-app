@@ -17,7 +17,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View
-        className={`bg-white ${Platform.OS === 'ios' ? 'pt-11' : 'pt-[30px]'}`}
+        className={`bg-white ${Platform.OS === 'ios' ? 'pt-11' : 'pt-2'}`}
       >
         <View className="flex-row items-center justify-between h-11 px-4">
           {showBackButton ? (

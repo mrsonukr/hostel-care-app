@@ -182,7 +182,7 @@ const Settings: React.FC = () => {
                   </Text>
                   <MaterialCommunityIcons name="check-decagram" size={20} color="#0D0D0D" />
                 </View>
-                <Text className="text-sm text-gray-500">Roll No: {student.roll_no}</Text>
+                <Text className="text-sm font-okra text-gray-500">Roll No: {student.roll_no}</Text>
               </View>
             </View>
             <TouchableOpacity onPress={handleLogout}>
@@ -203,7 +203,7 @@ const Settings: React.FC = () => {
             >
               <View className="flex-row items-center">
                 <Feather name={icon} size={22} color="#0D0D0D" />
-                <Text className="ml-4 text-lg text-black">{label}</Text>
+                <Text className="ml-4 font-okra text-lg text-black">{label}</Text>
               </View>
               <Feather name="chevron-right" size={22} color="#000" />
             </TouchableOpacity>

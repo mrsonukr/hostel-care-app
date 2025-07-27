@@ -29,7 +29,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <View className="mb-4">
-      <Text className="text-[16px] font-medium text-[#434343] mb-1.5 ml-1.5">
+      <Text className="text-[16px] font-okra font-medium text-[#434343] mb-1.5 ml-1.5">
         {label}
       </Text>
 
@@ -49,7 +49,7 @@ const InputField: React.FC<InputFieldProps> = ({
               >
                 <Text
                   className={`
-                    text-[14px] font-medium
+                    text-[14px] font-okra font-medium
                     ${selected ? 'text-white' : 'text-black'}
                   `}
                 >
@@ -62,7 +62,8 @@ const InputField: React.FC<InputFieldProps> = ({
       ) : (
         <TextInput
           className={`
-            px-4 py-[12px] rounded-full bg-[#f5f9ff] text-[16px] text-black
+            px-4 py-[12px] rounded-full bg-[#f5f9ff]
+            text-[16px] font-okra text-black
             ${error ? 'border border-[#FF3B30]' : ''}
           `}
           placeholderTextColor="#979797"
@@ -74,7 +75,7 @@ const InputField: React.FC<InputFieldProps> = ({
       )}
 
       {error && (
-        <Text className="text-[#FF3B30] text-[13px] mt-1.5 ml-1.5">
+        <Text className="text-[#FF3B30] text-[13px] font-okra mt-1.5 ml-1.5">
           {error}
         </Text>
       )}

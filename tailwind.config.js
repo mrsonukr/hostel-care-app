@@ -1,4 +1,3 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -10,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Okra-Regular'], // 👈 default for all text
+        sans: ['Okra-Regular'], // Default font
         okra: ['Okra-Regular'],
         bold: ['Okra-Bold'],
         light: ['Okra-Light'],
