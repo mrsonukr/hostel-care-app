@@ -2,7 +2,8 @@ import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { useFrameworkReady } from '../hooks/useFrameworkReady'
+import { useFrameworkReady } from '../hooks/useFrameworkReady';
+import "../global.css"; // Ensure global styles are imported
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -10,8 +11,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     checkAuthStatus();
-    
-    // Listen for storage changes (logout events)
     const interval = setInterval(checkAuthStatus, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -35,15 +34,10 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {!isAuthenticated ? (
-        <>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-        </>
-      ) : (
-        <Stack.Screen name="(protected)" />
-      )}
-    </Stack>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
   );
 }
