@@ -1,46 +1,26 @@
-export const COLORS = {
-  primary: '#007B5D',
-  primaryLight: '#00A876',
-  primaryDark: '#005A44',
-  
-  background: '#FFFFFF',
-  backgroundSecondary: '#F2F2F7',
-  backgroundTertiary: '#f7f8fa',
-  
-  text: '#000000',
-  textSecondary: '#666666',
-  textTertiary: '#8E8E93',
-  textPlaceholder: '#999999',
-  
-  border: '#E5E5EA',
-  borderLight: '#ddd',
-  
-  success: '#34C759',
-  warning: '#FF9500',
-  error: '#FF3B30',
-  info: '#1DA1F2',
-  
-  white: '#FFFFFF',
-  black: '#000000',
-  gray: '#C7C7CC',
-} as const;
+/**
+ * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
+ * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ */
 
-export const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24,
-  xxxl: 32,
-} as const;
+const tintColorLight = '#0a7ea4';
+const tintColorDark = '#fff';
 
-export const FONT_SIZES = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  xxl: 24,
-  xxxl: 28,
-} as const;
+export const Colors = {
+  light: {
+    text: '#11181C',
+    background: '#fff',
+    tint: tintColorLight,
+    icon: '#687076',
+    tabIconDefault: '#687076',
+    tabIconSelected: tintColorLight,
+  },
+  dark: {
+    text: '#ECEDEE',
+    background: '#151718',
+    tint: tintColorDark,
+    icon: '#9BA1A6',
+    tabIconDefault: '#9BA1A6',
+    tabIconSelected: tintColorDark,
+  },
+};
