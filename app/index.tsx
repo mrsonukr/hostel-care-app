@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Text, View, ActivityIndicator } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import "../global.css";
 
 export default function WelcomeScreen() {
     const router = useRouter();
