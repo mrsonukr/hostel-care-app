@@ -29,11 +29,11 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
           ) : (
             <View style={styles.backButton} />
           )}
-          
+
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          
+
           <View style={styles.rightSpace} />
         </View>
       </View>
@@ -42,10 +42,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
 };
 
 const styles = StyleSheet.create({
- container: {
-  backgroundColor: '#FFFFFF',
-  paddingTop: Platform.OS === 'ios' ? 44 : 30, // Don't use StatusBar.currentHeight
-},
+  container: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'ios' ? 44 : 30, // Don't use StatusBar.currentHeight
+  },
 
   content: {
     flexDirection: 'row',
