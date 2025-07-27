@@ -44,7 +44,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
 const styles = StyleSheet.create({
  container: {
   backgroundColor: '#FFFFFF',
-  paddingTop: Platform.OS === 'ios' ? 44 : 0, // Don't use StatusBar.currentHeight
+  paddingTop: Platform.OS === 'ios' ? 44 : 30, // Don't use StatusBar.currentHeight
 },
 
   content: {
