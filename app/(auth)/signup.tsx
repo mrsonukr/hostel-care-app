@@ -19,7 +19,6 @@ export default function SignupScreen() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     rollNo: '',
-    fullName: '',
     gender: '',
     mobileNo: '',
     email: '',
@@ -32,7 +31,7 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    if (!formData.rollNo.trim() || !formData.fullName.trim() || !formData.password.trim()) {
+    if (!formData.rollNo.trim() || !formData.password.trim()) {
       Alert.alert('Error', 'Please fill in all required fields.');
       return;
     }
@@ -57,7 +56,6 @@ export default function SignupScreen() {
         },
         body: JSON.stringify({
           roll_no: formData.rollNo,
-          full_name: formData.fullName,
           gender: formData.gender || 'male',
           mobile_no: formData.mobileNo,
           email: formData.email,

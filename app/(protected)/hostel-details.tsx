@@ -5,13 +5,34 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   RefreshControl,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
+import Listing from '../../components/ui/Listing';
+import SubmitButton from '../../components/ui/SubmitButton';
+
+// Hostel code mapping for parsing
+const hostelCodeMap: { [key: number]: string } = {
+  1: '1B',
+  2: '2G',
+  3: '3G',
+  4: '4G',
+  5: '5B',
+  6: '6G',
+  7: '7G',
+  8: '8G',
+  9: '9G',
+  10: '10G',
+  11: '11G',
+  12: '12G',
+  13: '13G',
+  14: '14G',
+  16: '16G',
+};
 
 interface Student {
   roll_no: string;
@@ -44,7 +65,7 @@ const HostelDetails: React.FC = () => {
         );
         const data = await response.json();
 
-        if (response.status === 200 && data.success) {
+        if (response.ok && data.success) {
           setStudent(data.student);
           await AsyncStorage.setItem('student', JSON.stringify(data.student));
         } else {
@@ -56,7 +77,7 @@ const HostelDetails: React.FC = () => {
         router.replace('/(auth)/login');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching student data:', error);
       Alert.alert('Error', 'Failed to load user data.');
     } finally {
       setLoading(false);
@@ -73,16 +94,24 @@ const HostelDetails: React.FC = () => {
     await fetchStudentData();
   }, [fetchStudentData]);
 
-  const getFloor = (roomNo?: string | null) => {
+  const getFloor = (roomNo?: string | null): string => {
     if (!roomNo) return 'N/A';
     const firstDigit = parseInt(roomNo.charAt(0), 10);
     if (isNaN(firstDigit)) return 'N/A';
     return firstDigit === 1 ? 'Ground Floor' : `${firstDigit - 1}th Floor`;
   };
 
-  const getHostelType = (hostelNo?: string | null) => {
+  const getHostelType = (hostelNo?: string | null): string => {
     if (!hostelNo) return 'N/A';
-    return `Hostel Block ${hostelNo}`;
+    return hostelNo.endsWith('B') ? 'Boys' : hostelNo.endsWith('G') ? 'Girls' : 'N/A';
+  };
+
+  const getHostelNumber = (hostelNo?: string | null): string => {
+    if (!hostelNo) return 'Add';
+    const hostelNumber = Object.keys(hostelCodeMap).find(
+      (key) => hostelCodeMap[Number(key)] === hostelNo
+    );
+    return hostelNumber || hostelNo;
   };
 
   if (loading) {
@@ -107,6 +136,32 @@ const HostelDetails: React.FC = () => {
     );
   }
 
+  if (!student.hostel_no) {
+    return (
+      <>
+        <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="bg-white">
+          <View className="flex-1 items-center justify-center px-6 py-12 space-y-6">
+            <View className="w-24 h-24 rounded-full border border-black flex items-center justify-center">
+              <MaterialCommunityIcons name="office-building-outline" size={42} color="black" />
+            </View>
+            <Text className="text-[22px] font-semibold text-black text-center">
+              No Hostel Linked
+            </Text>
+            <Text className="text-base text-gray-600 text-center leading-relaxed">
+              You haven’t added your hostel yet. Tap below to add your hostel and start managing your account.
+            </Text>
+            <SubmitButton
+              title="Add Your Hostel"
+              onPress={() => router.push('/select-hostel')}
+              icon="plus"
+            />
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
+
   return (
     <>
       <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
@@ -117,104 +172,83 @@ const HostelDetails: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D0D0D" />
         }
       >
-        {/* Accommodation Details */}
-        <View className="bg-white rounded-xl mb-5">
-          <Text className="text-[16px] font-semibold font-okra text-black px-5 pt-5 pb-3">Accommodation Details</Text>
-
-          <View className="flex-row justify-between items-center px-5 py-3 border-b border-[#E5E5EA]">
-            <View className="flex-row items-center">
-              <Feather name="home" size={20} color="#0D0D0D" />
-              <Text className="text-[16px] text-black font-okra ml-3">Hostel Number</Text>
-            </View>
-            {student.hostel_no ? (
-              <Text className="text-[16px] text-[#666] font-okra">{student.hostel_no}</Text>
-            ) : (
-              <TouchableOpacity onPress={() => Alert.alert('Coming soon', 'Hostel assignment feature will be available soon.')}>
-                <Text className="text-[16px] text-black font-medium font-okra">Add</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View className="flex-row justify-between items-center px-5 py-3 border-b border-[#E5E5EA]">
-            <View className="flex-row items-center">
-              <Feather name="home" size={20} color="#0D0D0D" />
-              <Text className="text-[16px] text-black font-okra ml-3">Room Number</Text>
-            </View>
-            {student.room_no ? (
-              <Text className="text-[16px] text-[#666] font-okra">{student.room_no}</Text>
-            ) : (
-              <TouchableOpacity onPress={() => Alert.alert('Coming soon', 'Room assignment feature will be available soon.')}>
-                <Text className="text-[16px] text-black font-medium font-okra">Add</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View className="flex-row justify-between items-center px-5 py-3 border-b border-[#E5E5EA]">
-            <View className="flex-row items-center">
-              <MaterialCommunityIcons name="stairs" size={20} color="#0D0D0D" />
-              <Text className="text-[16px] text-black font-okra ml-3">Floor</Text>
-            </View>
-            <Text className="text-[16px] text-[#666] font-okra">{getFloor(student.room_no)}</Text>
-          </View>
-
-          <View className="flex-row justify-between items-center px-5 py-3">
-            <View className="flex-row items-center">
-              <MaterialCommunityIcons name="office-building" size={20} color="#0D0D0D" />
-              <Text className="text-[16px] text-black font-okra ml-3">Hostel Type</Text>
-            </View>
-            <Text className="text-[16px] text-[#666] font-okra">{getHostelType(student.hostel_no)}</Text>
-          </View>
-        </View>
-
-        {/* Status Section */}
-        <View className="bg-white rounded-xl mb-5 px-5 py-4">
-          <Text className="text-[16px] font-semibold font-okra text-black mb-3">Status</Text>
-          <View className="flex-row items-center mb-2">
-            <MaterialCommunityIcons
-              name={student.hostel_no && student.room_no ? 'check-circle' : 'clock-outline'}
-              size={24}
-              color={student.hostel_no && student.room_no ? '#4CAF50' : '#FF9800'}
-            />
-            <Text className="text-[16px] font-semibold font-okra text-black ml-3">
-              {student.hostel_no && student.room_no ? 'Accommodation Assigned' : 'Pending Assignment'}
-            </Text>
-          </View>
-          <Text className="text-[14px] text-[#666] font-okra leading-5 ml-9">
-            {student.hostel_no && student.room_no
-              ? `You are currently assigned to Room ${student.room_no} in Hostel ${student.hostel_no}`
-              : 'Your hostel and room assignment is pending. Please contact the administration for updates.'}
-          </Text>
-        </View>
-
-        {/* Quick Actions */}
-        <View className="bg-white rounded-xl mb-5">
-          <Text className="text-[16px] font-semibold font-okra text-black px-5 pt-5 pb-3">Quick Actions</Text>
-
-          {[
+        <Listing
+          title="Accommodation Details"
+          data={[
             {
-              icon: 'swap-horizontal',
+              icon: <Feather name="home" size={20} color="#0D0D0D" />,
+              label: 'Hostel Number',
+              value: getHostelNumber(student.hostel_no),
+            },
+            {
+              icon: <Feather name="home" size={20} color="#0D0D0D" />,
+              label: 'Room Number',
+              value: student.room_no ?? 'Add',
+            },
+            {
+              icon: <MaterialCommunityIcons name="stairs" size={20} color="#0D0D0D" />,
+              label: 'Floor',
+              value: getFloor(student.room_no),
+            },
+            {
+              icon: <MaterialCommunityIcons name="office-building" size={20} color="#0D0D0D" />,
+              label: 'Hostel Type',
+              value: getHostelType(student.hostel_no),
+            },
+            {
+              icon: <Feather name="edit" size={20} color="#0D0D0D" />,
+              label: 'Edit Hostel',
+              showArrow: true,
+              onPress: () => router.push({
+                pathname: '/select-hostel',
+                params: { edit: 'true' },
+              }),
+            },
+          ]}
+        />
+        <Listing
+          title="Warden Details"
+          data={[
+            {
+              icon: <Feather name="phone-call" size={20} color="#0D0D0D" />,
+              label: 'Amit Dangi',
+              value: '+918210220189',
+              onPress: () => Linking.openURL('tel:+918210220189'),
+            },
+            {
+              icon: <Feather name="phone-call" size={20} color="#0D0D0D" />,
+              label: 'Sonu',
+              value: '+918210773252',
+              onPress: () => Linking.openURL('tel:+918210773252'),
+            },
+          ]}
+        />
+        <Listing
+          title="Quick Actions"
+          data={[
+            {
+              icon: <MaterialCommunityIcons name="swap-horizontal" size={20} color="#0D0D0D" />,
               label: 'Request Room Change',
+              showArrow: true,
+              onPress: () =>
+                Alert.alert('Coming soon', 'Request Room Change feature will be available soon.'),
             },
             {
-              icon: 'tools',
+              icon: <MaterialCommunityIcons name="tools" size={20} color="#0D0D0D" />,
               label: 'Report Maintenance Issue',
+              showArrow: true,
+              onPress: () =>
+                Alert.alert('Coming soon', 'Report Maintenance feature will be available soon.'),
             },
             {
-              icon: 'account-group',
+              icon: <MaterialCommunityIcons name="account-group" size={20} color="#0D0D0D" />,
               label: 'View Roommates',
+              showArrow: true,
+              onPress: () =>
+                Alert.alert('Coming soon', 'View Roommates feature will be available soon.'),
             },
-          ].map((item, index) => (
-            <TouchableOpacity
-              key={item.label}
-              onPress={() => Alert.alert('Coming soon', `${item.label} feature will be available soon.`)}
-              className={`flex-row items-center px-5 py-3 border-b border-[#E5E5EA] ${index === 2 ? 'border-b-0' : ''}`}
-            >
-              <MaterialCommunityIcons name={item.icon as any} size={20} color="#0D0D0D" />
-              <Text className="flex-1 text-[16px] text-black ml-3 font-okra">{item.label}</Text>
-              <Feather name="chevron-right" size={18} color="#C7C7CC" />
-            </TouchableOpacity>
-          ))}
-        </View>
+          ]}
+        />
       </ScrollView>
     </>
   );
