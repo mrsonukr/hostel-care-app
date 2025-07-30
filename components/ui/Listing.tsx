@@ -6,6 +6,7 @@ export interface InfoItem {
   label: string;
   icon?: React.ReactNode;
   value?: string;
+  subtitle?: string;
   showArrow?: boolean;
   onPress?: () => void;
 }
@@ -29,7 +30,12 @@ const Listing: React.FC<ListingProps> = ({ title, data }) => {
         >
           <View className="flex-row items-center px-5 py-4 bg-white">
             {item.icon}
-            <Text className="text-[16px] text-black font-okra ml-3 flex-1">{item.label}</Text>
+            <View className="ml-3 flex-1">
+              <Text className="text-[16px] text-black font-okra">{item.label}</Text>
+              {item.subtitle && (
+                <Text className="text-[12px] text-[#666] font-okra mt-1">{item.subtitle}</Text>
+              )}
+            </View>
 
             {item.showArrow ? (
               <Feather name="chevron-right" size={18} color="#C7C7CC" />

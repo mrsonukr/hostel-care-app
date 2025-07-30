@@ -1,6 +1,6 @@
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -85,6 +85,13 @@ const Settings: React.FC = () => {
   useEffect(() => {
     fetchStudentData();
   }, [fetchStudentData]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchStudentData();
+    }, [fetchStudentData])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -208,6 +215,11 @@ const Settings: React.FC = () => {
               <Feather name="chevron-right" size={22} color="#000" />
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* App Version */}
+        <View className="mt-8 mb-4 items-center">
+          <Text className="text-sm text-gray-400 font-okra">Version 1.0.0</Text>
         </View>
       </ScrollView>
     </>

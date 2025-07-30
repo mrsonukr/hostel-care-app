@@ -1,6 +1,6 @@
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -47,8 +47,20 @@ interface Student {
   profile_pic_url?: string | null;
 }
 
+interface Staff {
+  name: string;
+  mobile: string;
+  role: string;
+}
+
+interface HostelDetails {
+  staff: Staff[];
+  groupLink: string;
+}
+
 const HostelDetails: React.FC = () => {
   const [student, setStudent] = useState<Student | null>(null);
+  const [hostelDetails, setHostelDetails] = useState<HostelDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const router = useRouter();
@@ -85,9 +97,66 @@ const HostelDetails: React.FC = () => {
     }
   }, [router]);
 
+  const fetchHostelDetails = useCallback(async () => {
+    if (!student?.hostel_no) {
+      setHostelDetails(null);
+      return;
+    }
+    
+    try {
+      // Clear old data first
+      setHostelDetails(null);
+      
+      // Extract hostel number from hostel code (e.g., "1B" -> "1", "2G" -> "2")
+      const hostelNumber = Object.keys(hostelCodeMap).find(
+        (key) => hostelCodeMap[Number(key)] === student.hostel_no
+      );
+      
+      if (hostelNumber) {
+        const response = await fetch(
+          `https://hosteldetails.mssonutech.workers.dev/hostel/${hostelNumber}`
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          setHostelDetails(data);
+        } else {
+          console.warn('Hostel details API error:', data);
+          setHostelDetails(null);
+        }
+      } else {
+        setHostelDetails(null);
+      }
+    } catch (error) {
+      console.error('Error fetching hostel details:', error);
+      setHostelDetails(null);
+    }
+  }, [student?.hostel_no]);
+
   useEffect(() => {
     fetchStudentData();
   }, [fetchStudentData]);
+
+  // Fetch hostel details when student data is available
+  useEffect(() => {
+    if (student?.hostel_no) {
+      fetchHostelDetails();
+    }
+  }, [student?.hostel_no, fetchHostelDetails]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchStudentData();
+    }, [fetchStudentData])
+  );
+
+  // Clear hostel details when hostel changes
+  useEffect(() => {
+    if (!student?.hostel_no) {
+      setHostelDetails(null);
+    }
+  }, [student?.hostel_no]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -206,23 +275,34 @@ const HostelDetails: React.FC = () => {
             },
           ]}
         />
-        <Listing
-          title="Warden Details"
-          data={[
-            {
-              icon: <Feather name="phone-call" size={20} color="#0D0D0D" />,
-              label: 'Amit Dangi',
-              value: '+918210220189',
-              onPress: () => Linking.openURL('tel:+918210220189'),
-            },
-            {
-              icon: <Feather name="phone-call" size={20} color="#0D0D0D" />,
-              label: 'Sonu',
-              value: '+918210773252',
-              onPress: () => Linking.openURL('tel:+918210773252'),
-            },
-          ]}
-        />
+        {((hostelDetails?.staff && hostelDetails.staff.length > 0) || hostelDetails?.groupLink) && (
+          <Listing
+            title="Contacts"
+            data={[
+              ...(hostelDetails?.staff?.map((staff) => ({
+                icon: (
+                  <View className="w-6 h-6 rounded-full bg-black items-center justify-center">
+                    <Text className="text-white text-xs font-bold">
+                      {staff.role === 'warden' ? 'W' : 'C'}
+                    </Text>
+                  </View>
+                ),
+                label: staff.name,
+                value: staff.mobile,
+                onPress: () => Linking.openURL(`tel:${staff.mobile}`),
+              })) || []),
+              ...(hostelDetails?.groupLink ? [
+                {
+                  icon: <MaterialCommunityIcons name="whatsapp" size={20} color="#25D366" />,
+                  label: 'Join WhatsApp Group',
+                  value: 'Tap to join',
+                  showArrow: true,
+                  onPress: () => Linking.openURL(hostelDetails.groupLink),
+                },
+              ] : []),
+            ]}
+          />
+        )}
         <Listing
           title="Quick Actions"
           data={[

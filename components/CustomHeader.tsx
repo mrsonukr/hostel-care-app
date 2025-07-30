@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CustomHeaderProps {
   title: string;
@@ -13,11 +14,16 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
   showBackButton = false,
   onBackPress,
 }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <View
-        className={`bg-white ${Platform.OS === 'ios' ? 'pt-11' : 'pt-2'}`}
+        className="bg-white"
+        style={{
+          paddingTop: Platform.OS === 'ios' ? insets.top : StatusBar.currentHeight || 0,
+        }}
       >
         <View className="flex-row items-center justify-between h-11 px-4">
           {showBackButton ? (

@@ -173,7 +173,7 @@ export default function HostelListScreen() {
           room_no: roomNumber,
         };
         await AsyncStorage.setItem('student', JSON.stringify(updatedStudent));
-        router.replace('/hostel-details');
+        router.back();
       } else {
         Alert.alert('Error', result.error || 'Failed to update hostel information');
       }

@@ -22,11 +22,41 @@ export default function ProtectedLayout() {
   };
 
   return (
-    <Stack screenOptions={{ headerShown: false }} >
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="profile-info" options={{ presentation: 'card' }} />
-      <Stack.Screen name="hostel-details" options={{ presentation: 'card' }} />
-      <Stack.Screen name="editprofile" options={{ presentation: 'card' }} />
+    <Stack 
+      screenOptions={{ 
+        headerShown: false,
+        gestureEnabled: false, // Disable swipe back gesture
+        animation: 'none', // Disable animation to prevent back navigation
+      }} 
+    >
+      <Stack.Screen 
+        name="(tabs)" 
+        options={{
+          gestureEnabled: false,
+          animation: 'none',
+        }}
+      />
+      <Stack.Screen 
+        name="profile-info" 
+        options={{ 
+          presentation: 'card',
+          gestureEnabled: true, // Allow gestures for modal screens
+        }} 
+      />
+      <Stack.Screen 
+        name="hostel-details" 
+        options={{ 
+          presentation: 'card',
+          gestureEnabled: true, // Allow gestures for modal screens
+        }} 
+      />
+      <Stack.Screen 
+        name="editprofile" 
+        options={{ 
+          presentation: 'card',
+          gestureEnabled: true, // Allow gestures for modal screens
+        }} 
+      />
     </Stack>
   );
 }

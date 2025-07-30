@@ -58,53 +58,26 @@ export default function WelcomeScreen() {
 
                 {/* Bottom Buttons */}
                 <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 20 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Button
-                            mode="contained"
-                            onPress={() => router.push('/(auth)/login')}
-                            style={{
-                                flex: 1,
-                                marginRight: 10,
-                                borderRadius: 30,
-                                backgroundColor: '#0D0D0D',
-                                elevation: 0,
-                            }}
-                            contentStyle={{
-                                height: 50,
-                                justifyContent: 'center',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                fontWeight: '600',
-                                color: 'white',
-                            }}
-                        >
-                            Login
-                        </Button>
-
-                        <Button
-                            mode="contained"
-                            onPress={() => router.push('/(auth)/signup')}
-                            style={{
-                                flex: 1,
-                                marginLeft: 10,
-                                borderRadius: 30,
-                                backgroundColor: '#0D0D0D',
-                                elevation: 0,
-                            }}
-                            contentStyle={{
-                                height: 50,
-                                justifyContent: 'center',
-                            }}
-                            labelStyle={{
-                                fontSize: 16,
-                                fontWeight: '600',
-                                color: 'white',
-                            }}
-                        >
-                            Signup
-                        </Button>
-                    </View>
+                    <Button
+                        mode="contained"
+                        onPress={() => router.push('/(auth)/login')}
+                        style={{
+                            borderRadius: 30,
+                            backgroundColor: '#0D0D0D',
+                            elevation: 0,
+                        }}
+                        contentStyle={{
+                            height: 50,
+                            justifyContent: 'center',
+                        }}
+                        labelStyle={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: 'white',
+                        }}
+                    >
+                        Get Started
+                    </Button>
                 </View>
             </View>
         </PaperProvider>

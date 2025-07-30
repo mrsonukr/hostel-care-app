@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import "../global.css"
 
@@ -57,10 +58,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <SafeAreaProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: false, // Disable swipe back gesture globally
+        }}
+      />
+    </SafeAreaProvider>
   );
 }

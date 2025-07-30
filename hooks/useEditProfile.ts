@@ -192,7 +192,6 @@ export function useEditProfile() {
         profile_pic_url: payload.profile_pic_url,
       });
       setFormData((f) => ({ ...f, newImage: null }));
-      Alert.alert('Success', 'Profile updated successfully!');
       router.back();
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Update failed');
@@ -211,5 +210,6 @@ export function useEditProfile() {
     hasChanges,
     handleUpdate,
     pickImage,
+    fetchStudentData,
   };
 }

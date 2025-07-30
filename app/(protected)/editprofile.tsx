@@ -6,7 +6,7 @@ import { useEditProfile } from '../../hooks/useEditProfile';
 import CustomHeader from '../../components/CustomHeader';
 import InputField from '../../components/InputField';
 import SubmitButton from '../../components/ui/SubmitButton';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 const EditProfile = () => {
   const router = useRouter();
@@ -20,7 +20,20 @@ const EditProfile = () => {
     hasChanges,
     handleUpdate,
     pickImage,
+    fetchStudentData,
   } = useEditProfile();
+
+  const getDefaultProfileImage = (gender?: string) =>
+    gender?.toLowerCase() === 'female'
+      ? require('../../assets/images/female.png')
+      : require('../../assets/images/male.png');
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchStudentData();
+    }, [fetchStudentData])
+  );
 
   if (loading) return <Text className="text-center text-lg text-neutral-500 mt-10">Loading...</Text>;
   if (!student) return <Text className="text-center text-lg text-neutral-500 mt-10">No data found.</Text>;
@@ -36,9 +49,9 @@ const EditProfile = () => {
                 source={
                   formData.newImage
                     ? { uri: formData.newImage.uri }
-                    : formData.profile_pic_url
+                    : formData.profile_pic_url?.startsWith('http')
                       ? { uri: formData.profile_pic_url }
-                      : require('../../assets/images/male.png')
+                      : getDefaultProfileImage(formData.gender)
                 }
                 className="w-24 h-24 rounded-full bg-neutral-200"
               />
