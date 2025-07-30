@@ -55,7 +55,7 @@ export function useEditProfile() {
       setOriginalData({
         mobile_no: parsed.mobile_no || '',
         email: parsed.email || '',
-        gender: parsed.gender || '',
+        gender: parsed.gender?.toLowerCase() || '',
         profile_pic_url: parsed.profile_pic_url || null,
       });
     } catch (e) {
@@ -73,7 +73,7 @@ export function useEditProfile() {
   const hasChanges = () =>
     formData.mobile_no !== originalData.mobile_no ||
     formData.email !== originalData.email ||
-    formData.gender !== originalData.gender ||
+    formData.gender.toLowerCase() !== originalData.gender ||
     formData.newImage !== null;
 
   const pickImage = async () => {
@@ -133,7 +133,7 @@ export function useEditProfile() {
     const errs: typeof errors = {};
     if (!formData.mobile_no.match(/^\d{10}$/)) errs.mobile_no = 'Must be 10 digits.';
     if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = 'Invalid email.';
-    if (!['Male', 'Female', 'Others'].includes(formData.gender)) errs.gender = 'Invalid gender.';
+    if (!['male', 'female', 'others'].includes(formData.gender.toLowerCase())) errs.gender = 'Invalid gender.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -167,7 +167,7 @@ export function useEditProfile() {
         ...student!,
         mobile_no: formData.mobile_no,
         email: formData.email,
-        gender: formData.gender,
+        gender: formData.gender.toLowerCase(),
         profile_pic_url: profilePicUrl,
       };
 
@@ -188,7 +188,7 @@ export function useEditProfile() {
       setOriginalData({
         mobile_no: payload.mobile_no,
         email: payload.email,
-        gender: payload.gender,
+        gender: payload.gender.toLowerCase(),
         profile_pic_url: payload.profile_pic_url,
       });
       setFormData((f) => ({ ...f, newImage: null }));

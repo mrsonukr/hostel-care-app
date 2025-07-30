@@ -79,7 +79,7 @@ const EditProfile = () => {
         />
         <InputField
           label="Gender"
-          value={formData.gender}
+          value={formData.gender.toLowerCase()}
           onChangeText={(v) => setFormData((p) => ({ ...p, gender: v }))}
           options={['Male', 'Female', 'Others']}
           error={errors.gender}

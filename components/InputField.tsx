@@ -36,11 +36,11 @@ const InputField: React.FC<InputFieldProps> = ({
       {isOptionsField ? (
         <View className="flex-row gap-2">
           {options!.map((option) => {
-            const selected = value === option;
+            const selected = value.toLowerCase() === option.toLowerCase();
             return (
               <TouchableOpacity
                 key={option}
-                onPress={() => onChangeText(option)}
+                onPress={() => onChangeText(option.toLowerCase())}
                 className={`
                   flex-1 items-center py-3 rounded-full
                   ${selected ? 'bg-black' : 'bg-blue-50'}

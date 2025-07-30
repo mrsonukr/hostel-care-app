@@ -56,7 +56,7 @@ export default function SignupScreen() {
         },
         body: JSON.stringify({
           roll_no: formData.rollNo,
-          gender: formData.gender || 'male',
+          gender: (formData.gender || 'male').toLowerCase(),
           mobile_no: formData.mobileNo,
           email: formData.email,
           password: formData.password,
