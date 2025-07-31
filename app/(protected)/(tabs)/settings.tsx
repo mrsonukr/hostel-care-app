@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
+import { useLogout } from '../../../hooks/useLogout';
 
 interface Student {
   roll_no: string;
@@ -31,6 +32,8 @@ interface Student {
 type SettingsRoute =
   | '/(protected)/editprofile'
   | '/(protected)/hostel-details'
+  | '/(protected)/privacy-policy'
+  | '/(protected)/help-support'
   | '/';
 
 const settingsItems: {
@@ -42,8 +45,8 @@ const settingsItems: {
     { icon: 'home', label: 'Hostel Details', route: '/(protected)/hostel-details' },
     { icon: 'lock', label: 'Change Password' },
     { icon: 'bell', label: 'Notifications' },
-    { icon: 'file-text', label: 'Privacy Policy' },
-    { icon: 'help-circle', label: 'Help & Support' },
+    { icon: 'file-text', label: 'Privacy Policy', route: '/(protected)/privacy-policy' },
+    { icon: 'help-circle', label: 'Help & Support', route: '/(protected)/help-support' },
   ];
 
 const Settings: React.FC = () => {
@@ -52,6 +55,7 @@ const Settings: React.FC = () => {
   const [imageLoading, setImageLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+  const { showLogoutConfirmation } = useLogout();
 
   const fetchStudentData = useCallback(async () => {
     try {
@@ -99,18 +103,7 @@ const Settings: React.FC = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Logout',
-        style: 'destructive',
-        onPress: async () => {
-          await AsyncStorage.removeItem('student');
-          router.dismissAll();
-          router.replace('/');
-        },
-      },
-    ]);
+    showLogoutConfirmation();
   };
 
   const getDefaultProfileImage = (gender?: string) =>

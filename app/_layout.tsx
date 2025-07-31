@@ -6,6 +6,7 @@ import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
+import { AuthProvider } from '../contexts/AuthContext';
 import "../global.css"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
@@ -25,7 +26,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     checkAuthStatus();
-    const interval = setInterval(checkAuthStatus, 1000);
+    // Check auth status less frequently to avoid performance issues
+    const interval = setInterval(checkAuthStatus, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,13 +60,15 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: false, // Disable swipe back gesture globally
-        }}
-      />
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            gestureEnabled: false, // Disable swipe back gesture globally
+          }}
+        />
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }

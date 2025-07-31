@@ -3,29 +3,28 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Text, View, ActivityIndicator } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { useAuth } from '../contexts/AuthContext';
 export default function WelcomeScreen() {
     const router = useRouter();
+    const { isAuthenticated } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        checkAuthStatus();
-    }, []);
-
-    const checkAuthStatus = async () => {
-        try {
-            const studentData = await AsyncStorage.getItem('student');
-            if (studentData) {
+        if (isAuthenticated !== null) {
+            if (isAuthenticated) {
                 // User is logged in, redirect to protected area
-                router.replace('/(protected)/(tabs)');
+                // Use a small delay to ensure navigation is ready
+                setTimeout(() => {
+                    router.replace('/(protected)/(tabs)');
+                }, 100);
             } else {
                 // User is not logged in, stay on welcome screen
                 setIsLoading(false);
             }
-        } catch (error) {
-            console.error('Auth check error:', error);
-            setIsLoading(false);
         }
-    };
+    }, [isAuthenticated, router]);
+
+
 
     if (isLoading) {
         return (

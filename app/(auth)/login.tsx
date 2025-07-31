@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Alert,
   Keyboard,
@@ -18,6 +19,7 @@ import { Button, Provider as PaperProvider } from 'react-native-paper';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setIsAuthenticated } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -49,7 +51,11 @@ export default function LoginScreen() {
 
       if (response.status === 200 && data.success) {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
-        router.replace('/(protected)/(tabs)');
+        setIsAuthenticated(true);
+        // Use a small delay to ensure navigation is ready
+        setTimeout(() => {
+          router.replace('/(protected)/(tabs)');
+        }, 100);
       } else {
         Alert.alert('Error', data.error || 'Invalid username or password.');
       }
