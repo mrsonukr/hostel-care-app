@@ -121,7 +121,7 @@ export default function HomeTab() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-[#f3f2f7]">
       <CustomHeader title="Home" />
       <ScrollView 
         className="flex-1 px-4 py-4"
