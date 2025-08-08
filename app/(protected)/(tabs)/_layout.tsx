@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { Feather, AntDesign } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
@@ -39,6 +39,14 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
           tabBarLabel: ({ focused }) => renderLabel('Home', focused),
+        }}
+      />
+      <Tabs.Screen
+        name="ComplaintScreen"
+        options={{
+          title: 'Complaint',
+          tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
+          tabBarLabel: ({ focused }) => renderLabel('Complaint', focused),
         }}
       />
       <Tabs.Screen

@@ -1,5 +1,5 @@
 CREATE TABLE complaints (
-  id UUID PRIMARY KEY,
+  id  PRIMARY KEY,
 
   student_roll VARCHAR NOT NULL,
   student_name VARCHAR NOT NULL, -- ✅ added student name
@@ -19,7 +19,7 @@ CREATE TABLE complaints (
   resolved_at TIMESTAMP,
   rejected_at TIMESTAMP,
 
-  warden_id UUID NOT NULL, -- ✅ last status updater
+  warden_id  NOT NULL, -- ✅ last status updater
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
                       ON UPDATE CURRENT_TIMESTAMP
 );
