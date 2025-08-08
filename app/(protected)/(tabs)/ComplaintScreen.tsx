@@ -301,15 +301,6 @@ export default function ComplaintTab() {
         
         {complaintStatus.map((complaint, index) => {
           const statusIcon = getStatusIcon(complaint.status);
-          const IconComponent = statusIcon.iconSet === 'Feather' ? Feather : 
-                              statusIcon.iconSet === 'MaterialCommunityIcons' ? MaterialCommunityIcons :
-                              statusIcon.iconSet === 'Octicons' ? Octicons :
-                              statusIcon.iconSet === 'SimpleLineIcons' ? SimpleLineIcons :
-                              statusIcon.iconSet === 'FontAwesome6' ? FontAwesome6 :
-                              statusIcon.iconSet === 'Entypo' ? Entypo :
-                              statusIcon.iconSet === 'FontAwesome5' ? FontAwesome5 :
-                              statusIcon.iconSet === 'MaterialIcons' ? MaterialIcons :
-                              statusIcon.iconSet === 'Ionicons' ? Ionicons : Feather;
 
           return (
             <View key={complaint.id} className="bg-white rounded-xl p-4 mb-4 shadow-sm">
@@ -323,7 +314,7 @@ export default function ComplaintTab() {
                   </Text>
                 </View>
                 <View className="flex-row items-center">
-                  <IconComponent 
+                  <Feather 
                     name={statusIcon.icon as any} 
                     size={20} 
                     color={complaint.status === 'Completed' ? '#16a34a' : 
