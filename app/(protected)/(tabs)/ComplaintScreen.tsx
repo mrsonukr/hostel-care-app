@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   Text,
   TouchableOpacity,
   View,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Feather, MaterialCommunityIcons, Octicons, SimpleLineIcons, FontAwesome6, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../../../components/CustomHeader';
 import ComplaintCategoryItem from '../../../components/ComplaintCategoryItem';
 import ComplaintOptionItem from '../../../components/ComplaintOptionItem';
 import PhotoUploadSection from '../../../components/PhotoUploadSection';
 import DescriptionInput from '../../../components/DescriptionInput';
 import * as ImagePicker from 'expo-image-picker';
+import { complaintsApi, Complaint } from '../../../utils/complaintsApi';
 
 const complaintCategories = [
   {
@@ -72,43 +75,54 @@ export default function ComplaintTab() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
+  const [complaintStatus, setComplaintStatus] = useState<Complaint[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [studentData, setStudentData] = useState<any>(null);
 
-  // Mock data for complaint status
-  const complaintStatus = [
-    {
-      id: '1',
-      category: 'Electricity Issues',
-      issue: 'Fan (not working/faulty)',
-      status: 'In Progress',
-      date: '2024-01-15',
-      description: 'Fan in room 101 is not working properly'
-    },
-    {
-      id: '2',
-      category: 'Plumbing Concerns',
-      issue: 'Water leakage',
-      status: 'Completed',
-      date: '2024-01-10',
-      description: 'Water leakage from bathroom tap'
-    },
-    {
-      id: '3',
-      category: 'Cleaning Services',
-      issue: 'Room and washroom cleaning',
-      status: 'Pending',
-      date: '2024-01-20',
-      description: 'Request for room cleaning'
-    }
-  ];
+  // Load student data and fetch complaints
+  useEffect(() => {
+    const loadStudentData = async () => {
+      try {
+        const studentJson = await AsyncStorage.getItem('student');
+        console.log('Raw student JSON:', studentJson); // Debug log
+        if (studentJson) {
+          const student = JSON.parse(studentJson);
+          console.log('Parsed student data:', student); // Debug log
+          console.log('Student data keys:', Object.keys(student)); // Debug log
+          setStudentData(student);
+          
+          // Fetch complaints for the student
+          setLoading(true);
+          const studentRoll = student.roll_no;
+          if (studentRoll) {
+            const complaints = await complaintsApi.getComplaintsByStudent(studentRoll);
+            setComplaintStatus(complaints);
+          } else {
+            console.error('Student roll number not found in student data');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading student data:', error);
+        Alert.alert('Error', 'Failed to load student data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStudentData();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed':
+      case 'resolved':
         return 'text-green-600';
-      case 'In Progress':
+      case 'in_progress':
         return 'text-blue-600';
-      case 'Pending':
+      case 'pending':
         return 'text-orange-600';
+      case 'rejected':
+        return 'text-red-600';
       default:
         return 'text-gray-600';
     }
@@ -116,12 +130,14 @@ export default function ComplaintTab() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Completed':
+      case 'resolved':
         return { icon: 'check-circle', iconSet: 'Feather' };
-      case 'In Progress':
+      case 'in_progress':
         return { icon: 'clock', iconSet: 'Feather' };
-      case 'Pending':
+      case 'pending':
         return { icon: 'loader', iconSet: 'Feather' };
+      case 'rejected':
+        return { icon: 'x-circle', iconSet: 'Feather' };
       default:
         return { icon: 'help-circle', iconSet: 'Feather' };
     }
@@ -160,7 +176,12 @@ export default function ComplaintTab() {
     setImages(updated);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!studentData) {
+      Alert.alert('Error', 'Student data not found. Please login again.');
+      return;
+    }
+
     const requiresDescription = [
       'Other electricity-related issues',
       'Other plumbing issues',
@@ -173,15 +194,86 @@ export default function ComplaintTab() {
       return;
     }
 
-    Alert.alert(
-      'Complaint Submitted',
-      `Category: ${selectedCategory}\nIssue: ${selectedOption}\nDescription: ${description.trim() || 'N/A'}\nPhotos: ${images.length}`
-    );
+    setSubmitting(true);
 
-    setSelectedCategory(null);
-    setSelectedOption(null);
-    setDescription('');
-    setImages([]);
+    try {
+      console.log('Student data in submit:', studentData); // Debug log
+      console.log('Student data keys in submit:', Object.keys(studentData || {})); // Debug log
+      
+      // Use the same property names as settings screen
+      const studentRoll = studentData.roll_no;
+      const studentName = studentData.full_name || 'Unknown';
+      const roomNumber = studentData.room_no || 'N/A';
+      const hostelName = studentData.hostel_no || 'N/A';
+
+      console.log('Extracted values:', { studentRoll, studentName, roomNumber, hostelName }); // Debug log
+
+      if (!studentRoll) {
+        console.log('Available student data properties:', Object.keys(studentData || {})); // Debug log
+        Alert.alert('Error', 'Student roll number not found. Please login again.');
+        return;
+      }
+
+      const complaintData = {
+        student_roll: studentRoll,
+        student_name: studentName,
+        category: selectedCategory!,
+        subcategory: selectedOption!,
+        description: description.trim() || undefined,
+        photos: images.length > 0 ? images : undefined,
+        room_number: roomNumber,
+        hostel_name: hostelName,
+        status: 'pending'
+      };
+
+      console.log('Complaint data being sent:', complaintData); // Debug log
+
+      const response = await complaintsApi.createComplaint(complaintData);
+
+      Alert.alert(
+        'Success',
+        'Complaint submitted successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setSelectedCategory(null);
+              setSelectedOption(null);
+              setDescription('');
+              setImages([]);
+              
+              // Refresh complaints list
+              loadComplaints();
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Error submitting complaint:', error);
+      Alert.alert('Error', 'Failed to submit complaint. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const loadComplaints = async () => {
+    if (!studentData) return;
+    
+    try {
+      setLoading(true);
+      const studentRoll = studentData.roll_no;
+      if (!studentRoll) {
+        console.error('Student roll number not found');
+        return;
+      }
+      const complaints = await complaintsApi.getComplaintsByStudent(studentRoll);
+      setComplaintStatus(complaints);
+    } catch (error) {
+      console.error('Error loading complaints:', error);
+      Alert.alert('Error', 'Failed to load complaints');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -260,9 +352,17 @@ export default function ComplaintTab() {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={handleSubmit}
-              className="mt-6 bg-black rounded-xl py-4 items-center"
+              disabled={submitting}
+              className={`mt-6 rounded-xl py-4 items-center ${submitting ? 'bg-gray-400' : 'bg-black'}`}
             >
-              <Text className="text-white text-base font-semibold font-okra">Submit</Text>
+              {submitting ? (
+                <View className="flex-row items-center">
+                  <ActivityIndicator color="white" size="small" />
+                  <Text className="text-white text-base font-semibold font-okra ml-2">Submitting...</Text>
+                </View>
+              ) : (
+                <Text className="text-white text-base font-semibold font-okra">Submit</Text>
+              )}
             </TouchableOpacity>
           </>
         )}
@@ -292,51 +392,63 @@ export default function ComplaintTab() {
     );
   };
 
-  const renderStatus = () => {
+    const renderStatus = () => {
     return (
       <ScrollView className="flex-1 bg-[#f3f2f7]" contentContainerStyle={{ padding: 20 }}>
         <Text className="text-xl font-bold text-black mb-4 font-okra">
           Complaint Status
         </Text>
         
-        {complaintStatus.map((complaint, index) => {
-          const statusIcon = getStatusIcon(complaint.status);
-
-          return (
-            <View key={complaint.id} className="bg-white rounded-xl p-4 mb-4 shadow-sm">
-              <View className="flex-row justify-between items-start mb-3">
-                <View className="flex-1">
-                  <Text className="text-lg font-semibold text-black font-okra">
-                    {complaint.category}
-                  </Text>
-                  <Text className="text-base text-gray-600 font-okra mt-1">
-                    {complaint.issue}
-                  </Text>
+        {loading ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="text-gray-600 mt-4 font-okra">Loading complaints...</Text>
+          </View>
+        ) : complaintStatus.length === 0 ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <Text className="text-gray-600 text-center font-okra">No complaints found</Text>
+          </View>
+        ) : (
+          complaintStatus.map((complaint, index) => {
+            const statusIcon = getStatusIcon(complaint.status);
+            
+            return (
+              <View key={complaint.id} className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+                <View className="flex-row justify-between items-start mb-3">
+                  <View className="flex-1">
+                    <Text className="text-lg font-semibold text-black font-okra">
+                      {complaint.category}
+                    </Text>
+                    <Text className="text-base text-gray-600 font-okra mt-1">
+                      {complaint.subcategory || 'No subcategory'}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <Feather 
+                      name={statusIcon.icon as any} 
+                      size={20} 
+                      color={complaint.status === 'resolved' ? '#16a34a' : 
+                             complaint.status === 'in_progress' ? '#2563eb' : 
+                             complaint.status === 'pending' ? '#ea580c' : 
+                             complaint.status === 'rejected' ? '#dc2626' : '#6b7280'} 
+                    />
+                    <Text className={`ml-2 font-semibold font-okra ${getStatusColor(complaint.status)}`}>
+                      {complaint.status.replace('_', ' ').toUpperCase()}
+                    </Text>
+                  </View>
                 </View>
-                <View className="flex-row items-center">
-                  <Feather 
-                    name={statusIcon.icon as any} 
-                    size={20} 
-                    color={complaint.status === 'Completed' ? '#16a34a' : 
-                           complaint.status === 'In Progress' ? '#2563eb' : 
-                           complaint.status === 'Pending' ? '#ea580c' : '#6b7280'} 
-                  />
-                  <Text className={`ml-2 font-semibold font-okra ${getStatusColor(complaint.status)}`}>
-                    {complaint.status}
-                  </Text>
-                </View>
+                
+                <Text className="text-sm text-gray-500 font-okra mb-2">
+                  Submitted on: {new Date(complaint.created_at).toLocaleDateString()}
+                </Text>
+                
+                <Text className="text-sm text-gray-700 font-okra">
+                  {complaint.description || 'No description provided'}
+                </Text>
               </View>
-              
-              <Text className="text-sm text-gray-500 font-okra mb-2">
-                Submitted on: {complaint.date}
-              </Text>
-              
-              <Text className="text-sm text-gray-700 font-okra">
-                {complaint.description}
-              </Text>
-            </View>
-          );
-        })}
+            );
+          })
+        )}
       </ScrollView>
     );
   };
