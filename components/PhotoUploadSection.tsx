@@ -11,7 +11,7 @@ interface PhotoUploadSectionProps {
 export default function PhotoUploadSection({ 
   images, 
   onPickImage, 
-  onRemoveImage 
+  onRemoveImage
 }: PhotoUploadSectionProps) {
   return (
     <View className="mt-6">

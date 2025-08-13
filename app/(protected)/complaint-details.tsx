@@ -1,0 +1,323 @@
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, Image, ActivityIndicator, RefreshControl } from 'react-native';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { Feather, MaterialCommunityIcons, FontAwesome6, Octicons, SimpleLineIcons, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import CustomHeader from '../../components/CustomHeader';
+import { complaintsApi, Complaint } from '../../utils/complaintsApi';
+import { getRelativeTime } from '../../utils/dateUtils';
+
+export default function ComplaintDetails() {
+  const { complaint: complaintParam } = useLocalSearchParams();
+  const router = useRouter();
+  const [complaint, setComplaint] = useState<Complaint | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'resolved':
+        return 'text-green-600';
+      case 'in_progress':
+        return 'text-blue-600';
+      case 'pending':
+        return 'text-orange-600';
+      case 'rejected':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const getIconForCategory = (category: string) => {
+    const iconMap: { [key: string]: { icon: string; iconSet: string } } = {
+      'Electricity Issues': { icon: 'zap', iconSet: 'Feather' },
+      'Plumbing Concerns': { icon: 'droplet', iconSet: 'Feather' },
+      'Cleaning Services': { icon: 'broom', iconSet: 'MaterialCommunityIcons' },
+      'Room & Facilities Requests': { icon: 'bed-double-outline', iconSet: 'MaterialCommunityIcons' },
+    };
+    return iconMap[category] || { icon: 'help-circle', iconSet: 'Feather' };
+  };
+
+  const getIconForOption = (option: string) => {
+    const iconMap: { [key: string]: { icon: string; iconSet: string } } = {
+      'Fan (not working/faulty)': { icon: 'ceiling-fan', iconSet: 'MaterialCommunityIcons' },
+      'Tubelight problems': { icon: 'lightbulb', iconSet: 'FontAwesome6' },
+      'Plug or switch defects': { icon: 'plug', iconSet: 'Octicons' },
+      'Short circuit/burning smell': { icon: 'fire', iconSet: 'SimpleLineIcons' },
+      'Power outage in room': { icon: 'power', iconSet: 'Feather' },
+      'Other electricity-related issues': { icon: 'more-horizontal', iconSet: 'Feather' },
+      'Water leakage': { icon: 'water', iconSet: 'Entypo' },
+      'Non-functional flush': { icon: 'wheelchair', iconSet: 'FontAwesome5' },
+      'Lack of water supply': { icon: 'faucet-drip', iconSet: 'FontAwesome6' },
+      'Other plumbing issues': { icon: 'more-horizontal', iconSet: 'Feather' },
+      'Room and washroom cleaning': { icon: 'broom', iconSet: 'FontAwesome6' },
+      'Other cleaning needs': { icon: 'more-horizontal', iconSet: 'Feather' },
+      'Request for a table': { icon: 'table-restaurant', iconSet: 'MaterialIcons' },
+      'Request for a chair': { icon: 'chair', iconSet: 'FontAwesome5' },
+      'Request for a bed': { icon: 'bed-outline', iconSet: 'Ionicons' },
+      'Request for an almirah': { icon: 'door-sliding', iconSet: 'MaterialCommunityIcons' },
+      'Internet not working': { icon: 'wifi-off', iconSet: 'Feather' },
+      'Other room & facilities issues': { icon: 'more-horizontal', iconSet: 'Feather' },
+    };
+    return iconMap[option] || { icon: 'more-horizontal', iconSet: 'Feather' };
+  };
+
+  const loadComplaintData = () => {
+    if (!complaintParam) return;
+    
+    try {
+      setLoading(true);
+      const complaintData = JSON.parse(complaintParam as string);
+      setComplaint(complaintData);
+    } catch (error) {
+      console.error('Error parsing complaint data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // For refresh, we could optionally fetch fresh data from API
+    // But for now, just reload the passed data
+    loadComplaintData();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    loadComplaintData();
+  }, [complaintParam]);
+
+  if (loading) {
+    return (
+      <>
+        <Stack.Screen 
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
+        <View className="flex-1 bg-white">
+          <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#000" />
+            <Text className="text-gray-600 mt-4 font-okra">Loading complaint details...</Text>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  if (!complaint) {
+    return (
+      <>
+        <Stack.Screen 
+          options={{
+            headerShown: false,
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
+        <View className="flex-1 bg-white">
+          <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-gray-600 font-okra">Complaint not found</Text>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  const categoryIcon = getIconForCategory(complaint.category);
+  const optionIcon = getIconForOption(complaint.subcategory || '');
+
+  return (
+    <>
+      <Stack.Screen 
+        options={{
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
+        }}
+      />
+      <View className="flex-1 bg-white">
+        <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
+      
+      <ScrollView 
+        className="flex-1 bg-[#f3f2f7]" 
+        contentContainerStyle={{ padding: 20 }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor="#000"
+            colors={["#000"]}
+          />
+        }
+      >
+                 {/* Status Progress Card */}
+         <View className="bg-white rounded-xl p-4 mb-4">
+           <Text className="text-lg font-semibold text-black font-okra mb-4">Complaint Status</Text>
+           
+           <View className="flex-row items-center justify-between">
+             {/* Submitted Step */}
+             <View className="items-center">
+               <View className="w-10 h-10 rounded-full bg-green-500 justify-center items-center mb-2">
+                 <Feather name="check" size={18} color="white" />
+               </View>
+               <Text className="text-black font-semibold font-okra text-xs text-center">Submitted</Text>
+               <Text className="text-gray-500 font-okra text-xs text-center">{getRelativeTime(complaint.created_at)}</Text>
+             </View>
+
+             {/* Connecting Line 1 */}
+             <View className={`flex-1 h-0.5 mx-2 ${
+               complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
+                 ? 'bg-blue-500' : 'bg-gray-300'
+             }`} style={{ marginTop: -30 }} />
+
+             {/* In Progress Step */}
+             <View className="items-center">
+               <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${
+                 complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
+                   ? 'bg-blue-500' : 'bg-gray-300'
+               }`}>
+                 {complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' ? (
+                   <Feather name="check" size={18} color="white" />
+                 ) : (
+                   <Feather name="clock" size={18} color="white" />
+                 )}
+               </View>
+               <Text className={`font-semibold font-okra text-xs text-center ${
+                 complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
+                   ? 'text-black' : 'text-gray-400'
+               }`}>
+                 In Progress
+               </Text>
+               <Text className="text-gray-500 font-okra text-xs text-center">
+                 {complaint.in_progress_at ? getRelativeTime(complaint.in_progress_at) : '--'}
+               </Text>
+             </View>
+
+             {/* Connecting Line 2 */}
+             <View className={`flex-1 h-0.5 mx-2 ${
+               complaint.status === 'resolved' || complaint.status === 'rejected' ? 'bg-green-500' : 'bg-gray-300'
+             }`} style={{ marginTop: -30 }} />
+
+             {/* Resolved Step */}
+             <View className="items-center">
+               <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${
+                 complaint.status === 'resolved' ? 'bg-green-500' : 
+                 complaint.status === 'rejected' ? 'bg-red-500' : 'bg-gray-300'
+               }`}>
+                 {complaint.status === 'resolved' ? (
+                   <Feather name="check" size={18} color="white" />
+                 ) : complaint.status === 'rejected' ? (
+                   <Feather name="x" size={18} color="white" />
+                 ) : (
+                   <Feather name="clock" size={18} color="white" />
+                 )}
+               </View>
+               <Text className={`font-semibold font-okra text-xs text-center ${
+                 complaint.status === 'resolved' || complaint.status === 'rejected' ? 'text-black' : 'text-gray-400'
+               }`}>
+                 {complaint.status === 'rejected' ? 'Rejected' : 'Resolved'}
+               </Text>
+               <Text className="text-gray-500 font-okra text-xs text-center">
+                 {complaint.resolved_at ? getRelativeTime(complaint.resolved_at) : 
+                  complaint.rejected_at ? getRelativeTime(complaint.rejected_at) : '--'}
+               </Text>
+             </View>
+           </View>
+         </View>
+
+         {/* Complaint Info Card */}
+         <View className="bg-white rounded-xl p-4 mb-4">
+           <View className="flex-row items-center mb-3">
+             <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
+               {categoryIcon.iconSet === 'Feather' && (
+                 <Feather name={categoryIcon.icon as any} size={20} color="#000" />
+               )}
+               {categoryIcon.iconSet === 'MaterialCommunityIcons' && (
+                 <MaterialCommunityIcons name={categoryIcon.icon as any} size={20} color="#000" />
+               )}
+             </View>
+             <View className="flex-1">
+               <Text className="text-lg font-semibold text-black font-okra">
+                 {complaint.category}
+               </Text>
+               <Text className="text-base text-gray-600 font-okra">
+                 {complaint.subcategory || 'No subcategory'}
+               </Text>
+             </View>
+           </View>
+         </View>
+
+        {/* Details Card */}
+        <View className="bg-white rounded-xl p-4 mb-4">
+          <Text className="text-lg font-semibold text-black font-okra mb-3">Complaint From</Text>
+          
+          <View className="space-y-3 gap-2">
+            <View className="flex-row items-center">
+              <Feather name="user" size={16} color="#666" />
+              <Text className="text-gray-600 font-okra ml-2">Student: {complaint.student_name}</Text>
+            </View>
+            
+            <View className="flex-row items-center">
+              <Feather name="hash" size={16} color="#666" />
+              <Text className="text-gray-600 font-okra ml-2">Roll No: {complaint.student_roll}</Text>
+            </View>
+            
+            <View className="flex-row items-center">
+              <Feather name="home" size={16} color="#666" />
+              <Text className="text-gray-600 font-okra ml-2">Hostel: {complaint.hostel_name}</Text>
+            </View>
+            
+            <View className="flex-row items-center">
+              <Feather name="map-pin" size={16} color="#666" />
+              <Text className="text-gray-600 font-okra ml-2">Room: {complaint.room_number}</Text>
+            </View>
+          </View>
+        </View>
+
+                 {/* Description Card */}
+         <View className="bg-white rounded-xl p-4 mb-4">
+           <Text className="text-lg font-semibold text-black font-okra mb-3">Description</Text>
+           {complaint.description ? (
+             <Text className="text-gray-700 font-okra leading-6">
+               {complaint.description}
+             </Text>
+           ) : (
+             <Text className="text-gray-500 font-okra italic">
+               No description provided
+             </Text>
+           )}
+         </View>
+
+                 {/* Photos Card */}
+         <View className="bg-white rounded-xl p-4 mb-4">
+           <Text className="text-lg font-semibold text-black font-okra mb-3">Photos</Text>
+           {complaint.photos && complaint.photos.length > 0 ? (
+             <View className="flex-row flex-wrap gap-3">
+               {complaint.photos.map((photo, index) => (
+                 <Image
+                   key={index}
+                   source={{ uri: photo }}
+                   className="w-24 h-24 rounded-xl"
+                   resizeMode="cover"
+                 />
+               ))}
+             </View>
+           ) : (
+             <Text className="text-gray-500 font-okra italic">
+               No photos uploaded
+             </Text>
+           )}
+         </View>
+
+        
+       </ScrollView>
+     </View>
+     </>
+   );
+ }

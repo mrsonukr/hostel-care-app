@@ -6,6 +6,7 @@ import {
   View,
   Alert,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Feather, MaterialCommunityIcons, Octicons, SimpleLineIcons, FontAwesome6, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,8 +15,10 @@ import ComplaintCategoryItem from '../../../components/ComplaintCategoryItem';
 import ComplaintOptionItem from '../../../components/ComplaintOptionItem';
 import PhotoUploadSection from '../../../components/PhotoUploadSection';
 import DescriptionInput from '../../../components/DescriptionInput';
-import * as ImagePicker from 'expo-image-picker';
 import { complaintsApi, Complaint } from '../../../utils/complaintsApi';
+import { pickComplaintImage, uploadComplaintImages } from '../../../utils/imageUpload';
+import { getRelativeTime } from '../../../utils/dateUtils';
+import { useRouter } from 'expo-router';
 
 const complaintCategories = [
   {
@@ -70,6 +73,7 @@ const complaintOptions = {
 };
 
 export default function ComplaintTab() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'new' | 'status'>('new');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -78,18 +82,18 @@ export default function ComplaintTab() {
   const [complaintStatus, setComplaintStatus] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [studentData, setStudentData] = useState<any>(null);
+  const [selectedImages, setSelectedImages] = useState<any[]>([]);
+  const [lastActiveTab, setLastActiveTab] = useState<'new' | 'status'>('new');
 
   // Load student data and fetch complaints
   useEffect(() => {
     const loadStudentData = async () => {
       try {
         const studentJson = await AsyncStorage.getItem('student');
-        console.log('Raw student JSON:', studentJson); // Debug log
         if (studentJson) {
           const student = JSON.parse(studentJson);
-          console.log('Parsed student data:', student); // Debug log
-          console.log('Student data keys:', Object.keys(student)); // Debug log
           setStudentData(student);
           
           // Fetch complaints for the student
@@ -148,32 +152,37 @@ export default function ComplaintTab() {
     setSelectedOption(null);
     setDescription('');
     setImages([]);
+    setSelectedImages([]);
   };
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(prev => (prev === option ? null : option));
     setDescription('');
     setImages([]);
+    setSelectedImages([]);
   };
 
   const pickImage = async () => {
-    if (images.length >= 4) return;
+    if (selectedImages.length >= 4) return;
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.7,
-      allowsMultipleSelection: false,
-    });
-
-    if (!result.canceled && result.assets?.length > 0) {
-      setImages(prev => [...prev, result.assets[0].uri].slice(0, 4));
+    try {
+      const selectedImage = await pickComplaintImage();
+      if (selectedImage) {
+        setSelectedImages(prev => [...prev, selectedImage].slice(0, 4));
+        setImages(prev => [...prev, selectedImage.uri].slice(0, 4));
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to select image');
     }
   };
 
   const removeImage = (index: number) => {
-    const updated = [...images];
-    updated.splice(index, 1);
-    setImages(updated);
+    const updatedImages = [...images];
+    const updatedSelectedImages = [...selectedImages];
+    updatedImages.splice(index, 1);
+    updatedSelectedImages.splice(index, 1);
+    setImages(updatedImages);
+    setSelectedImages(updatedSelectedImages);
   };
 
   const handleSubmit = async () => {
@@ -214,13 +223,24 @@ export default function ComplaintTab() {
         return;
       }
 
+      // Upload images if any
+      let uploadedImageUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        try {
+          uploadedImageUrls = await uploadComplaintImages(selectedImages);
+        } catch (error: any) {
+          Alert.alert('Error', 'Failed to upload images. Please try again.');
+          return;
+        }
+      }
+
       const complaintData = {
         student_roll: studentRoll,
         student_name: studentName,
         category: selectedCategory!,
         subcategory: selectedOption!,
         description: description.trim() || undefined,
-        photos: images.length > 0 ? images : undefined,
+        photos: uploadedImageUrls.length > 0 ? uploadedImageUrls : undefined,
         room_number: roomNumber,
         hostel_name: hostelName,
         status: 'pending'
@@ -241,6 +261,10 @@ export default function ComplaintTab() {
               setSelectedOption(null);
               setDescription('');
               setImages([]);
+              setSelectedImages([]);
+              
+              // Switch to status tab
+              setActiveTab('status');
               
               // Refresh complaints list
               loadComplaints();
@@ -276,6 +300,12 @@ export default function ComplaintTab() {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadComplaints();
+    setRefreshing(false);
+  };
+
   const handleBack = () => {
     if (selectedOption) {
       setSelectedOption(null);
@@ -283,6 +313,22 @@ export default function ComplaintTab() {
       setImages([]);
     } else if (selectedCategory) {
       setSelectedCategory(null);
+    }
+  };
+
+  const handleTabSwitch = (tab: 'new' | 'status') => {
+    if (activeTab === tab) {
+      // If clicking the same tab, go back to main complaint page
+      setActiveTab('new');
+      setSelectedCategory(null);
+      setSelectedOption(null);
+      setDescription('');
+      setImages([]);
+      setSelectedImages([]);
+    } else {
+      // If switching to different tab, remember the last state
+      setLastActiveTab(activeTab);
+      setActiveTab(tab);
     }
   };
 
@@ -308,6 +354,16 @@ export default function ComplaintTab() {
       'Other room & facilities issues': { icon: 'more-horizontal', iconSet: 'Feather' },
     };
     return iconMap[option] || { icon: 'more-horizontal', iconSet: 'Feather' };
+  };
+
+  const getIconForCategory = (category: string) => {
+    const iconMap: { [key: string]: { icon: string; iconSet: string } } = {
+      'Electricity Issues': { icon: 'zap', iconSet: 'Feather' },
+      'Plumbing Concerns': { icon: 'droplet', iconSet: 'Feather' },
+      'Cleaning Services': { icon: 'broom', iconSet: 'MaterialCommunityIcons' },
+      'Room & Facilities Requests': { icon: 'bed-double-outline', iconSet: 'MaterialCommunityIcons' },
+    };
+    return iconMap[category] || { icon: 'help-circle', iconSet: 'Feather' };
   };
 
   const renderOptions = () => {
@@ -356,10 +412,7 @@ export default function ComplaintTab() {
               className={`mt-6 rounded-xl py-4 items-center ${submitting ? 'bg-gray-400' : 'bg-black'}`}
             >
               {submitting ? (
-                <View className="flex-row items-center">
-                  <ActivityIndicator color="white" size="small" />
-                  <Text className="text-white text-base font-semibold font-okra ml-2">Submitting...</Text>
-                </View>
+                <ActivityIndicator color="white" size="small" />
               ) : (
                 <Text className="text-white text-base font-semibold font-okra">Submit</Text>
               )}
@@ -394,11 +447,19 @@ export default function ComplaintTab() {
 
     const renderStatus = () => {
     return (
-      <ScrollView className="flex-1 bg-[#f3f2f7]" contentContainerStyle={{ padding: 20 }}>
-        <Text className="text-xl font-bold text-black mb-4 font-okra">
-          Complaint Status
-        </Text>
-        
+      <ScrollView 
+        className="flex-1 bg-[#f3f2f7]" 
+        contentContainerStyle={{ padding: 20 }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor="#000"
+            colors={["#000"]}
+          />
+        }
+      >
+
         {loading ? (
           <View className="flex-1 justify-center items-center py-20">
             <ActivityIndicator size="large" color="#000" />
@@ -411,41 +472,68 @@ export default function ComplaintTab() {
         ) : (
           complaintStatus.map((complaint, index) => {
             const statusIcon = getStatusIcon(complaint.status);
+            const categoryIcon = getIconForCategory(complaint.category);
             
             return (
-              <View key={complaint.id} className="bg-white rounded-xl p-4 mb-4 shadow-sm">
+              <TouchableOpacity 
+                key={complaint.id} 
+                className="bg-white rounded-xl p-4 mb-4"
+                activeOpacity={0.7}
+                onPress={() => router.push({
+                  pathname: '/(protected)/complaint-details',
+                  params: { complaint: JSON.stringify(complaint) }
+                })}
+              >
                 <View className="flex-row justify-between items-start mb-3">
-                  <View className="flex-1">
-                    <Text className="text-lg font-semibold text-black font-okra">
-                      {complaint.category}
-                    </Text>
-                    <Text className="text-base text-gray-600 font-okra mt-1">
-                      {complaint.subcategory || 'No subcategory'}
-                    </Text>
+                  <View className="flex-1 flex-row items-center">
+                    <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
+                      {categoryIcon.iconSet === 'Feather' && (
+                        <Feather name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'MaterialCommunityIcons' && (
+                        <MaterialCommunityIcons name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'FontAwesome6' && (
+                        <FontAwesome6 name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'Octicons' && (
+                        <Octicons name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'SimpleLineIcons' && (
+                        <SimpleLineIcons name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'Entypo' && (
+                        <Entypo name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'FontAwesome5' && (
+                        <FontAwesome5 name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'MaterialIcons' && (
+                        <MaterialIcons name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                      {categoryIcon.iconSet === 'Ionicons' && (
+                        <Ionicons name={categoryIcon.icon as any} size={20} color="#000" />
+                      )}
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-lg font-semibold text-black font-okra">
+                        {complaint.category}
+                      </Text>
+                      <Text className="text-base text-gray-600 font-okra mt-1">
+                        {complaint.subcategory || 'No subcategory'}
+                      </Text>
+                    </View>
                   </View>
-                  <View className="flex-row items-center">
-                    <Feather 
-                      name={statusIcon.icon as any} 
-                      size={20} 
-                      color={complaint.status === 'resolved' ? '#16a34a' : 
-                             complaint.status === 'in_progress' ? '#2563eb' : 
-                             complaint.status === 'pending' ? '#ea580c' : 
-                             complaint.status === 'rejected' ? '#dc2626' : '#6b7280'} 
-                    />
-                    <Text className={`ml-2 font-semibold font-okra ${getStatusColor(complaint.status)}`}>
+                  <View className="items-end">
+                    <Text className={`font-semibold font-okra ${getStatusColor(complaint.status)}`}>
                       {complaint.status.replace('_', ' ').toUpperCase()}
+                    </Text>
+                    <Text className="text-sm text-gray-500 font-okra mt-1">
+                      {getRelativeTime(complaint.created_at)}
                     </Text>
                   </View>
                 </View>
-                
-                <Text className="text-sm text-gray-500 font-okra mb-2">
-                  Submitted on: {new Date(complaint.created_at).toLocaleDateString()}
-                </Text>
-                
-                <Text className="text-sm text-gray-700 font-okra">
-                  {complaint.description || 'No description provided'}
-                </Text>
-              </View>
+              </TouchableOpacity>
             );
           })
         )}
@@ -466,7 +554,7 @@ export default function ComplaintTab() {
         <View className="flex-row">
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setActiveTab('new')}
+            onPress={() => handleTabSwitch('new')}
             className={`flex-1 py-4 items-center ${activeTab === 'new' ? 'border-b-2 border-black' : ''}`}
           >
             <Text className={`font-semibold font-okra ${activeTab === 'new' ? 'text-black' : 'text-gray-500'}`}>
@@ -476,7 +564,7 @@ export default function ComplaintTab() {
           
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => setActiveTab('status')}
+            onPress={() => handleTabSwitch('status')}
             className={`flex-1 py-4 items-center ${activeTab === 'status' ? 'border-b-2 border-black' : ''}`}
           >
             <Text className={`font-semibold font-okra ${activeTab === 'status' ? 'text-black' : 'text-gray-500'}`}>
