@@ -60,7 +60,7 @@ export const uploadImage = async (image: UploadedImage): Promise<string> => {
     name: `image_${Date.now()}.webp`,
   } as any);
 
-  const response = await fetch('https://hostel.mssonukr.workers.dev/', {
+  const response = await fetch('https://hostel.mssonutech.workers.dev/', {
     method: 'POST',
     body: formData,
   });
@@ -176,7 +176,7 @@ export const uploadComplaintImages = async (images: ImagePicker.ImagePickerAsset
       name: `complaint_${Date.now()}_${Math.random()}.webp`,
     } as any);
 
-    const response = await fetch('https://hostel.mssonukr.workers.dev/', {
+    const response = await fetch('https://hostel.mssonutech.workers.dev/', {
       method: 'POST',
       body: formData,
     });

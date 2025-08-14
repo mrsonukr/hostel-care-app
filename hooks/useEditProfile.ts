@@ -153,7 +153,7 @@ export function useEditProfile() {
           name: 'profile.webp',
         } as any);
 
-        const res = await fetch('https://hostel.mssonukr.workers.dev/', {
+        const res = await fetch('https://hostel.mssonutech.workers.dev/', {
           method: 'POST',
           body: formDataToSend,
         });
