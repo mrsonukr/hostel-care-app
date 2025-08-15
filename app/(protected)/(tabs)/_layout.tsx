@@ -1,19 +1,8 @@
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import * as Haptics from 'expo-haptics';
-import { useEffect } from 'react';
-import { useNavigationState } from '@react-navigation/native';
 import { Text } from 'react-native';
 
 export default function TabLayout() {
-  const navigationState = useNavigationState((state) => state);
-
-  useEffect(() => {
-    if (navigationState?.index !== undefined) {
-      Haptics.selectionAsync();
-    }
-  }, [navigationState?.index]);
-
   // Custom label component using NativeWind className
   const renderLabel = (label: string, focused: boolean) => (
     <Text className={`text-xs ${focused ? 'text-black' : 'text-gray-400'} font-okra`}>

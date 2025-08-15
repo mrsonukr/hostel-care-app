@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
 import { useLogout } from '../../../hooks/useLogout';
+import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
 
 interface Student {
   roll_no: string;
@@ -68,14 +69,31 @@ const Settings: React.FC = () => {
       const parsed: Student = JSON.parse(local);
       setStudent(parsed);
 
-      const res = await fetch(`https://hostelapis.mssonutech.workers.dev/api/student/${parsed.roll_no}`);
-      const data = await res.json();
+      try {
+        const res = await errorHandler.fetchWithErrorHandling(
+          `https://hostelapis.mssonutech.workers.dev/api/student/${parsed.roll_no}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          },
+          'fetching profile data'
+        );
+        
+        const data = await res.json();
 
-      if (res.ok && data.success) {
-        setStudent(data.student);
-        await AsyncStorage.setItem('student', JSON.stringify(data.student));
-      } else {
-        Alert.alert('Error', data.error || 'Could not fetch profile.');
+        if (data.success) {
+          setStudent(data.student);
+          await AsyncStorage.setItem('student', JSON.stringify(data.student));
+        } else {
+          Alert.alert('Error', data.error || 'Could not fetch profile.');
+        }
+      } catch (error: any) {
+        if (error instanceof AppError) {
+          errorHandler.showErrorAlert(error, fetchStudentData);
+        } else {
+          const appError = errorHandler.handleFetchError(error, 'fetching profile data');
+          errorHandler.showErrorAlert(appError, fetchStudentData);
+        }
       }
     } catch (err) {
       console.error(err);

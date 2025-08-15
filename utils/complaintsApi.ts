@@ -1,3 +1,5 @@
+import { errorHandler, AppError } from './errorHandler';
+
 const API_BASE_URL = 'https://risecomplaint.mssonutech.workers.dev';
 
 export interface ComplaintData {
@@ -54,77 +56,119 @@ export interface ComplaintsListResponse {
 export const complaintsApi = {
   // Create a new complaint
   async createComplaint(complaintData: ComplaintData): Promise<ComplaintResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/complaints`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await errorHandler.fetchWithErrorHandling(
+      `${API_BASE_URL}/api/complaints`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(complaintData),
       },
-      body: JSON.stringify(complaintData),
-    });
+      'creating complaint'
+    );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create complaint');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new AppError(
+        data.message || 'Failed to create complaint',
+        false,
+        true,
+        'Complaint Submission Failed',
+        'Unable to submit your complaint. Please try again.'
+      );
     }
 
-    return response.json();
+    return data;
   },
 
   // Get complaints by student roll number
   async getComplaintsByStudent(studentRoll: string): Promise<Complaint[]> {
-    const response = await fetch(`${API_BASE_URL}/api/complaints/student?student_roll=${studentRoll}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await errorHandler.fetchWithErrorHandling(
+      `${API_BASE_URL}/api/complaints/student?student_roll=${studentRoll}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch complaints');
-    }
+      'fetching complaints'
+    );
 
     const data = await response.json();
+    
+    if (!data.success) {
+      throw new AppError(
+        data.message || 'Failed to fetch complaints',
+        false,
+        true,
+        'Failed to Load Complaints',
+        'Unable to load your complaints. Please try again.'
+      );
+    }
+
     return data.data;
   },
 
   // Get complaint by ID
   async getComplaintById(id: number): Promise<Complaint> {
-    const response = await fetch(`${API_BASE_URL}/api/complaints/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await errorHandler.fetchWithErrorHandling(
+      `${API_BASE_URL}/api/complaints/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch complaint');
-    }
+      'fetching complaint details'
+    );
 
     const data = await response.json();
+    
+    if (!data.success) {
+      throw new AppError(
+        data.message || 'Failed to fetch complaint',
+        false,
+        true,
+        'Failed to Load Complaint',
+        'Unable to load complaint details. Please try again.'
+      );
+    }
+
     return data.data;
   },
 
   // Update complaint status
   async updateComplaintStatus(id: number, status: string, wardenId: string): Promise<{ success: boolean; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/api/complaints/${id}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await errorHandler.fetchWithErrorHandling(
+      `${API_BASE_URL}/api/complaints/${id}/status`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status,
+          warden_id: wardenId,
+        }),
       },
-      body: JSON.stringify({
-        status,
-        warden_id: wardenId,
-      }),
-    });
+      'updating complaint status'
+    );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update complaint status');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new AppError(
+        data.message || 'Failed to update complaint status',
+        false,
+        true,
+        'Update Failed',
+        'Unable to update complaint status. Please try again.'
+      );
     }
 
-    return response.json();
+    return data;
   },
 
   // Get complaint statistics
@@ -135,19 +179,29 @@ export const complaintsApi = {
     resolved: number;
     rejected: number;
   }> {
-    const response = await fetch(`${API_BASE_URL}/api/stats`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await errorHandler.fetchWithErrorHandling(
+      `${API_BASE_URL}/api/stats`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch statistics');
-    }
+      'fetching complaint statistics'
+    );
 
     const data = await response.json();
+    
+    if (!data.success) {
+      throw new AppError(
+        data.message || 'Failed to fetch statistics',
+        false,
+        true,
+        'Failed to Load Statistics',
+        'Unable to load complaint statistics. Please try again.'
+      );
+    }
+
     return data.data;
   },
 };

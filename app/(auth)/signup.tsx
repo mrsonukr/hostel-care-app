@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -49,34 +50,54 @@ export default function SignupScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://hostelapis.mssonutech.workers.dev/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await errorHandler.fetchWithErrorHandling(
+        'https://hostelapis.mssonutech.workers.dev/api/signup',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            roll_no: formData.rollNo,
+            gender: (formData.gender || 'male').toLowerCase(),
+            mobile_no: formData.mobileNo,
+            email: formData.email,
+            password: formData.password,
+          }),
         },
-        body: JSON.stringify({
-          roll_no: formData.rollNo,
-          gender: (formData.gender || 'male').toLowerCase(),
-          mobile_no: formData.mobileNo,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+        'signup'
+      );
 
       const data = await response.json();
-      setLoading(false);
 
-      if (response.status === 201 && data.success) {
+      if (data.success) {
         Alert.alert('Success', 'Account created successfully! Please login.', [
           { text: 'OK', onPress: () => router.replace('/(auth)/login') },
         ]);
       } else {
-        Alert.alert('Error', data.error || 'Failed to create account.');
+        // Handle specific signup errors
+        let errorTitle = 'Signup Failed';
+        let errorMessage = data.error || 'Failed to create account.';
+        
+        if (data.error?.includes('already exists') || data.error?.includes('duplicate')) {
+          errorTitle = 'Account Already Exists';
+          errorMessage = 'An account with this roll number already exists. Please login instead.';
+        } else if (data.error?.includes('invalid') || data.error?.includes('format')) {
+          errorTitle = 'Invalid Information';
+          errorMessage = 'Please check your information and try again.';
+        }
+        
+        Alert.alert(errorTitle, errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error, handleSignup);
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'signup');
+        errorHandler.showErrorAlert(appError, handleSignup);
+      }
+    } finally {
       setLoading(false);
-      console.error('Signup error:', error);
-      Alert.alert('Error', 'Failed to connect to the server. Please try again later.');
     }
   };
 
@@ -93,7 +114,7 @@ export default function SignupScreen() {
             <Text className="text-base text-[#666] mb-8">Create your account</Text>
 
             {/* Roll No */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="account-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Roll Number *"
@@ -106,7 +127,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Mobile No */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="phone-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Mobile Number *"
@@ -121,7 +142,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Email */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="email-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Email *"
@@ -136,7 +157,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Password */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Password *"
@@ -157,7 +178,7 @@ export default function SignupScreen() {
             </View>
 
             {/* Confirm Password */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-6">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-6">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Confirm Password *"
@@ -183,7 +204,7 @@ export default function SignupScreen() {
               onPress={handleSignup}
               disabled={loading}
               style={{
-                borderRadius: 30,
+                borderRadius: 12,
                 marginBottom: 20,
                 backgroundColor: '#0D0D0D',
               }}

@@ -12,6 +12,7 @@ import {
     View
 } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
+import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 interface Student {
     roll_no: string;
@@ -39,21 +40,32 @@ const ProfileInfo: React.FC = () => {
                 const parsedData: Student = JSON.parse(studentData);
                 setStudent(parsedData);
 
-                const response = await fetch(
-                    `https://hostelapis.mssonutech.workers.dev/api/student/${parsedData.roll_no}`,
-                    {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' },
-                    }
-                );
-                const data = await response.json();
+                try {
+                    const response = await errorHandler.fetchWithErrorHandling(
+                        `https://hostelapis.mssonutech.workers.dev/api/student/${parsedData.roll_no}`,
+                        {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                        },
+                        'fetching profile data'
+                    );
+                    
+                    const data = await response.json();
 
-                if (response.status === 200 && data.success) {
-                    setStudent(data.student);
-                    await AsyncStorage.setItem('student', JSON.stringify(data.student));
-                } else {
-                    console.warn('API error:', data.error);
-                    Alert.alert('Error', data.error || 'Failed to fetch latest data.');
+                    if (data.success) {
+                        setStudent(data.student);
+                        await AsyncStorage.setItem('student', JSON.stringify(data.student));
+                    } else {
+                        console.warn('API error:', data.error);
+                        Alert.alert('Error', data.error || 'Failed to fetch latest data.');
+                    }
+                } catch (error: any) {
+                    if (error instanceof AppError) {
+                        errorHandler.showErrorAlert(error, fetchStudentData);
+                    } else {
+                        const appError = errorHandler.handleFetchError(error, 'fetching profile data');
+                        errorHandler.showErrorAlert(appError, fetchStudentData);
+                    }
                 }
             } else {
                 Alert.alert('Error', 'Please log in again.');

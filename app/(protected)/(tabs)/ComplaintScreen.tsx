@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { Button } from 'react-native-paper';
 import { Feather, MaterialCommunityIcons, Octicons, SimpleLineIcons, FontAwesome6, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../../../components/CustomHeader';
@@ -19,6 +20,7 @@ import { complaintsApi, Complaint } from '../../../utils/complaintsApi';
 import { pickComplaintImage, uploadComplaintImages } from '../../../utils/imageUpload';
 import { getRelativeTime } from '../../../utils/dateUtils';
 import { useRouter } from 'expo-router';
+import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
 
 const complaintCategories = [
   {
@@ -106,9 +108,14 @@ export default function ComplaintTab() {
             console.error('Student roll number not found in student data');
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading student data:', error);
-        Alert.alert('Error', 'Failed to load student data');
+        if (error instanceof AppError) {
+          errorHandler.showErrorAlert(error, loadStudentData);
+        } else {
+          const appError = errorHandler.handleFetchError(error, 'loading student data');
+          errorHandler.showErrorAlert(appError, loadStudentData);
+        }
       } finally {
         setLoading(false);
       }
@@ -172,7 +179,12 @@ export default function ComplaintTab() {
         setImages(prev => [...prev, selectedImage.uri].slice(0, 4));
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to select image');
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error);
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'selecting image');
+        errorHandler.showErrorAlert(appError);
+      }
     }
   };
 
@@ -229,7 +241,12 @@ export default function ComplaintTab() {
         try {
           uploadedImageUrls = await uploadComplaintImages(selectedImages);
         } catch (error: any) {
-          Alert.alert('Error', 'Failed to upload images. Please try again.');
+          if (error instanceof AppError) {
+            errorHandler.showErrorAlert(error, () => handleSubmit());
+          } else {
+            const appError = errorHandler.handleFetchError(error, 'uploading images');
+            errorHandler.showErrorAlert(appError, () => handleSubmit());
+          }
           return;
         }
       }
@@ -272,9 +289,14 @@ export default function ComplaintTab() {
           }
         ]
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting complaint:', error);
-      Alert.alert('Error', 'Failed to submit complaint. Please try again.');
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error, () => handleSubmit());
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'submitting complaint');
+        errorHandler.showErrorAlert(appError, () => handleSubmit());
+      }
     } finally {
       setSubmitting(false);
     }
@@ -292,9 +314,14 @@ export default function ComplaintTab() {
       }
       const complaints = await complaintsApi.getComplaintsByStudent(studentRoll);
       setComplaintStatus(complaints);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading complaints:', error);
-      Alert.alert('Error', 'Failed to load complaints');
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error, loadComplaints);
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'loading complaints');
+        errorHandler.showErrorAlert(appError, loadComplaints);
+      }
     } finally {
       setLoading(false);
     }
@@ -405,18 +432,16 @@ export default function ComplaintTab() {
             />
 
             {/* Submit */}
-            <TouchableOpacity
-              activeOpacity={0.7}
+            <Button
+              mode="contained"
               onPress={handleSubmit}
               disabled={submitting}
-              className={`mt-6 rounded-xl py-4 items-center ${submitting ? 'bg-gray-400' : 'bg-black'}`}
+              style={{ borderRadius: 12, marginTop: 24, backgroundColor: '#0D0D0D' }}
+              contentStyle={{ height: 50 }}
+              labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
             >
-              {submitting ? (
-                <ActivityIndicator color="white" size="small" />
-              ) : (
-                <Text className="text-white text-base font-semibold font-okra">Submit</Text>
-              )}
-            </TouchableOpacity>
+              {submitting ? <ActivityIndicator color="white" size="small" /> : 'Submit'}
+            </Button>
           </>
         )}
       </View>

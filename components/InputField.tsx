@@ -14,6 +14,7 @@ interface InputFieldProps extends TextInputProps {
   value: string;
   onChangeText: (value: string) => void;
   error?: string;
+  maxLength?: number;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -23,6 +24,7 @@ const InputField: React.FC<InputFieldProps> = ({
   value,
   onChangeText,
   error,
+  maxLength,
   ...props
 }) => {
   const isOptionsField = Array.isArray(options);
@@ -40,9 +42,10 @@ const InputField: React.FC<InputFieldProps> = ({
             return (
               <TouchableOpacity
                 key={option}
+                activeOpacity={0.7}
                 onPress={() => onChangeText(option.toLowerCase())}
                 className={`
-                  flex-1 items-center py-3 rounded-full
+                  flex-1 items-center py-3 rounded-xl
                   ${selected ? 'bg-black' : 'bg-blue-50'}
                   ${error && !selected ? 'border border-[#FF3B30]' : ''}
                 `}
@@ -62,7 +65,7 @@ const InputField: React.FC<InputFieldProps> = ({
       ) : (
         <TextInput
           className={`
-            px-4 py-[12px] rounded-full bg-blue-50
+            px-4 py-[12px] rounded-xl bg-blue-50
             text-[16px] font-okra text-black
             ${error ? 'border border-[#FF3B30]' : ''}
           `}
@@ -70,6 +73,7 @@ const InputField: React.FC<InputFieldProps> = ({
           secureTextEntry={secure}
           value={value}
           onChangeText={onChangeText}
+          maxLength={maxLength}
           {...props}
         />
       )}

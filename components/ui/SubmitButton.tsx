@@ -40,23 +40,25 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
       }}
       className="py-[14px] rounded-full mt-6 items-center justify-center"
     >
-      {loading ? (
-        <ActivityIndicator color="#fff" />
-      ) : (
-        <View className="flex-row items-center">
-          {icon && (
-            <Feather
-              name={icon}
-              size={18}
-              color="#fff"
-              style={{ marginRight: 8 }}
-            />
-          )}
-          <Text className="text-white text-[16px] font-semibold">
-            {title}
-          </Text>
-        </View>
-      )}
+      <View className="flex-row items-center justify-center" style={{ minHeight: 24 }}>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            {icon && (
+              <Feather
+                name={icon}
+                size={18}
+                color="#fff"
+                style={{ marginRight: 8 }}
+              />
+            )}
+            <Text className="text-white text-[16px] font-semibold">
+              {title}
+            </Text>
+          </>
+        )}
+      </View>
     </TouchableOpacity>
   );
 };

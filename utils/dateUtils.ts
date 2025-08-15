@@ -52,3 +52,29 @@ export const getRelativeTime = (dateString: string): string => {
 
   return `${day} ${month} ${year}`;
 };
+
+export const getFormattedDateTime = (dateString: string): string => {
+  // Convert UTC time to IST (India Standard Time = UTC+5:30)
+  const utcDate = new Date(dateString);
+  const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000)); // Add 5.5 hours for IST
+  
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  const day = istDate.getDate();
+  const month = months[istDate.getMonth()];
+  const year = istDate.getFullYear();
+  
+  // Format time in 12-hour format with AM/PM
+  let hours = istDate.getHours();
+  const minutes = istDate.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  
+  return `${day} ${month} ${year}, ${formattedTime}`;
+};

@@ -16,6 +16,7 @@ import {
   ActivityIndicator as RNActivityIndicator,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -34,22 +35,24 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://hostelapis.mssonutech.workers.dev/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await errorHandler.fetchWithErrorHandling(
+        'https://hostelapis.mssonutech.workers.dev/api/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
         },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
+        'login'
+      );
 
       const data = await response.json();
 
-      setLoading(false);
-
-      if (response.status === 200 && data.success) {
+      if (data.success) {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         setIsAuthenticated(true);
         // Use a small delay to ensure navigation is ready
@@ -57,12 +60,26 @@ export default function LoginScreen() {
           router.replace('/(protected)/(tabs)');
         }, 100);
       } else {
-        Alert.alert('Error', data.error || 'Invalid username or password.');
+        // Handle specific login errors
+        let errorTitle = 'Login Failed';
+        let errorMessage = data.error || 'Invalid username or password.';
+        
+        if (data.error?.includes('not found') || data.error?.includes('invalid')) {
+          errorTitle = 'Invalid Credentials';
+          errorMessage = 'Please check your roll number/mobile and password.';
+        }
+        
+        Alert.alert(errorTitle, errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error, handleLogin);
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'login');
+        errorHandler.showErrorAlert(appError, handleLogin);
+      }
+    } finally {
       setLoading(false);
-      console.error('Login error:', error);
-      Alert.alert('Error', 'Failed to connect to the server. Please try again later.');
     }
   };
 
@@ -80,7 +97,7 @@ export default function LoginScreen() {
             <Text className="text-base text-[#666] mb-8">Please sign in to continue</Text>
 
             {/* Username Input */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-4">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
               <MaterialCommunityIcons name="account-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Roll Number or Mobile Number"
@@ -93,7 +110,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Password Input */}
-            <View className="flex-row items-center bg-[#f2f4f7] rounded-full px-4 h-[50px] mb-6">
+            <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-6">
               <MaterialCommunityIcons name="lock-outline" size={22} color="#999" />
               <TextInput
                 placeholder="Password"
@@ -118,7 +135,7 @@ export default function LoginScreen() {
               mode="contained"
               onPress={handleLogin}
               disabled={loading}
-              style={{ borderRadius: 30, marginBottom: 20, backgroundColor: '#0D0D0D' }}
+              style={{ borderRadius: 12, marginBottom: 20, backgroundColor: '#0D0D0D' }}
               contentStyle={{ height: 50 }}
               labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
             >

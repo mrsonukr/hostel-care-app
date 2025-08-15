@@ -131,16 +131,26 @@ export function useEditProfile() {
 
   const validateForm = () => {
     const errs: typeof errors = {};
-    if (!formData.mobile_no.match(/^\d{10}$/)) errs.mobile_no = 'Must be 10 digits.';
-    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = 'Invalid email.';
+    
+    // Phone number validation
+    if (!formData.mobile_no.match(/^\d{10}$/)) {
+      errs.mobile_no = 'Must be 10 digits.';
+    } else if (!formData.mobile_no.match(/^[6-9]/)) {
+      errs.mobile_no = 'Correct your phone number';
+    }
+    
+    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = 'Correct your email';
     if (!['male', 'female', 'others'].includes(formData.gender.toLowerCase())) errs.gender = 'Invalid gender.';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleUpdate = async () => {
-    if (!hasChanges()) return Alert.alert('No Changes', 'Nothing to update.');
-    if (!validateForm()) return Alert.alert('Error', 'Fix errors before updating.');
+    if (!hasChanges()) {
+      router.back(); // Always go back even if no changes
+      return;
+    }
+    if (!validateForm()) return; // Just return without alert since errors are shown below inputs
 
     setSubmitting(true);
     try {

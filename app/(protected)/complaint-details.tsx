@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Feather, MaterialCommunityIcons, FontAwesome6, Octicons, SimpleLineIcons, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
 import { complaintsApi, Complaint } from '../../utils/complaintsApi';
-import { getRelativeTime } from '../../utils/dateUtils';
+import { getRelativeTime, getFormattedDateTime } from '../../utils/dateUtils';
 
 export default function ComplaintDetails() {
   const { complaint: complaintParam } = useLocalSearchParams();
@@ -249,6 +249,57 @@ export default function ComplaintDetails() {
                <Text className="text-base text-gray-600 font-okra">
                  {complaint.subcategory || 'No subcategory'}
                </Text>
+             </View>
+           </View>
+           
+           {/* Complaint ID and Timestamps */}
+           <View className="mt-4 pt-4 border-t border-gray-100">
+             <View className="space-y-3">
+               <View className="flex-row items-center justify-between">
+                 <View className="flex-row items-center">
+                   <Feather name="hash" size={16} color="#666" />
+                   <Text className="text-gray-600 font-okra ml-2">Complaint ID:</Text>
+                 </View>
+                 <Text className="text-black font-semibold font-okra">#{complaint.id}</Text>
+               </View>
+               
+               <View className="flex-row items-center justify-between">
+                 <View className="flex-row items-center">
+                   <Feather name="calendar" size={16} color="#666" />
+                   <Text className="text-gray-600 font-okra ml-2">Submitted:</Text>
+                 </View>
+                 <Text className="text-black font-okra">{getFormattedDateTime(complaint.created_at)}</Text>
+               </View>
+               
+               {complaint.in_progress_at && (
+                 <View className="flex-row items-center justify-between">
+                   <View className="flex-row items-center">
+                     <Feather name="clock" size={16} color="#666" />
+                     <Text className="text-gray-600 font-okra ml-2">In Progress:</Text>
+                   </View>
+                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.in_progress_at)}</Text>
+                 </View>
+               )}
+               
+               {complaint.resolved_at && (
+                 <View className="flex-row items-center justify-between">
+                   <View className="flex-row items-center">
+                     <Feather name="check-circle" size={16} color="#666" />
+                     <Text className="text-gray-600 font-okra ml-2">Resolved:</Text>
+                   </View>
+                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.resolved_at)}</Text>
+                 </View>
+               )}
+               
+               {complaint.rejected_at && (
+                 <View className="flex-row items-center justify-between">
+                   <View className="flex-row items-center">
+                     <Feather name="x-circle" size={16} color="#666" />
+                     <Text className="text-gray-600 font-okra ml-2">Rejected:</Text>
+                   </View>
+                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.rejected_at)}</Text>
+                 </View>
+               )}
              </View>
            </View>
          </View>

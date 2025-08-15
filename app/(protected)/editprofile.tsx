@@ -1,11 +1,11 @@
 // components/screens/EditProfile.tsx
 import React from 'react';
-import { View, ScrollView, Image, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Button } from 'react-native-paper';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEditProfile } from '../../hooks/useEditProfile';
 import CustomHeader from '../../components/CustomHeader';
 import InputField from '../../components/InputField';
-import SubmitButton from '../../components/ui/SubmitButton';
 import { useRouter, useFocusEffect } from 'expo-router';
 
 const EditProfile = () => {
@@ -81,12 +81,13 @@ const EditProfile = () => {
           value={formData.mobile_no}
           onChangeText={(v) => setFormData((p) => ({ ...p, mobile_no: v }))}
           keyboardType="phone-pad"
+          maxLength={10}
           error={errors.mobile_no}
         />
         <InputField
           label="Email"
-          value={formData.email}
-          onChangeText={(v) => setFormData((p) => ({ ...p, email: v }))}
+          value={formData.email.toLowerCase()}
+          onChangeText={(v) => setFormData((p) => ({ ...p, email: v.toLowerCase() }))}
           keyboardType="email-address"
           error={errors.email}
         />
@@ -98,12 +99,16 @@ const EditProfile = () => {
           error={errors.gender}
         />
 
-        <SubmitButton
-          title="Update"
+        <Button
+          mode="contained"
           onPress={handleUpdate}
-          loading={submitting}
-          disabled={submitting || !hasChanges()}
-        />
+          disabled={submitting}
+          style={{ borderRadius: 12, marginTop: 24, backgroundColor: '#0D0D0D' }}
+          contentStyle={{ height: 50 }}
+          labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
+        >
+          {submitting ? <ActivityIndicator color="white" size="small" /> : 'Update'}
+        </Button>
       </ScrollView>
     </View>
   );
