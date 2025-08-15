@@ -62,19 +62,19 @@ export default function RootLayout() {
       }
       
       if (finalStatus !== 'granted') {
-        console.log('🔔 App Start: Notification permission not granted');
+
         return;
       }
 
       // Get the token
       const token = await Notifications.getExpoPushTokenAsync();
-      console.log('🔔 App Start: Expo Notification ID:', token.data);
+      
       
       // Store the token for later use
       await AsyncStorage.setItem('expoPushToken', token.data);
       
     } catch (error) {
-      console.log('🔔 App Start: Error setting up notifications:', error);
+      
     }
   };
 

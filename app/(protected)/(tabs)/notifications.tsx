@@ -45,7 +45,7 @@ export default function NotificationsTab() {
 
         if (status !== 'granted') {
           setExpoNotificationId('Permission not granted');
-          console.log('🔔 Notification Permission: Not granted');
+  
           return;
         }
 
@@ -53,21 +53,21 @@ export default function NotificationsTab() {
         const storedToken = await AsyncStorage.getItem('expoPushToken');
         if (storedToken) {
           setExpoNotificationId(storedToken);
-          console.log('🔔 Expo Notification ID (from storage):', storedToken);
+  
           return;
         }
 
         // If no stored token, get a new one
         const token = await Notifications.getExpoPushTokenAsync();
         setExpoNotificationId(token.data);
-        console.log('🔔 Expo Notification ID (new):', token.data);
+
         
         // Store the token
         await AsyncStorage.setItem('expoPushToken', token.data);
         
       } catch (error) {
         setExpoNotificationId('Error getting notification ID');
-        console.log('🔔 Error getting notification ID:', error);
+
       }
     };
 
@@ -83,15 +83,15 @@ export default function NotificationsTab() {
         // Try to get token again
         const token = await Notifications.getExpoPushTokenAsync();
         setExpoNotificationId(token.data);
-        console.log('🔔 Expo Notification ID (after permission):', token.data);
+
         await AsyncStorage.setItem('expoPushToken', token.data);
       } else {
         setExpoNotificationId('Permission denied');
-        console.log('🔔 Notification Permission: Denied');
+
       }
     } catch (error) {
       setExpoNotificationId('Permission error');
-      console.log('🔔 Permission error:', error);
+      
     }
   };
 

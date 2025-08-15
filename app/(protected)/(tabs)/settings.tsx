@@ -33,6 +33,7 @@ interface Student {
 type SettingsRoute =
   | '/(protected)/editprofile'
   | '/(protected)/hostel-details'
+  | '/(protected)/notification-settings'
   | '/(protected)/privacy-policy'
   | '/(protected)/help-support'
   | '/';
@@ -45,7 +46,7 @@ const settingsItems: {
     { icon: 'user', label: 'Profile Information', route: '/(protected)/editprofile' },
     { icon: 'home', label: 'Hostel Details', route: '/(protected)/hostel-details' },
     { icon: 'lock', label: 'Change Password' },
-    { icon: 'bell', label: 'Notifications' },
+    { icon: 'bell', label: 'Notifications', route: '/(protected)/notification-settings' },
     { icon: 'file-text', label: 'Privacy Policy', route: '/(protected)/privacy-policy' },
     { icon: 'help-circle', label: 'Help & Support', route: '/(protected)/help-support' },
   ];

@@ -20,7 +20,7 @@ import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler'
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setIsAuthenticated } = useAuth();
+  const { setIsAuthenticated, registerDeviceForNotifications } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +55,16 @@ export default function LoginScreen() {
       if (data.success) {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         setIsAuthenticated(true);
+        
+        // Register device for notifications
+        if (data.student && data.student.roll_no) {
+          try {
+            await registerDeviceForNotifications(data.student.roll_no);
+          } catch (error) {
+            console.error('Error registering device for notifications:', error);
+          }
+        }
+        
         // Use a small delay to ensure navigation is ready
         setTimeout(() => {
           router.replace('/(protected)/(tabs)');

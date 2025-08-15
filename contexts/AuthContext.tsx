@@ -1,11 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState } from 'react';
+import { notificationService } from '../utils/notificationService';
 
 interface AuthContextType {
   isAuthenticated: boolean | null;
   setIsAuthenticated: (value: boolean) => void;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  registerDeviceForNotifications: (userId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +27,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      // Get student data before removing it
+      const studentData = await AsyncStorage.getItem('student');
+      let userId: string | null = null;
+      
+      if (studentData) {
+        const student = JSON.parse(studentData);
+        userId = student.roll_no;
+      }
+
+      // Deactivate device for notifications
+      if (userId) {
+        try {
+          await notificationService.deactivateDevice(userId);
+        } catch (error) {
+          console.error('Error deactivating device:', error);
+        }
+      }
+
       await AsyncStorage.removeItem('student');
       setIsAuthenticated(false);
     } catch (error) {
@@ -33,12 +53,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const registerDeviceForNotifications = async (userId: string) => {
+    try {
+      // Initialize notification service
+      await notificationService.initialize();
+      
+      // Register device with notification API
+      const success = await notificationService.registerDevice(userId);
+      
+      if (success) {
+
+      } else {
+
+      }
+    } catch (error) {
+      console.error('Error registering device for notifications:', error);
+    }
+  };
+
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, logout, checkAuthStatus }}>
+    <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, logout, checkAuthStatus, registerDeviceForNotifications }}>
       {children}
     </AuthContext.Provider>
   );

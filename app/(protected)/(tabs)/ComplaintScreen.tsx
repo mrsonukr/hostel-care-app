@@ -218,8 +218,7 @@ export default function ComplaintTab() {
     setSubmitting(true);
 
     try {
-      console.log('Student data in submit:', studentData); // Debug log
-      console.log('Student data keys in submit:', Object.keys(studentData || {})); // Debug log
+      
       
       // Use the same property names as settings screen
       const studentRoll = studentData.roll_no;
@@ -227,10 +226,8 @@ export default function ComplaintTab() {
       const roomNumber = studentData.room_no || 'N/A';
       const hostelName = studentData.hostel_no || 'N/A';
 
-      console.log('Extracted values:', { studentRoll, studentName, roomNumber, hostelName }); // Debug log
 
       if (!studentRoll) {
-        console.log('Available student data properties:', Object.keys(studentData || {})); // Debug log
         Alert.alert('Error', 'Student roll number not found. Please login again.');
         return;
       }
@@ -263,7 +260,7 @@ export default function ComplaintTab() {
         status: 'pending'
       };
 
-      console.log('Complaint data being sent:', complaintData); // Debug log
+
 
       const response = await complaintsApi.createComplaint(complaintData);
 

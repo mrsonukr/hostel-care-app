@@ -1,0 +1,13 @@
+name = "notification"
+main = "src/worker.js"
+workers_dev = true
+compatibility_date = "2025-08-15"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[[d1_databases]]
+binding = "hostel"
+database_name = "hostel"
+database_id = "af7d44b4-8bb2-42ed-b462-e4c8604f51b2"

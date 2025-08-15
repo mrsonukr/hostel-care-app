@@ -1,0 +1,16 @@
+{
+	"name": "notification",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev"
+	},
+	"devDependencies": {
+		"wrangler": "^4.30.0"
+	},
+	"dependencies": {
+		"node-fetch": "^3.3.2"
+	}
+}
