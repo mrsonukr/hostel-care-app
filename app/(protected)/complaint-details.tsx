@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Feather, MaterialCommunityIcons, FontAwesome6, Octicons, SimpleLineIcons, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
 import { complaintsApi, Complaint } from '../../utils/complaintsApi';
-import { getRelativeTime, getFormattedDateTime } from '../../utils/dateUtils';
+import { getRelativeTime, getFormattedDateTime, getDurationBetweenDates } from '../../utils/dateUtils';
 
 export default function ComplaintDetails() {
   const { complaint: complaintParam } = useLocalSearchParams();
@@ -18,7 +18,7 @@ export default function ComplaintDetails() {
       case 'resolved':
         return 'text-green-600';
       case 'in_progress':
-        return 'text-blue-600';
+        return 'text-green-600';
       case 'pending':
         return 'text-orange-600';
       case 'rejected':
@@ -76,12 +76,24 @@ export default function ComplaintDetails() {
     }
   };
 
+  const refreshComplaintData = async () => {
+    if (!complaint) return;
+    
+    try {
+      setRefreshing(true);
+      // Fetch fresh data from API using the complaint ID
+      const freshComplaint = await complaintsApi.getComplaintById(complaint.id);
+      setComplaint(freshComplaint);
+    } catch (error) {
+      console.error('Error refreshing complaint data:', error);
+      // If API fails, keep the existing data
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const onRefresh = async () => {
-    setRefreshing(true);
-    // For refresh, we could optionally fetch fresh data from API
-    // But for now, just reload the passed data
-    loadComplaintData();
-    setRefreshing(false);
+    await refreshComplaintData();
   };
 
   useEffect(() => {
@@ -173,14 +185,14 @@ export default function ComplaintDetails() {
              {/* Connecting Line 1 */}
              <View className={`flex-1 h-0.5 mx-2 ${
                complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
-                 ? 'bg-blue-500' : 'bg-gray-300'
+                 ? 'bg-green-500' : 'bg-gray-300'
              }`} style={{ marginTop: -30 }} />
 
              {/* In Progress Step */}
              <View className="items-center">
                <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${
                  complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
-                   ? 'bg-blue-500' : 'bg-gray-300'
+                   ? 'bg-green-500' : 'bg-gray-300'
                }`}>
                  {complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' ? (
                    <Feather name="check" size={18} color="white" />
@@ -229,6 +241,20 @@ export default function ComplaintDetails() {
                </Text>
              </View>
            </View>
+           
+           {/* Resolution Time Display */}
+           {complaint.status === 'resolved' && complaint.resolved_at && (
+             <View className="mt-4 pt-4 border-t border-gray-100">
+               <View className="bg-green-50 rounded-lg p-3">
+                 <View className="flex-row items-center justify-center">
+                   <MaterialCommunityIcons name="check-decagram" size={20} color="#10B981" />
+                   <Text className="text-green-700 font-semibold font-okra ml-2">
+                     Resolved in {getDurationBetweenDates(complaint.created_at, complaint.resolved_at)}
+                   </Text>
+                 </View>
+               </View>
+             </View>
+           )}
          </View>
 
          {/* Complaint Info Card */}
@@ -254,7 +280,7 @@ export default function ComplaintDetails() {
            
            {/* Complaint ID and Timestamps */}
            <View className="mt-4 pt-4 border-t border-gray-100">
-             <View className="space-y-3">
+             <View className="space-y-3 gap-2">
                <View className="flex-row items-center justify-between">
                  <View className="flex-row items-center">
                    <Feather name="hash" size={16} color="#666" />

@@ -78,3 +78,52 @@ export const getFormattedDateTime = (dateString: string): string => {
   
   return `${day} ${month} ${year}, ${formattedTime}`;
 };
+
+export const getDurationBetweenDates = (startDate: string, endDate: string): string => {
+  // Convert UTC times to IST
+  const utcStartDate = new Date(startDate);
+  const utcEndDate = new Date(endDate);
+  const istStartDate = new Date(utcStartDate.getTime() + (5.5 * 60 * 60 * 1000));
+  const istEndDate = new Date(utcEndDate.getTime() + (5.5 * 60 * 60 * 1000));
+  
+  const diffInSeconds = Math.floor((istEndDate.getTime() - istStartDate.getTime()) / 1000);
+  
+  // Less than 1 minute
+  if (diffInSeconds < 60) {
+    return 'less than 1 minute';
+  }
+  
+  // Minutes
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
+  }
+  
+  // Hours
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`;
+  }
+  
+  // Days
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 7) {
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''}`;
+  }
+  
+  // Weeks
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  if (diffInWeeks < 4) {
+    return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`;
+  }
+  
+  // Months
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return `${diffInMonths} month${diffInMonths > 1 ? 's' : ''}`;
+  }
+  
+  // Years
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} year${diffInYears > 1 ? 's' : ''}`;
+};
