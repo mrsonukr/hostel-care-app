@@ -25,6 +25,14 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#ffffff"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -37,6 +45,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ee0f715d-e80b-4875-ab8b-4b349f4f89da"
+      }
+    },
+    "owner": "mrsonukr"
   }
 }
