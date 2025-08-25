@@ -2,9 +2,11 @@ import { Feather, AntDesign } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Text, Pressable, View } from 'react-native';
 import { useState, useEffect } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
+  const insets = useSafeAreaInsets();
 
   // Custom label component using NativeWind className
   const renderLabel = (label: string, focused: boolean) => (
@@ -49,12 +51,14 @@ export default function TabLayout() {
           borderTopColor: '#e5e7eb',
           elevation: 0, // Remove shadow on Android
           shadowOpacity: 0, // Remove shadow on iOS
+          paddingBottom: insets.bottom, // Use safe area insets for bottom padding
+          height: 60 + insets.bottom, // Adjust height based on safe area
         },
         tabBarItemStyle: {
           paddingVertical: 4,
         },
         tabBarButton: (props) => (
-          <Pressable {...props} android_ripple={null} />
+          <Pressable {...(props as any)} android_ripple={null} />
         ),
       }}
     >
