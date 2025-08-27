@@ -8,8 +8,10 @@ import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider } from '../contexts/AuthContext';
+import { OfflineProvider } from '../contexts/OfflineContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OfflineIndicator } from '../components/OfflineIndicator';
+import { OfflinePerformanceMonitor } from '../components/OfflinePerformanceMonitor';
 import "../global.css"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
@@ -102,17 +104,19 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <SafeAreaProvider>
-          <OfflineIndicator />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              gestureEnabled: false, // Disable swipe back gesture globally
-            }}
-          />
-        </SafeAreaProvider>
-      </AuthProvider>
+      <OfflineProvider>
+        <OfflinePerformanceMonitor />
+        <AuthProvider>
+          <SafeAreaProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                gestureEnabled: false, // Disable swipe back gesture globally
+              }}
+            />
+          </SafeAreaProvider>
+        </AuthProvider>
+      </OfflineProvider>
     </ErrorBoundary>
   );
 }

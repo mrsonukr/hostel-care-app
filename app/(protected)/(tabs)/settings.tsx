@@ -17,6 +17,7 @@ import CustomHeader from '../../../components/CustomHeader';
 import { useLogout } from '../../../hooks/useLogout';
 import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
 
+
 interface Student {
   roll_no: string;
   full_name?: string;
@@ -51,7 +52,7 @@ const settingsItems: {
     { icon: 'help-circle', label: 'Help & Support', route: '/(protected)/help-support' },
   ];
 
-const Settings: React.FC = () => {
+const SettingsContent: React.FC = () => {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageLoading, setImageLoading] = useState(true);
@@ -238,4 +239,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default SettingsContent;

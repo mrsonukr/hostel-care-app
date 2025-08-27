@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Alert,
@@ -16,8 +16,9 @@ import {
   ActivityIndicator as RNActivityIndicator,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { OfflineCheck } from '../../components/withOfflineCheck';
 
-export default function LoginScreen() {
+function LoginScreenContent() {
   const router = useRouter();
   const { setIsAuthenticated, registerDeviceForNotifications } = useAuth();
   const [username, setUsername] = useState('');
@@ -180,5 +181,16 @@ export default function LoginScreen() {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </PaperProvider>
+  );
+}
+
+export default function LoginScreen() {
+  return (
+    <OfflineCheck 
+      message="You're offline"
+      title="No Internet Connection"
+    >
+      <LoginScreenContent />
+    </OfflineCheck>
   );
 }

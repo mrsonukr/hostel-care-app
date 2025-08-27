@@ -7,8 +7,9 @@ import { useEditProfile } from '../../hooks/useEditProfile';
 import CustomHeader from '../../components/CustomHeader';
 import InputField from '../../components/InputField';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { OfflineCheck } from '../../components/withOfflineCheck';
 
-const EditProfile = () => {
+const EditProfileContent = () => {
   const router = useRouter();
   const {
     student,
@@ -119,4 +120,13 @@ const EditProfile = () => {
   );
 };
 
-export default EditProfile;
+export default function EditProfile() {
+  return (
+    <OfflineCheck 
+      message="You're offline"
+      title="No Internet Connection"
+    >
+      <EditProfileContent />
+    </OfflineCheck>
+  );
+}

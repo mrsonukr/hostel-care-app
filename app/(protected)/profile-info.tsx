@@ -14,6 +14,7 @@ import {
 import CustomHeader from '../../components/CustomHeader';
 import StatusBarArea from '../../components/StatusBarArea';
 import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
+import { OfflineCheck } from '../../components/withOfflineCheck';
 
 interface Student {
     roll_no: string;
@@ -28,7 +29,7 @@ interface Student {
     profile_pic_url?: string | null;
 }
 
-const ProfileInfo: React.FC = () => {
+const ProfileInfoContent: React.FC = () => {
     const [student, setStudent] = useState<Student | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -234,4 +235,13 @@ const styles = StyleSheet.create({
     error: { fontSize: 18, color: 'red', textAlign: 'center', marginTop: 20 },
 });
 
-export default ProfileInfo;
+export default function ProfileInfo() {
+  return (
+    <OfflineCheck 
+      message="You're offline"
+      title="No Internet Connection"
+    >
+      <ProfileInfoContent />
+    </OfflineCheck>
+  );
+}

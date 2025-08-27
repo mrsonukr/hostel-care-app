@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StatusBarArea from '../../../components/StatusBarArea';
 
+
 export default function TabLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const insets = useSafeAreaInsets();

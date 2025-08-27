@@ -21,6 +21,8 @@ import { pickComplaintImage, uploadComplaintImages } from '../../../utils/imageU
 import { getRelativeTime } from '../../../utils/dateUtils';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
+import { OfflineCheck } from '../../../components/withOfflineCheck';
+
 
 const complaintCategories = [
   {
@@ -74,7 +76,7 @@ const complaintOptions = {
   ]
 };
 
-export default function ComplaintTab() {
+function ComplaintTabContent() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'new' | 'status'>('new');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -618,5 +620,16 @@ export default function ComplaintTab() {
       {/* Tab Content */}
       {activeTab === 'new' ? renderNewComplaint() : renderStatus()}
     </>
+  );
+}
+
+export default function ComplaintTab() {
+  return (
+    <OfflineCheck 
+      message="You're offline"
+      title="No Internet Connection"
+    >
+      <ComplaintTabContent />
+    </OfflineCheck>
   );
 }

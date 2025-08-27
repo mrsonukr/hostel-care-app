@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, ScrollView, RefreshControl, Pressable } from 'r
 import CustomHeader from '../../../components/CustomHeader';
 import { useState } from 'react';
 
+
 const initialNotifications = [
   {
     id: 1,
@@ -80,7 +81,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export default function NotificationsTab() {
+function NotificationsTabContent() {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [refreshing, setRefreshing] = useState(false);
   const [pressedId, setPressedId] = useState<number | null>(null);
@@ -204,3 +205,5 @@ const styles = StyleSheet.create({
     paddingBottom: 20, // Add bottom padding for better scrolling experience
   },
 });
+
+export default NotificationsTabContent;

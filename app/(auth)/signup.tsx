@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Keyboard,
@@ -14,8 +14,9 @@ import {
   View,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
+import { OfflineCheck } from '../../components/withOfflineCheck';
 
-export default function SignupScreen() {
+function SignupScreenContent() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     rollNo: '',
@@ -239,5 +240,16 @@ export default function SignupScreen() {
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </PaperProvider>
+  );
+}
+
+export default function SignupScreen() {
+  return (
+    <OfflineCheck 
+      message="You're offline"
+      title="No Internet Connection"
+    >
+      <SignupScreenContent />
+    </OfflineCheck>
   );
 }

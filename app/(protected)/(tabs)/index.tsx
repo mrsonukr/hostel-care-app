@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
 import ImageSlider from '../../../components/ImageSlider';
 
-export default function HomeTab() {
+
+function HomeTabContent() {
   // Sample hostel images for the slider
   const hostelImages = [
     {
@@ -40,3 +41,5 @@ export default function HomeTab() {
     </View>
   );
 }
+
+export default HomeTabContent;
