@@ -194,7 +194,7 @@ const HostelDetails: React.FC = () => {
           zIndex: 9999
         }} />
         <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
-        <View className="flex-1 bg-[#F2F2F7] justify-center items-center">
+        <View className="flex-1 bg-[#f3f2f7] justify-center items-center">
           <ActivityIndicator size="large" color="#0D0D0D" />
         </View>
       </>
@@ -210,7 +210,7 @@ const HostelDetails: React.FC = () => {
           zIndex: 9999
         }} />
         <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
-        <View className="flex-1 justify-center items-center bg-[#F2F2F7]">
+        <View className="flex-1 justify-center items-center bg-[#f4f4f4]">
           <Text className="text-red-500 text-[18px] font-okra">No user data found</Text>
         </View>
       </>
@@ -257,7 +257,7 @@ const HostelDetails: React.FC = () => {
       }} />
       <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
       <ScrollView
-        className="flex-1 bg-[#F2F2F7]"
+        className="flex-1 bg-[#f4f4f4]"
         contentContainerStyle={{ padding: 20, paddingBottom: 20 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D0D0D" />

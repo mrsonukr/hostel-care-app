@@ -161,7 +161,7 @@ export default function ComplaintDetails() {
         <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
       
       <ScrollView 
-        className="flex-1 bg-[#f3f2f7]" 
+        className="flex-1 bg-[#f4f4f4]" 
         contentContainerStyle={{ padding: 20 }}
         refreshControl={
           <RefreshControl 

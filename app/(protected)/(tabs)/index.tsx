@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
 import ImageSlider from '../../../components/ImageSlider';
 
@@ -26,18 +26,23 @@ function HomeTabContent() {
   ];
 
   return (
-    <View className="flex-1 bg-[#f3f2f7]">
-      <CustomHeader title="Home" />
+    <View className="flex-1 bg-[#f4f4f4]">
+      <CustomHeader title="Home" isHomeHeader={true} />
       
-      {/* Image Slider */}
-      <ImageSlider 
-        images={hostelImages}
-        autoPlay={true}
-        autoPlayInterval={4000}
-        showDots={true}
-        showTitles={false}
-        showCounter={false}
-      />
+      <ScrollView 
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Image Slider */}
+        <ImageSlider 
+          images={hostelImages}
+          autoPlay={true}
+          autoPlayInterval={4000}
+          showDots={true}
+          showTitles={false}
+        />
+      </ScrollView>
     </View>
   );
 }

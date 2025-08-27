@@ -468,7 +468,7 @@ function ComplaintTabContent() {
 
   const renderNewComplaint = () => {
     return (
-      <ScrollView className="flex-1 bg-[#f3f2f7]" contentContainerStyle={{ padding: 20 }}>
+      <ScrollView className="flex-1 bg-[#f4f4f4]" contentContainerStyle={{ padding: 20 }}>
         {!selectedCategory ? (
           <View>
             {complaintCategories.map(({ iconSet, icon, label }, idx) => (
@@ -491,7 +491,7 @@ function ComplaintTabContent() {
     const renderStatus = () => {
     return (
       <ScrollView 
-        className="flex-1 bg-[#f3f2f7]" 
+        className="flex-1 bg-[#f4f4f4]" 
         contentContainerStyle={{ padding: 20 }}
         refreshControl={
           <RefreshControl 

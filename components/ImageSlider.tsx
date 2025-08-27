@@ -158,7 +158,7 @@ export default function ImageSlider({
           {images.map((_, index) => {
             const widthAnim = animations[index].interpolate({
               inputRange: [0, 1],
-              outputRange: [8, 20], // circle → pill
+              outputRange: [6, 16], // circle → pill
             });
             const bgAnim = animations[index].interpolate({
               inputRange: [0, 1],
@@ -194,15 +194,16 @@ export default function ImageSlider({
 
 const styles = StyleSheet.create({
   container: {
-    height: 250,
+    height: 180,
     position: 'relative',
+    marginTop: 10,
   },
   scrollView: {
     flex: 1,
   },
   slide: {
     width: width - 32,
-    height: 250,
+    height: 180,
     position: 'relative',
     marginLeft: 16,
     marginRight: 16,
@@ -241,17 +242,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 20,
+    bottom: 5,
     left: 0,
     right: 0,
   },
   dot: {
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+    height: 6,
+    borderRadius: 3,
+    marginHorizontal: 3,
   },
   placeholder: {
-    height: 250,
+    height: 180,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
