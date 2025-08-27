@@ -1,6 +1,6 @@
 // components/screens/EditProfile.tsx
 import React from 'react';
-import { View, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator, Platform, StatusBar } from 'react-native';
+import { View, ScrollView, Image, Text, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Button } from 'react-native-paper';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEditProfile } from '../../hooks/useEditProfile';
@@ -41,11 +41,6 @@ const EditProfileContent = () => {
 
   return (
     <View className="flex-1 bg-white">
-      <View style={{ 
-        height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
-        backgroundColor: 'white',
-        zIndex: 9999
-      }} />
       <CustomHeader title="Edit Profile" showBackButton onBackPress={() => router.back()} />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="px-5 bg-white">
         <View className="items-center my-8">

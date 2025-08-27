@@ -11,7 +11,6 @@ import {
   Text,
   View,
   Platform,
-  StatusBar,
 } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
 import Listing from '../../components/ui/Listing';
@@ -188,11 +187,6 @@ const HostelDetails: React.FC = () => {
   if (loading) {
     return (
       <>
-        <View style={{ 
-          height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
-          backgroundColor: 'white',
-          zIndex: 9999
-        }} />
         <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
         <View className="flex-1 bg-[#f3f2f7] justify-center items-center">
           <ActivityIndicator size="large" color="#0D0D0D" />
@@ -204,11 +198,6 @@ const HostelDetails: React.FC = () => {
   if (!student) {
     return (
       <>
-        <View style={{ 
-          height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
-          backgroundColor: 'white',
-          zIndex: 9999
-        }} />
         <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
         <View className="flex-1 justify-center items-center bg-[#f4f4f4]">
           <Text className="text-red-500 text-[18px] font-okra">No user data found</Text>
@@ -220,11 +209,6 @@ const HostelDetails: React.FC = () => {
   if (!student.hostel_no) {
     return (
       <>
-        <View style={{ 
-          height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
-          backgroundColor: 'white',
-          zIndex: 9999
-        }} />
         <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="bg-white">
           <View className="flex-1 items-center justify-center px-6 py-12 space-y-6">
@@ -250,11 +234,6 @@ const HostelDetails: React.FC = () => {
 
   return (
     <>
-      <View style={{ 
-        height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
-        backgroundColor: 'white',
-        zIndex: 9999
-      }} />
       <CustomHeader title="Hostel Details" showBackButton onBackPress={() => router.back()} />
       <ScrollView
         className="flex-1 bg-[#f4f4f4]"

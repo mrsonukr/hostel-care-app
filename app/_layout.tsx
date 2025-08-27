@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, StatusBar, Platform } from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
@@ -39,6 +39,15 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    // Configure status bar for Android builds
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('white');
+      StatusBar.setBarStyle('dark-content');
+      StatusBar.setTranslucent(false);
+      // Ensure the status bar doesn't create extra spacing
+      StatusBar.setBarStyle('dark-content', true);
+    }
+    
     checkAuthStatus();
     setupNotifications();
     // Check auth status less frequently to avoid performance issues

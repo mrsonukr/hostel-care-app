@@ -7,9 +7,13 @@ const StatusBarArea: React.FC = () => {
 
     const apply = () => {
       try {
+        // For Android builds, ensure status bar is properly configured
         StatusBar.setBackgroundColor('white');
         StatusBar.setBarStyle('dark-content');
         StatusBar.setTranslucent(false);
+        StatusBar.setHidden(false);
+        // Ensure no extra spacing is added
+        StatusBar.setBarStyle('dark-content', true);
       } catch (_err) {}
     };
 
@@ -24,9 +28,16 @@ const StatusBarArea: React.FC = () => {
     };
   }, []);
 
+  // For Android builds, don't render extra View to prevent duplicate spacing
+  // The system status bar will handle the spacing automatically
+  if (Platform.OS === 'android') {
+    return null;
+  }
+
+  // Only render for iOS to handle safe area
   return (
     <View style={{ 
-      height: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44, 
+      height: 44, 
       backgroundColor: 'white',
       zIndex: 9999
     }} />

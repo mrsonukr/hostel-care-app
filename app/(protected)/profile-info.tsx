@@ -12,7 +12,7 @@ import {
     View
 } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
-import StatusBarArea from '../../components/StatusBarArea';
+
 import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 import { OfflineCheck } from '../../components/withOfflineCheck';
 
@@ -96,7 +96,6 @@ const ProfileInfoContent: React.FC = () => {
     if (loading) {
         return (
             <>
-                <StatusBarArea />
                 <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
                 <View style={styles.container}>
                     <ActivityIndicator size="large" color="#0D0D0D" />
@@ -108,7 +107,6 @@ const ProfileInfoContent: React.FC = () => {
     if (!student) {
         return (
             <>
-                <StatusBarArea />
                 <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
                 <View style={styles.container}>
                     <Text style={styles.error}>No user data found</Text>
@@ -117,11 +115,10 @@ const ProfileInfoContent: React.FC = () => {
         );
     }
 
-    return (
-        <>
-            <StatusBarArea />
-            <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
-            <ScrollView
+            return (
+            <>
+                <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
+                <ScrollView
                 style={styles.container}
                 contentContainerStyle={styles.contentContainer}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0D0D0D" />}

@@ -194,7 +194,6 @@ export default function ImageSlider({
 
 const styles = StyleSheet.create({
   container: {
-    height: 180,
     position: 'relative',
   },
   scrollView: {
@@ -202,13 +201,13 @@ const styles = StyleSheet.create({
   },
   slide: {
     width: width,
-    height: 200,
+    height: 150,
     position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+
   },
   overlay: {
     position: 'absolute',

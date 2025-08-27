@@ -14,7 +14,7 @@ import { useState, useRef, useEffect } from 'react';
 import * as Haptics from 'expo-haptics';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
-import StatusBarArea from '../../components/StatusBarArea';
+
 import SubmitButton from '../../components/ui/SubmitButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -187,7 +187,6 @@ export default function HostelListScreen() {
 
   return (
     <>
-      <StatusBarArea />
       <CustomHeader
         title={isEditMode ? 'Edit Hostel' : 'Select Hostel'}
         showBackButton
