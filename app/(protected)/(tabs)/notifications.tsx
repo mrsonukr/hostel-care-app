@@ -120,6 +120,9 @@ export default function NotificationsTab() {
       <CustomHeader title="Notifications" />
       <ScrollView
         style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -196,5 +199,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  contentContainer: {
+    paddingBottom: 20, // Add bottom padding for better scrolling experience
   },
 });

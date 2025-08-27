@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
+import StatusBarArea from '../../components/StatusBarArea';
 import { useRouter } from 'expo-router';
 
 const PrivacyPolicy = () => {
@@ -8,6 +9,7 @@ const PrivacyPolicy = () => {
 
   return (
     <View className="flex-1 bg-white">
+      <StatusBarArea />
       <CustomHeader title="Privacy Policy" showBackButton onBackPress={() => router.back()} />
       <ScrollView className="flex-1 px-5 py-4">
         <Text className="text-lg font-bold text-black mb-4">Privacy Policy</Text>

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, ActivityIndicator, RefreshControl } from
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Feather, MaterialCommunityIcons, FontAwesome6, Octicons, SimpleLineIcons, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
+import StatusBarArea from '../../components/StatusBarArea';
 import { complaintsApi, Complaint } from '../../utils/complaintsApi';
 import { getRelativeTime, getFormattedDateTime, getDurationBetweenDates } from '../../utils/dateUtils';
 
@@ -111,6 +112,7 @@ export default function ComplaintDetails() {
           }}
         />
         <View className="flex-1 bg-white">
+          <StatusBarArea />
           <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="#000" />
@@ -132,6 +134,7 @@ export default function ComplaintDetails() {
           }}
         />
         <View className="flex-1 bg-white">
+          <StatusBarArea />
           <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
           <View className="flex-1 justify-center items-center">
             <Text className="text-gray-600 font-okra">Complaint not found</Text>
@@ -154,6 +157,7 @@ export default function ComplaintDetails() {
         }}
       />
       <View className="flex-1 bg-white">
+        <StatusBarArea />
         <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
       
       <ScrollView 

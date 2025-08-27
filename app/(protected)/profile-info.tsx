@@ -12,6 +12,7 @@ import {
     View
 } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
+import StatusBarArea from '../../components/StatusBarArea';
 import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 interface Student {
@@ -94,6 +95,7 @@ const ProfileInfo: React.FC = () => {
     if (loading) {
         return (
             <>
+                <StatusBarArea />
                 <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
                 <View style={styles.container}>
                     <ActivityIndicator size="large" color="#0D0D0D" />
@@ -105,6 +107,7 @@ const ProfileInfo: React.FC = () => {
     if (!student) {
         return (
             <>
+                <StatusBarArea />
                 <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
                 <View style={styles.container}>
                     <Text style={styles.error}>No user data found</Text>
@@ -115,6 +118,7 @@ const ProfileInfo: React.FC = () => {
 
     return (
         <>
+            <StatusBarArea />
             <CustomHeader title="Profile Information" showBackButton onBackPress={() => router.back()} />
             <ScrollView
                 style={styles.container}

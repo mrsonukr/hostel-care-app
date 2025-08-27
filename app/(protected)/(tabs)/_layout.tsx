@@ -3,10 +3,13 @@ import { Tabs } from 'expo-router';
 import { Text, Pressable, View } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import StatusBarArea from '../../../components/StatusBarArea';
 
 export default function TabLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const insets = useSafeAreaInsets();
+
+
 
   // Custom label component using NativeWind className
   const renderLabel = (label: string, focused: boolean) => (
@@ -15,85 +18,107 @@ export default function TabLayout() {
     </Text>
   );
 
-  // Custom notification icon with badge
+  // Custom notification icon with counter badge
   const renderNotificationIcon = (color: string) => (
-    <View className="relative">
+    <View className="relative" style={{ minWidth: 32, minHeight: 32, justifyContent: 'center', alignItems: 'center' }}>
       <Feather name="bell" size={24} color={color} />
       {unreadCount > 0 && (
-        <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[16px] h-4 items-center justify-center">
-          <Text className="text-white text-xs font-bold px-1">
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </Text>
-        </View>
+        <Text 
+          className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[16px] h-4 text-white text-xs font-bold px-1 text-center"
+          style={{ 
+            zIndex: 1,
+            pointerEvents: 'none' // Prevents badge from interfering with touch events
+          }}
+        >
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </Text>
       )}
     </View>
   );
 
   // Simulate unread count (you can replace this with actual data from your notifications)
   useEffect(() => {
-    // For demo purposes, setting to 3 unread notifications
     setUnreadCount(7);
   }, []);
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        lazy: false,
-        tabBarActiveTintColor: '#0D0D0D',
-        tabBarLabelStyle: {
-          // This won't affect NativeWind, so we override it below with `tabBarLabel`
-          fontSize: 12,
-        },
-        tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
-          elevation: 0, // Remove shadow on Android
-          shadowOpacity: 0, // Remove shadow on iOS
-          paddingBottom: insets.bottom, // Use safe area insets for bottom padding
-          height: 60 + insets.bottom, // Adjust height based on safe area
-        },
-        tabBarItemStyle: {
-          paddingVertical: 4,
-        },
-        tabBarButton: (props) => (
-          <Pressable {...(props as any)} android_ripple={null} />
-        ),
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
-          tabBarLabel: ({ focused }) => renderLabel('Home', focused),
+    <>
+      <StatusBarArea />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          lazy: false,
+          tabBarActiveTintColor: '#0D0D0D',
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
+          tabBarStyle: {
+            backgroundColor: '#ffffff',
+            borderTopWidth: 1,
+            borderTopColor: '#e5e7eb',
+            elevation: 0,
+            shadowOpacity: 0,
+            paddingBottom: insets.bottom,
+            height: 60 + insets.bottom,
+          },
+          tabBarItemStyle: {
+            paddingVertical: 4,
+          },
+          tabBarButton: (props) => (
+            <Pressable 
+              {...(props as any)} 
+              android_ripple={null}
+              style={[
+                props.style,
+                { 
+                  minHeight: 44, // Ensures minimum touch target size
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingHorizontal: 8, // Add horizontal padding for better touch area
+                }
+              ]}
+            />
+          ),
         }}
-      />
-      <Tabs.Screen
-        name="ComplaintScreen"
-        options={{
-          title: 'Complaint',
-          tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
-          tabBarLabel: ({ focused }) => renderLabel('Complaint', focused),
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: 'Notifications',
-          tabBarIcon: ({ color }) => renderNotificationIcon(color),
-          tabBarLabel: ({ focused }) => renderLabel('Notifications', focused),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <Feather name="settings" size={24} color={color} />,
-          tabBarLabel: ({ focused }) => renderLabel('Settings', focused),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color }) => <Feather name="home" size={24} color={color} />,
+            tabBarLabel: ({ focused }) => renderLabel('Home', focused),
+          }}
+        />
+        <Tabs.Screen
+          name="ComplaintScreen"
+          options={{
+            title: 'Complaint',
+            tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
+            tabBarLabel: ({ focused }) => renderLabel('Complaint', focused),
+          }}
+        />
+        <Tabs.Screen
+          name="notifications"
+          options={{
+            title: 'Notifications',
+            tabBarIcon: ({ color }) => renderNotificationIcon(color),
+            tabBarLabel: ({ focused }) => renderLabel('Notifications', focused),
+            tabBarItemStyle: {
+              paddingVertical: 4,
+              minHeight: 44, // Ensures proper touch target
+              paddingHorizontal: 4, // Add horizontal padding
+            },
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color }) => <Feather name="settings" size={24} color={color} />,
+            tabBarLabel: ({ focused }) => renderLabel('Settings', focused),
+          }}
+        />
+      </Tabs>
+    </>
   );
 }

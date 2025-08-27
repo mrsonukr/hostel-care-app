@@ -14,7 +14,6 @@ import {
   View,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
-import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -50,52 +49,67 @@ export default function SignupScreen() {
     setLoading(true);
 
     try {
-      const response = await errorHandler.fetchWithErrorHandling(
-        'https://hostelapis.mssonutech.workers.dev/api/signup',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            roll_no: formData.rollNo,
-            gender: (formData.gender || 'male').toLowerCase(),
-            mobile_no: formData.mobileNo,
-            email: formData.email,
-            password: formData.password,
-          }),
+      const response = await fetch('https://hostelapis.mssonutech.workers.dev/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        'signup'
-      );
+        body: JSON.stringify({
+          roll_no: formData.rollNo,
+          gender: (formData.gender || 'male').toLowerCase(),
+          mobile_no: formData.mobileNo,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.success) {
         Alert.alert('Success', 'Account created successfully! Please login.', [
           { text: 'OK', onPress: () => router.replace('/(auth)/login') },
         ]);
       } else {
-        // Handle specific signup errors
+        // Handle specific signup errors based on status code and error message
         let errorTitle = 'Signup Failed';
-        let errorMessage = data.error || 'Failed to create account.';
+        let errorMessage = 'Something went wrong. Please try again.';
         
-        if (data.error?.includes('already exists') || data.error?.includes('duplicate')) {
+        if (response.status === 409) {
           errorTitle = 'Account Already Exists';
           errorMessage = 'An account with this roll number already exists. Please login instead.';
-        } else if (data.error?.includes('invalid') || data.error?.includes('format')) {
+        } else if (response.status === 400) {
           errorTitle = 'Invalid Information';
-          errorMessage = 'Please check your information and try again.';
+          errorMessage = data.error || 'Please check your information and try again.';
+        } else if (response.status === 422) {
+          errorTitle = 'Validation Error';
+          errorMessage = data.error || 'Please check your input format and try again.';
+        } else if (response.status >= 500) {
+          errorTitle = 'Server Error';
+          errorMessage = 'Our servers are experiencing issues. Please try again later.';
+        } else if (data.error) {
+          errorTitle = 'Signup Error';
+          errorMessage = data.error;
         }
         
         Alert.alert(errorTitle, errorMessage);
       }
     } catch (error: any) {
-      if (error instanceof AppError) {
-        errorHandler.showErrorAlert(error, handleSignup);
-      } else {
-        const appError = errorHandler.handleFetchError(error, 'signup');
-        errorHandler.showErrorAlert(appError, handleSignup);
+      console.error('Signup error:', error);
+      
+      let errorTitle = 'Connection Error';
+      let errorMessage = 'Unable to connect to server. Please check your internet connection and try again.';
+      
+      if (error.message?.includes('Network request failed') || 
+          error.message?.includes('fetch') ||
+          error.message?.includes('network') ||
+          error.message?.includes('connection')) {
+        errorMessage = 'Please check your internet connection and try again.';
+      } else if (error.message?.includes('timeout') || error.message?.includes('timed out')) {
+        errorTitle = 'Request Timeout';
+        errorMessage = 'The request took too long. Please try again.';
       }
+      
+      Alert.alert(errorTitle, errorMessage);
     } finally {
       setLoading(false);
     }

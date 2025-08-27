@@ -16,7 +16,6 @@ import {
   ActivityIndicator as RNActivityIndicator,
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
-import { errorHandler, AppError, errorMessages } from '../../utils/errorHandler';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -35,7 +34,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const response = await errorHandler.fetchWithErrorHandling(
+      const response = await fetch(
         'https://hostelapis.mssonutech.workers.dev/api/login',
         {
           method: 'POST',
@@ -46,13 +45,12 @@ export default function LoginScreen() {
             username,
             password,
           }),
-        },
-        'login'
+        }
       );
 
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.success) {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         setIsAuthenticated(true);
         
@@ -70,24 +68,43 @@ export default function LoginScreen() {
           router.replace('/(protected)/(tabs)');
         }, 100);
       } else {
-        // Handle specific login errors
+        // Handle specific login errors based on status code and error message
         let errorTitle = 'Login Failed';
-        let errorMessage = data.error || 'Invalid username or password.';
+        let errorMessage = 'Something went wrong. Please try again.';
         
-        if (data.error?.includes('not found') || data.error?.includes('invalid')) {
+        if (response.status === 401) {
           errorTitle = 'Invalid Credentials';
-          errorMessage = 'Please check your roll number/mobile and password.';
+          errorMessage = 'username or password is incorrect. Please check and try again.';
+        } else if (response.status === 400) {
+          errorTitle = 'Invalid Input';
+          errorMessage = data.error || 'Please check your input and try again.';
+        } else if (response.status >= 500) {
+          errorTitle = 'Server Error';
+          errorMessage = 'Our servers are experiencing issues. Please try again later.';
+        } else if (data.error) {
+          errorTitle = 'Login Error';
+          errorMessage = data.error;
         }
         
         Alert.alert(errorTitle, errorMessage);
       }
     } catch (error: any) {
-      if (error instanceof AppError) {
-        errorHandler.showErrorAlert(error, handleLogin);
-      } else {
-        const appError = errorHandler.handleFetchError(error, 'login');
-        errorHandler.showErrorAlert(appError, handleLogin);
+      console.error('Login error:', error);
+      
+      let errorTitle = 'Connection Error';
+      let errorMessage = 'Unable to connect to server. Please check your internet connection and try again.';
+      
+      if (error.message?.includes('Network request failed') || 
+          error.message?.includes('fetch') ||
+          error.message?.includes('network') ||
+          error.message?.includes('connection')) {
+        errorMessage = 'Please check your internet connection and try again.';
+      } else if (error.message?.includes('timeout') || error.message?.includes('timed out')) {
+        errorTitle = 'Request Timeout';
+        errorMessage = 'The request took too long. Please try again.';
       }
+      
+      Alert.alert(errorTitle, errorMessage);
     } finally {
       setLoading(false);
     }

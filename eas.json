@@ -20,6 +20,12 @@
       "ios": {
         "resourceClass": "m-medium"
       }
+    },
+    "local": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

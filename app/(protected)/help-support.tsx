@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Linking } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
+import StatusBarArea from '../../components/StatusBarArea';
 import { useRouter } from 'expo-router';
 
 const HelpSupport = () => {
@@ -83,6 +84,7 @@ const HelpSupport = () => {
 
   return (
     <View className="flex-1 bg-gray-50">
+      <StatusBarArea />
       <CustomHeader title="Help & Support" showBackButton onBackPress={() => router.back()} />
       <ScrollView className="flex-1 px-4 py-4">
         {/* Header Section */}

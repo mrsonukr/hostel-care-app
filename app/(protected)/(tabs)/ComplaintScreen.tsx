@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ScrollView,
   Text,
@@ -19,7 +19,7 @@ import DescriptionInput from '../../../components/DescriptionInput';
 import { complaintsApi, Complaint } from '../../../utils/complaintsApi';
 import { pickComplaintImage, uploadComplaintImages } from '../../../utils/imageUpload';
 import { getRelativeTime } from '../../../utils/dateUtils';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
 
 const complaintCategories = [
@@ -90,39 +90,47 @@ export default function ComplaintTab() {
   const [lastActiveTab, setLastActiveTab] = useState<'new' | 'status'>('new');
 
   // Load student data and fetch complaints
-  useEffect(() => {
-    const loadStudentData = async () => {
-      try {
-        const studentJson = await AsyncStorage.getItem('student');
-        if (studentJson) {
-          const student = JSON.parse(studentJson);
-          setStudentData(student);
-          
-          // Fetch complaints for the student
-          setLoading(true);
-          const studentRoll = student.roll_no;
-          if (studentRoll) {
-            const complaints = await complaintsApi.getComplaintsByStudent(studentRoll);
-            setComplaintStatus(complaints);
-          } else {
-            console.error('Student roll number not found in student data');
-          }
-        }
-      } catch (error: any) {
-        console.error('Error loading student data:', error);
-        if (error instanceof AppError) {
-          errorHandler.showErrorAlert(error, loadStudentData);
+  const loadStudentData = useCallback(async () => {
+    try {
+      const studentJson = await AsyncStorage.getItem('student');
+      if (studentJson) {
+        const student = JSON.parse(studentJson);
+        setStudentData(student);
+        
+        // Fetch complaints for the student
+        setLoading(true);
+        const studentRoll = student.roll_no;
+        if (studentRoll) {
+          const complaints = await complaintsApi.getComplaintsByStudent(studentRoll);
+          setComplaintStatus(complaints);
         } else {
-          const appError = errorHandler.handleFetchError(error, 'loading student data');
-          errorHandler.showErrorAlert(appError, loadStudentData);
+          console.error('Student roll number not found in student data');
         }
-      } finally {
-        setLoading(false);
       }
-    };
-
-    loadStudentData();
+    } catch (error: any) {
+      console.error('Error loading student data:', error);
+      if (error instanceof AppError) {
+        errorHandler.showErrorAlert(error, loadStudentData);
+      } else {
+        const appError = errorHandler.handleFetchError(error, 'loading student data');
+        errorHandler.showErrorAlert(appError, loadStudentData);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Load student data when component mounts
+  useEffect(() => {
+    loadStudentData();
+  }, [loadStudentData]);
+
+  // Refresh student data whenever screen comes into focus (e.g., after hostel/room change)
+  useFocusEffect(
+    useCallback(() => {
+      loadStudentData();
+    }, [loadStudentData])
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -226,6 +234,14 @@ export default function ComplaintTab() {
       const roomNumber = studentData.room_no || 'N/A';
       const hostelName = studentData.hostel_no || 'N/A';
 
+      // Log the hostel and room data being used for debugging
+      console.log('Complaint submission - Current hostel/room data:', {
+        hostel: hostelName,
+        room: roomNumber,
+        studentRoll,
+        studentName
+      });
+
 
       if (!studentRoll) {
         Alert.alert('Error', 'Student roll number not found. Please login again.');
@@ -280,7 +296,8 @@ export default function ComplaintTab() {
               // Switch to status tab
               setActiveTab('status');
               
-              // Refresh complaints list
+              // Refresh student data and complaints list to ensure latest hostel/room info
+              loadStudentData();
               loadComplaints();
             }
           }
@@ -326,6 +343,8 @@ export default function ComplaintTab() {
 
   const onRefresh = async () => {
     setRefreshing(true);
+    // Refresh both student data and complaints to ensure latest hostel/room info
+    await loadStudentData();
     await loadComplaints();
     setRefreshing(false);
   };
