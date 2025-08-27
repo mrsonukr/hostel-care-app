@@ -196,23 +196,19 @@ const styles = StyleSheet.create({
   container: {
     height: 180,
     position: 'relative',
-    marginTop: 10,
   },
   scrollView: {
     flex: 1,
   },
   slide: {
-    width: width - 32,
-    height: 180,
+    width: width,
+    height: 200,
     position: 'relative',
-    marginLeft: 16,
-    marginRight: 16,
   },
   image: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
-    borderRadius: 12,
   },
   overlay: {
     position: 'absolute',
