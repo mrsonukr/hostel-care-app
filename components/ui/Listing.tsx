@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import React from 'react';
+import React, { useState } from 'react';
 
 export interface InfoItem {
   label: string;
@@ -17,6 +17,8 @@ interface ListingProps {
 }
 
 const Listing: React.FC<ListingProps> = ({ title, data }) => {
+  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
+
   return (
     <View className="bg-white rounded-xl mb-5 overflow-hidden">
       <Text className="text-[16px] font-semibold font-okra text-black px-5 pt-5 pb-3">{title}</Text>
@@ -25,10 +27,14 @@ const Listing: React.FC<ListingProps> = ({ title, data }) => {
         <TouchableOpacity
           key={item.label}
           disabled={!item.onPress}
-          onPress={item.onPress}
-          activeOpacity={item.onPress ? 0.7 : 1}
+          onPress={() => {
+            item.onPress?.();
+          }}
+          activeOpacity={1}
+          onPressIn={() => item.onPress && setPressedIndex(index)}
+          onPressOut={() => setPressedIndex(null)}
         >
-          <View className="flex-row items-center px-5 py-4 bg-white">
+          <View className={`flex-row items-center px-5 py-4 ${pressedIndex === index && item.onPress ? 'bg-gray-200' : 'bg-white'}`}>
             {item.icon}
             <View className="ml-3 flex-1">
               <Text className="text-[16px] text-black font-okra">{item.label}</Text>

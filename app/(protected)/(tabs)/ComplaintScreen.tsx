@@ -19,7 +19,7 @@ import DescriptionInput from '../../../components/DescriptionInput';
 import { complaintsApi, Complaint } from '../../../utils/complaintsApi';
 import { pickComplaintImage, uploadComplaintImages } from '../../../utils/imageUpload';
 import { getRelativeTime } from '../../../utils/dateUtils';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { errorHandler, AppError, errorMessages } from '../../../utils/errorHandler';
 import { OfflineCheck } from '../../../components/withOfflineCheck';
 
@@ -78,6 +78,7 @@ const complaintOptions = {
 
 function ComplaintTabContent() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ category?: string; activeTab?: string }>();
   const [activeTab, setActiveTab] = useState<'new' | 'status'>('new');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -90,6 +91,17 @@ function ComplaintTabContent() {
   const [studentData, setStudentData] = useState<any>(null);
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [lastActiveTab, setLastActiveTab] = useState<'new' | 'status'>('new');
+
+  // Handle route parameters for pre-selecting category and active tab
+  useEffect(() => {
+    if (params.category) {
+      setSelectedCategory(params.category);
+      setActiveTab('new');
+    }
+    if (params.activeTab === 'status') {
+      setActiveTab('status');
+    }
+  }, [params.category, params.activeTab]);
 
   // Load student data and fetch complaints
   const loadStudentData = useCallback(async () => {

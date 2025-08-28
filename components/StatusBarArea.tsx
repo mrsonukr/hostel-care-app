@@ -34,14 +34,9 @@ const StatusBarArea: React.FC = () => {
     return null;
   }
 
-  // Only render for iOS to handle safe area
-  return (
-    <View style={{ 
-      height: 44, 
-      backgroundColor: 'white',
-      zIndex: 9999
-    }} />
-  );
+  // iOS: Don't render extra View since CustomHeader handles safe area insets
+  // This prevents duplicate spacing that was causing the gap issue
+  return null;
 };
 
 export default StatusBarArea;

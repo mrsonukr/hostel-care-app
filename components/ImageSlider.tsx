@@ -12,6 +12,7 @@ import {
   NativeScrollEvent,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import ImageSliderSkeleton from './ImageSliderSkeleton';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +39,7 @@ export default function ImageSlider({
   showTitles = true,
 }: ImageSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // one Animated.Value per dot
@@ -48,11 +50,22 @@ export default function ImageSlider({
 
   // mark first dot active on mount / images change
   useEffect(() => {
-    if (!images || images.length === 0) return;
+    if (!images || images.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+    
+    // Simulate loading time for skeleton
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
     animations.forEach((a, i) => a.setValue(i === 0 ? 1 : 0));
     setCurrentIndex(0);
     // scroll to first slide if images changed
     scrollViewRef.current?.scrollTo({ x: 0, animated: false });
+    
+    return () => clearTimeout(timer);
   }, [images]);
 
   // autoplay
@@ -112,6 +125,10 @@ export default function ImageSlider({
     if (autoPlay) stopAuto();
   };
 
+  if (isLoading) {
+    return <ImageSliderSkeleton />;
+  }
+
   if (!images || images.length === 0) {
     return (
       <View style={styles.placeholder}>
@@ -135,7 +152,13 @@ export default function ImageSlider({
       >
         {images.map((image) => (
           <View key={image.id} style={styles.slide}>
-            <Image source={{ uri: image.url }} style={styles.image} />
+            <Image 
+              source={{ uri: image.url }} 
+              style={styles.image}
+              resizeMode="cover"
+              onLoad={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
+            />
             {showTitles && (image.title || image.description) && (
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.7)']}
@@ -201,13 +224,12 @@ const styles = StyleSheet.create({
   },
   slide: {
     width: width,
-    height: 150,
+    height: 180,
     position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
-
   },
   overlay: {
     position: 'absolute',

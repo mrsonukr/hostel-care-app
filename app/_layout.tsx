@@ -39,13 +39,18 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Configure status bar for Android builds
+    // Configure status bar for both platforms
     if (Platform.OS === 'android') {
       StatusBar.setBackgroundColor('white');
       StatusBar.setBarStyle('dark-content');
       StatusBar.setTranslucent(false);
       // Ensure the status bar doesn't create extra spacing
       StatusBar.setBarStyle('dark-content', true);
+    } else if (Platform.OS === 'ios') {
+      // iOS: Set status bar to dark mode (black text/icons)
+      StatusBar.setBarStyle('dark-content');
+      // Ensure status bar is visible and properly configured
+      StatusBar.setHidden(false);
     }
     
     checkAuthStatus();

@@ -1,16 +1,13 @@
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Text, Pressable, View } from 'react-native';
+import { Text, Pressable, View, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StatusBarArea from '../../../components/StatusBarArea';
 
-
 export default function TabLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const insets = useSafeAreaInsets();
-
-
 
   // Custom label component using NativeWind className
   const renderLabel = (label: string, focused: boolean) => (
@@ -57,8 +54,7 @@ export default function TabLayout() {
             backgroundColor: '#ffffff',
             borderTopWidth: 1,
             borderTopColor: '#e5e7eb',
-            elevation: 0,
-            shadowOpacity: 0,
+            elevation: Platform.OS === 'android' ? 8 : 0,
             paddingBottom: insets.bottom,
             height: 60 + insets.bottom,
           },
