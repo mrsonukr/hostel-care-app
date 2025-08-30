@@ -12,6 +12,8 @@ import { OfflineProvider } from '../contexts/OfflineContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { OfflinePerformanceMonitor } from '../components/OfflinePerformanceMonitor';
+import { EXPO_PUSH_CONFIG } from '../constants/expo';
+import { notificationService } from '../utils/notificationService';
 import "../global.css"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
@@ -23,6 +25,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -54,7 +58,7 @@ export default function RootLayout() {
     }
     
     checkAuthStatus();
-    setupNotifications();
+    initializeNotificationService();
     // Check auth status less frequently to avoid performance issues
     const interval = setInterval(checkAuthStatus, 5000);
     return () => clearInterval(interval);
@@ -66,31 +70,13 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  const setupNotifications = async () => {
+  const initializeNotificationService = async () => {
     try {
-      // Request permission
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      
-      if (finalStatus !== 'granted') {
-
-        return;
-      }
-
-      // Get the token
-      const token = await Notifications.getExpoPushTokenAsync();
-      
-      
-      // Store the token for later use
-      await AsyncStorage.setItem('expoPushToken', token.data);
-      
+      console.log('🚀 Initializing notification service on app start...');
+      await notificationService.initialize();
+      console.log('✅ Notification service initialized successfully');
     } catch (error) {
-      
+      console.error('❌ Error initializing notification service:', error);
     }
   };
 

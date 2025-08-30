@@ -55,16 +55,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const registerDeviceForNotifications = async (userId: string) => {
     try {
-      // Initialize notification service
-      await notificationService.initialize();
+      console.log('📱 Registering device for notifications for user:', userId);
       
-      // Register device with notification API
+      // Register device with notification API (service should already be initialized)
       const success = await notificationService.registerDevice(userId);
       
       if (success) {
-
+        console.log('✅ Device registered successfully for notifications');
       } else {
-
+        console.log('❌ Failed to register device for notifications');
       }
     } catch (error) {
       console.error('Error registering device for notifications:', error);

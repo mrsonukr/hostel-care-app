@@ -78,15 +78,6 @@ export function useNotifications(): NotificationState & NotificationActions {
     }
   }, [loadUserId]);
 
-  const initializeNotifications = useCallback(async () => {
-    try {
-      await notificationService.initialize();
-      await checkNotificationStatus();
-    } catch (error) {
-      console.error('Error initializing notifications:', error);
-    }
-  }, [checkNotificationStatus]);
-
   const registerDevice = useCallback(async (userId: string): Promise<boolean> => {
     try {
       const success = await notificationService.registerDevice(userId);
@@ -142,14 +133,13 @@ export function useNotifications(): NotificationState & NotificationActions {
     await checkNotificationStatus();
   }, [checkNotificationStatus]);
 
-  // Initialize on mount
+  // Check status on mount
   useEffect(() => {
-    initializeNotifications();
-  }, [initializeNotifications]);
+    checkNotificationStatus();
+  }, [checkNotificationStatus]);
 
   return {
     ...state,
-    initializeNotifications,
     registerDevice,
     deactivateDevice,
     requestPermissions,

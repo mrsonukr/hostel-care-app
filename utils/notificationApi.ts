@@ -42,8 +42,16 @@ class NotificationApi {
    */
   async registerDevice(data: DeviceRegistrationData): Promise<NotificationApiResponse> {
     try {
-  
-      
+      // Validate required fields
+      if (!data.user_id || !data.expo_token || !data.device_id || !data.device_type) {
+        console.error('❌ Missing required fields:', data);
+        return {
+          success: false,
+          error: 'Validation Error',
+          message: 'Missing required fields: user_id, expo_token, device_id, or device_type'
+        };
+      }
+
       const response = await fetch(`${this.baseUrl}/api/register-device`, {
         method: 'POST',
         headers: {
@@ -53,11 +61,13 @@ class NotificationApi {
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
         console.error('API response not ok:', response.status, response.statusText);
+        console.error('Error response body:', errorText);
         return {
           success: false,
           error: `HTTP ${response.status}`,
-          message: `Failed to register device: ${response.statusText}`
+          message: `Failed to register device: ${response.statusText} - ${errorText}`
         };
       }
 
@@ -176,23 +186,29 @@ class NotificationApi {
    */
   async healthCheck(): Promise<{ status: string; message: string }> {
     try {
-      const response = await errorHandler.fetchWithErrorHandling(
-        `${this.baseUrl}/api/health`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      const response = await fetch(`${this.baseUrl}/api/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        'notification-health-check'
-      );
+      });
 
-      return await response.json();
-    } catch (error: any) {
-      if (error instanceof AppError) {
-        throw error;
+      if (!response.ok) {
+        console.error('❌ Health check failed:', response.status, response.statusText);
+        return {
+          status: 'error',
+          message: `API health check failed: ${response.status} ${response.statusText}`
+        };
       }
-      throw errorHandler.handleFetchError(error, 'notification-health-check');
+
+      const result = await response.json();
+      return result;
+    } catch (error: any) {
+      console.error('❌ Health check error:', error);
+      return {
+        status: 'error',
+        message: error.message || 'Failed to connect to notification service'
+      };
     }
   }
 }
