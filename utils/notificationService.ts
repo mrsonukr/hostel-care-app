@@ -4,7 +4,6 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { notificationApi, DeviceRegistrationData, DeviceDeactivationData } from './notificationApi';
 import { errorHandler } from './errorHandler';
-import { EXPO_PUSH_CONFIG } from '../constants/expo';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -12,8 +11,6 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
   }),
 });
 
@@ -36,11 +33,9 @@ class NotificationService {
     try {
       // Check if device supports notifications
       if (!Device.isDevice) {
-        console.log('⚠️ Running on simulator/emulator, notifications not available');
+  
         return;
       }
-      
-      console.log('✅ Running on physical device, proceeding with notification setup');
 
       // Get device ID first
       this.deviceId = await this.getDeviceId();
@@ -55,50 +50,24 @@ class NotificationService {
       }
 
       if (finalStatus !== 'granted') {
-        console.log('⚠️ Notification permissions not granted, status:', finalStatus);
+  
         return;
       }
-      
-      console.log('✅ Notification permissions granted');
 
       // Get Expo push token
       try {
-        console.log('🔍 Attempting to get Expo push token with config:', EXPO_PUSH_CONFIG);
-        
-        const tokenData = await Notifications.getExpoPushTokenAsync(EXPO_PUSH_CONFIG);
+        const tokenData = await Notifications.getExpoPushTokenAsync({
+          projectId: undefined, // Will use default project ID from app.json
+        });
 
         this.expoToken = tokenData.data;
-        console.log('✅ Expo push token obtained successfully:', this.expoToken);
+  
 
         // Save token to storage
         await this.saveTokenToStorage();
-      } catch (tokenError: any) {
-        console.error('❌ Error getting Expo push token:', tokenError);
-        console.error('❌ Token error details:', {
-          message: tokenError?.message || 'Unknown error',
-          code: tokenError?.code || 'No code',
-          stack: tokenError?.stack || 'No stack'
-        });
-        
-        // Try alternative configuration for release builds
-        try {
-          console.log('🔄 Trying alternative token generation method...');
-          const fallbackConfig = {
-            projectId: EXPO_PUSH_CONFIG.projectId,
-            experienceId: '@mrsonukr/hostelcare'
-          };
-          
-          const fallbackTokenData = await Notifications.getExpoPushTokenAsync(fallbackConfig);
-          this.expoToken = fallbackTokenData.data;
-          console.log('✅ Fallback token obtained successfully:', this.expoToken);
-          await this.saveTokenToStorage();
-        } catch (fallbackError: any) {
-          console.error('❌ Fallback token generation also failed:', fallbackError);
-          console.error('❌ Fallback error details:', {
-            message: fallbackError?.message || 'Unknown error',
-            code: fallbackError?.code || 'No code'
-          });
-        }
+      } catch (tokenError) {
+        console.error('Error getting Expo push token:', tokenError);
+        // Continue without token for now
       }
 
       // Set up notification listeners
@@ -167,22 +136,18 @@ class NotificationService {
   async registerDevice(userId: string): Promise<boolean> {
     try {
       if (!this.expoToken || !this.deviceId) {
-        return false;
-      }
-
-      // Validate data format
-      if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+  
         return false;
       }
 
       const deviceData: DeviceRegistrationData = {
-        user_id: userId.trim(),
+        user_id: userId,
         expo_token: this.expoToken,
         device_id: this.deviceId,
         device_type: Platform.OS as 'ios' | 'android' | 'web',
       };
 
-
+      
 
       const response = await notificationApi.registerDevice(deviceData);
       
@@ -206,6 +171,7 @@ class NotificationService {
   async deactivateDevice(userId: string): Promise<boolean> {
     try {
       if (!this.deviceId) {
+  
         return false;
       }
 
@@ -276,7 +242,6 @@ class NotificationService {
    * Get current notification token
    */
   getCurrentToken(): string | null {
-    console.log('🔍 Getting current token:', this.expoToken ? 'Available' : 'Not available');
     return this.expoToken;
   }
 
@@ -284,7 +249,6 @@ class NotificationService {
    * Get current device ID
    */
   getCurrentDeviceId(): string | null {
-    console.log('🔍 Getting current device ID:', this.deviceId ? 'Available' : 'Not available');
     return this.deviceId;
   }
 

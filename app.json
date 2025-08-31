@@ -9,25 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.hostelcare.app"
+      "supportsTablet": true
     },
     "android": {
       "package": "com.hostelcare.app",
-      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": false,
-      "permissions": [
-        "android.permission.WAKE_LOCK",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "com.google.android.c2dm.permission.RECEIVE"
-      ],
-      "useNextNotificationsApi": true,
-      "allowBackup": true,
-      "allowClearTextTraffic": false
+      "edgeToEdgeEnabled": false
     },
     "web": {
       "bundler": "metro",
@@ -41,12 +31,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#ffffff",
-          "androidMode": "fcm",
-          "androidCollapsedTitle": "#{unread_notifications} new notifications",
-          "androidChannelId": "default",
-          "androidChannelName": "Default",
-          "androidChannelDescription": "Default notification channel"
+          "color": "#ffffff"
         }
       ],
       [
@@ -68,7 +53,6 @@
         "projectId": "ee0f715d-e80b-4875-ab8b-4b349f4f89da"
       }
     },
-    "owner": "mrsonukr",
-    "experienceId": "@mrsonukr/hostelcare"
+    "owner": "mrsonukr"
   }
 }

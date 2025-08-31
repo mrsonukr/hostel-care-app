@@ -44,12 +44,16 @@ export async function testNotificationSystem() {
 }
 
 export async function testDeviceRegistration(rollNo: string) {
+  
+  
   try {
     // Test device registration
     const success = await notificationService.registerDevice(rollNo);
+    console.log('✅ Device Registration Result:', success);
     
     // Test getting user tokens
     const response = await notificationApi.getUserTokens(rollNo);
+    console.log('✅ User Tokens Response:', response);
     
     return success;
   } catch (error) {

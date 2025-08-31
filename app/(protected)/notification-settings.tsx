@@ -121,22 +121,6 @@ export default function NotificationSettingsScreen() {
     }
   };
 
-  const handleHealthCheck = async () => {
-    try {
-      const { notificationApi } = require('../../utils/notificationApi');
-      const result = await notificationApi.healthCheck();
-      
-      if (result.status === 'ok' || result.status === 'healthy') {
-        Alert.alert('Success', `API is healthy: ${result.message}`);
-      } else {
-        Alert.alert('Warning', `API health issue: ${result.message}`);
-      }
-    } catch (error) {
-      console.error('Error in health check:', error);
-      Alert.alert('Error', 'Health check failed.');
-    }
-  };
-
   const handleReRegisterDevice = async () => {
     if (!userId) {
       Alert.alert('Error', 'User ID not found. Please log in again.');
@@ -157,7 +141,7 @@ export default function NotificationSettingsScreen() {
     const deviceId = notificationService.getCurrentDeviceId();
     
     return {
-      token: token || 'Not available',
+      token: token ? `${token.substring(0, 20)}...` : 'Not available',
       deviceId: deviceId || 'Not available',
     };
   };
@@ -271,15 +255,6 @@ export default function NotificationSettingsScreen() {
             </Text>
             
             <View className="space-y-3">
-              <TouchableOpacity
-                onPress={handleHealthCheck}
-                className="bg-purple-600 rounded-lg py-3 px-4"
-              >
-                <Text className="text-white text-center font-semibold">
-                  API Health Check
-                </Text>
-              </TouchableOpacity>
-              
               <TouchableOpacity
                 onPress={handleTestNotification}
                 className="bg-[#0B2447] rounded-lg py-3 px-4"
