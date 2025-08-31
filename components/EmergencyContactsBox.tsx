@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Linking } from 'react-native';
+import { View, Text,  Linking } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
 import Listing from './ui/Listing';
 
 export default function EmergencyContactsBox() {
@@ -28,6 +27,13 @@ export default function EmergencyContactsBox() {
       icon: 'local-police',
       iconSet: 'MaterialIcons',
       bgColor: 'bg-blue-500'
+    },
+    {
+      name: 'Fire Brigade',
+      phone: '101',
+      icon: 'fire-truck',
+      iconSet: 'MaterialCommunityIcons',
+      bgColor: 'bg-red-500'
     }
   ];
 

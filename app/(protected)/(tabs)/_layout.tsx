@@ -52,9 +52,9 @@ export default function TabLayout() {
           },
           tabBarStyle: {
             backgroundColor: '#ffffff',
-            borderTopWidth: 1,
+            borderTopWidth: 0.5,
             borderTopColor: '#e5e7eb',
-            elevation: Platform.OS === 'android' ? 8 : 0,
+            elevation: 0,
             paddingBottom: insets.bottom,
             height: 60 + insets.bottom,
           },

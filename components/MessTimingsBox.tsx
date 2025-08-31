@@ -1,10 +1,53 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MessTimingsBox() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [userGender, setUserGender] = useState<string>('male');
+
+  // Fetch user gender from AsyncStorage and refresh when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserGender = async () => {
+        try {
+          const studentData = await AsyncStorage.getItem('student');
+          if (studentData) {
+            const parsedData = JSON.parse(studentData);
+            setUserGender(parsedData.gender || 'male');
+          }
+        } catch (error) {
+          console.error('Error fetching user gender:', error);
+        }
+      };
+
+      fetchUserGender();
+    }, [])
+  );
+
+  // Update time every minute for live updates
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute (60000ms)
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Get current time in IST (India Standard Time)
+  const getCurrentTimeInIST = () => {
+    const now = currentTime;
+    // IST is UTC+5:30
+    const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+    const istTime = new Date(utcTime + istOffset);
+    return istTime;
+  };
+
   const getCurrentTimeProgress = (startTime: string, endTime: string) => {
-    const now = new Date();
+    const now = getCurrentTimeInIST(); // Use IST time
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const currentTimeInMinutes = currentHour * 60 + currentMinute;
@@ -49,8 +92,14 @@ export default function MessTimingsBox() {
   const messTimings = [
     { meal: 'Breakfast', time: '7:00 AM - 8:30 AM', startTime: '7:00 AM', endTime: '8:30 AM', icon: 'sunrise' },
     { meal: 'Lunch', time: '12:00 PM - 2:00 PM', startTime: '12:00 PM', endTime: '2:00 PM', icon: 'sun' },
-    { meal: 'Snacks', time: '4:00 PM - 5:00 PM', startTime: '4:00 PM', endTime: '5:00 PM', icon: 'coffee' },
-    { meal: 'Dinner', time: '7:00 PM - 8:30 PM', startTime: '7:00 PM', endTime: '8:30 PM', icon: 'moon' }
+    { meal: 'Snacks', time: '4:30 PM - 5:00 PM', startTime: '4:30 PM', endTime: '5:00 PM', icon: 'coffee' },
+    { 
+      meal: 'Dinner', 
+      time: userGender === 'female' ? '7:00 PM - 7:40 PM' : '7:30 PM - 8:30 PM', 
+      startTime: userGender === 'female' ? '7:00 PM' : '7:30 PM', 
+      endTime: userGender === 'female' ? '7:40 PM' : '8:30 PM', 
+      icon: 'moon' 
+    }
   ];
 
   return (
