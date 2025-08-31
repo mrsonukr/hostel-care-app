@@ -4,6 +4,7 @@ import CustomHeader from '../../../components/CustomHeader';
 import ImageSlider from '../../../components/ImageSlider';
 import HomeCategoriesBox from '../../../components/HomeCategoriesBox';
 import MessTimingsBox from '../../../components/MessTimingsBox';
+import HostelEntryTimeBox from '../../../components/HostelEntryTimeBox';
 import EmergencyContactsBox from '../../../components/EmergencyContactsBox';
 import ImageSliderSkeleton from '../../../components/ImageSliderSkeleton';
 
@@ -66,6 +67,9 @@ function HomeTabContent() {
         
         {/* Mess Timings Box */}
         <MessTimingsBox />
+        
+        {/* Hostel Entry Time Box */}
+        <HostelEntryTimeBox />
         
         {/* Emergency Contacts Box */}
         <EmergencyContactsBox />
