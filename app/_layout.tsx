@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, View, StatusBar, Platform } from 'react-native';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFrameworkReady } from '../hooks/useFrameworkReady';
 import { AuthProvider } from '../contexts/AuthContext';
@@ -16,15 +15,6 @@ import "../global.css"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
 SplashScreen.preventAutoHideAsync();
-
-// Configure notification behavior
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -54,7 +44,6 @@ export default function RootLayout() {
     }
     
     checkAuthStatus();
-    setupNotifications();
     // Check auth status less frequently to avoid performance issues
     const interval = setInterval(checkAuthStatus, 5000);
     return () => clearInterval(interval);
@@ -66,33 +55,7 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  const setupNotifications = async () => {
-    try {
-      // Request permission
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      
-      if (finalStatus !== 'granted') {
 
-        return;
-      }
-
-      // Get the token
-      const token = await Notifications.getExpoPushTokenAsync();
-      
-      
-      // Store the token for later use
-      await AsyncStorage.setItem('expoPushToken', token.data);
-      
-    } catch (error) {
-      
-    }
-  };
 
   const checkAuthStatus = async () => {
     try {

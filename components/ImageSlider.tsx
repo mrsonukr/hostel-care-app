@@ -11,7 +11,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import ImageSliderSkeleton from './ImageSliderSkeleton';
 
 const { width } = Dimensions.get('window');
@@ -160,17 +160,14 @@ export default function ImageSlider({
               onError={() => setIsLoading(false)}
             />
             {showTitles && (image.title || image.description) && (
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.7)']}
-                style={styles.overlay}
-              >
+              <View style={styles.overlay}>
                 <View style={styles.textContainer}>
                   {image.title && <Text style={styles.title}>{image.title}</Text>}
                   {image.description && (
                     <Text style={styles.description}>{image.description}</Text>
                   )}
                 </View>
-              </LinearGradient>
+              </View>
             )}
           </View>
         ))}
@@ -238,6 +235,7 @@ const styles = StyleSheet.create({
     right: 0,
     height: 100,
     justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   textContainer: {
     padding: 20,

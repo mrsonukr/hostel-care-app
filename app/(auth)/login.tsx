@@ -20,7 +20,7 @@ import { OfflineCheck } from '../../components/withOfflineCheck';
 
 function LoginScreenContent() {
   const router = useRouter();
-  const { setIsAuthenticated, registerDeviceForNotifications } = useAuth();
+  const { setIsAuthenticated } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -55,14 +55,7 @@ function LoginScreenContent() {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         setIsAuthenticated(true);
         
-        // Register device for notifications
-        if (data.student && data.student.roll_no) {
-          try {
-            await registerDeviceForNotifications(data.student.roll_no);
-          } catch (error) {
-            console.error('Error registering device for notifications:', error);
-          }
-        }
+
         
         // Use a small delay to ensure navigation is ready
         setTimeout(() => {
