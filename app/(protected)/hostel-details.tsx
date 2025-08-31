@@ -16,24 +16,7 @@ import CustomHeader from '../../components/CustomHeader';
 import Listing from '../../components/ui/Listing';
 import SubmitButton from '../../components/ui/SubmitButton';
 
-// Hostel code mapping for parsing
-const hostelCodeMap: { [key: number]: string } = {
-  1: '1B',
-  2: '2G',
-  3: '3G',
-  4: '4G',
-  5: '5B',
-  6: '6G',
-  7: '7G',
-  8: '8G',
-  9: '9G',
-  10: '10B',
-  11: '11B',
-  12: '12B',
-  13: '13B',
-  14: '14B',
-  16: '16B',
-};
+import { hostelCodeMap } from '../../constants/hostelConstants';
 
 interface Student {
   roll_no: string;

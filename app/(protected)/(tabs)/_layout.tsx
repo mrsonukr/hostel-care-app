@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { Text, Pressable, View, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import StatusBarArea from '../../../components/StatusBarArea';
+
 
 export default function TabLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -34,14 +34,14 @@ export default function TabLayout() {
     </View>
   );
 
-  // Simulate unread count (you can replace this with actual data from your notifications)
+  // TODO: Replace with actual notification data from your backend
   useEffect(() => {
-    setUnreadCount(7);
+    // setUnreadCount(actualCount);
   }, []);
 
   return (
     <>
-      <StatusBarArea />
+
       <Tabs
         screenOptions={{
           headerShown: false,

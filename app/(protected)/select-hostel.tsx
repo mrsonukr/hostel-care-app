@@ -19,27 +19,7 @@ import SubmitButton from '../../components/ui/SubmitButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-// Mapping for backend saving (all hostels except 15)
-const hostelCodeMap: { [key: number]: string } = {
-  1: '1B',
-  2: '2G',
-  3: '3G',
-  4: '4G',
-  5: '5B',
-  6: '6G',
-  7: '7G',
-  8: '8G',
-  9: '9G',
-  10: '10B',
-  11: '11B',
-  12: '12B',
-  13: '13B',
-  14: '14B',
-  16: '16B',
-};
-
-// Only show 1 to 4 in frontend
-const hostelsToShow: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16];
+import { hostelCodeMap, hostelsToShow } from '../../constants/hostelConstants';
 
 export default function HostelListScreen() {
   const router = useRouter();

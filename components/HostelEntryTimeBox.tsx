@@ -27,11 +27,11 @@ export default function HostelEntryTimeBox() {
     }, [])
   );
 
-  // Update time every 30 seconds for live updates
+  // Update time every second for live updates and debugging
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 30000); // Update every 30 seconds (30000ms)
+    }, 1000); // Update every 1 second (1000ms) for debugging
 
     return () => clearInterval(timer);
   }, []);
@@ -51,8 +51,15 @@ export default function HostelEntryTimeBox() {
     const entryTime = userGender === 'female' ? 20 : 22; // 8 PM for female, 10 PM for male/others
     const entryTimeInMinutes = entryTime * 60;
 
-    if (currentTimeInMinutes < entryTimeInMinutes) {
-      // Before entry time
+    // Hostel reopens at 6 AM (6 * 60 = 360 minutes)
+    const reopenTimeInMinutes = 6 * 60; // 6:00 AM
+
+    // Check if hostel is currently open
+    // Hostel is open if: current time is between 6 AM and entry time
+    const isCurrentlyOpen = currentTimeInMinutes >= reopenTimeInMinutes && currentTimeInMinutes < entryTimeInMinutes;
+
+    if (isCurrentlyOpen) {
+      // Hostel is open - show time until entry closes
       const remainingMinutes = entryTimeInMinutes - currentTimeInMinutes;
       const hrs = Math.floor(remainingMinutes / 60);
       const mins = remainingMinutes % 60;
@@ -62,10 +69,23 @@ export default function HostelEntryTimeBox() {
         color: 'text-green-600'
       };
     } else {
-      // After entry time
+      // Hostel is closed - calculate time until reopen
+      let minutesUntilReopen;
+
+      if (currentTimeInMinutes < reopenTimeInMinutes) {
+        // It's before 6 AM, so reopen is today
+        minutesUntilReopen = reopenTimeInMinutes - currentTimeInMinutes;
+      } else {
+        // It's past entry time, so reopen is tomorrow at 6 AM
+        minutesUntilReopen = (24 * 60 - currentTimeInMinutes) + reopenTimeInMinutes;
+      }
+
+      const hrs = Math.floor(minutesUntilReopen / 60);
+      const mins = minutesUntilReopen % 60;
+
       return {
         status: 'closed',
-        remainingTime: 'Entry time passed',
+        remainingTime: `${hrs > 0 ? `${hrs}h ` : ''}${mins}m left`,
         color: 'text-red-600'
       };
     }
@@ -87,11 +107,17 @@ export default function HostelEntryTimeBox() {
           {/* Content */}
           <View className="flex-1">
             <Text className="text-base font-semibold text-black font-okra mb-1">
-              Entry Allowed Till {isFemale ? '8:00 PM' : '10:00 PM'}
+              {entryTimeStatus.status === 'closed'
+                ? `Hostel Entry Closed`
+                : `Entry Allowed Till ${isFemale ? '8:00 PM' : '10:00 PM'}`
+              }
             </Text>
-            
+
             <Text className="text-sm text-gray-600 font-okra mb-2">
-              Late entry not allowed
+              {entryTimeStatus.status === 'closed'
+                ? 'Reopens at 6:00 AM'
+                : 'Late entry not allowed in Hostel'
+              }
             </Text>
           </View>
 

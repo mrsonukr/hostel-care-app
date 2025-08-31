@@ -10,7 +10,7 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { OfflineProvider } from '../contexts/OfflineContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OfflineIndicator } from '../components/OfflineIndicator';
-import { OfflinePerformanceMonitor } from '../components/OfflinePerformanceMonitor';
+
 import "../global.css"
 
 // Prevent the splash screen from auto-hiding before asset loading is complete
@@ -82,7 +82,7 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <OfflineProvider>
-        <OfflinePerformanceMonitor />
+  
         <AuthProvider>
           <SafeAreaProvider>
             <Stack

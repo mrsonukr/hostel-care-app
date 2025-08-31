@@ -392,8 +392,6 @@ export default function ComplaintDetails() {
              </Text>
            )}
          </View>
-
-        
        </ScrollView>
      </View>
      </>
