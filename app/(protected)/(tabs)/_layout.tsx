@@ -108,6 +108,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="test"
+          options={{
+            title: 'Test',
+            tabBarIcon: ({ color }) => <Feather name="activity" size={24} color={color} />,
+            tabBarLabel: ({ focused }) => renderLabel('Test', focused),
+          }}
+        />
+        <Tabs.Screen
           name="settings"
           options={{
             title: 'Settings',

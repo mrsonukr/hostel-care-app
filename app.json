@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.hostelcare.app",
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -27,7 +28,6 @@
     "plugins": [
       "expo-router",
       "expo-dev-client",
-
       [
         "expo-splash-screen",
         {
@@ -44,9 +44,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ee0f715d-e80b-4875-ab8b-4b349f4f89da"
+        "projectId": "17aa193f-9963-4c42-b8e3-3c0e26613bb8"
       }
     },
-    "owner": "mrsonukr"
+    "owner": "mssonukr"
   }
 }
