@@ -6,6 +6,21 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+// Primary App Colors
+export const AppColors = {
+  primary: {
+    background: 'bg-gray-100',
+    icon: '#00000', // purple-500
+    hex: '#8B5CF6',
+  },
+  // You can add more colors here as needed
+  secondary: {
+    background: 'bg-gray-100',
+    icon: '#6B7280', // gray-500
+    hex: '#6B7280',
+  },
+};
+
 export const Colors = {
   light: {
     text: '#11181C',

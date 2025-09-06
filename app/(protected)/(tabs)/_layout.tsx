@@ -1,8 +1,11 @@
 import { Feather, AntDesign } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { Tabs, useFocusEffect } from 'expo-router';
 import { Text, Pressable, View, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getUnreadCount } from '../../../utils/notificationsApi';
+import { notificationEvents, NOTIFICATION_EVENTS } from '../../../utils/notificationEvents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function TabLayout() {
@@ -34,9 +37,60 @@ export default function TabLayout() {
     </View>
   );
 
-  // TODO: Replace with actual notification data from your backend
+  // Fetch unread notification count
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const studentData = await AsyncStorage.getItem('student');
+      if (studentData) {
+        const student = JSON.parse(studentData);
+        const response = await getUnreadCount(student.roll_no);
+        if (response.success) {
+          setUnreadCount(response.totalunread);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  }, []);
+
   useEffect(() => {
-    // setUnreadCount(actualCount);
+    fetchUnreadCount();
+  }, [fetchUnreadCount]);
+
+  // Refresh count when notifications tab is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchUnreadCount();
+    }, [fetchUnreadCount])
+  );
+
+  // Listen for notification events to update badge count
+  useEffect(() => {
+    const handleNotificationRead = () => {
+      // Decrease count by 1 when notification is read
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    };
+
+    const handleNotificationDeleted = () => {
+      // Decrease count by 1 when notification is deleted
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    };
+
+    const handleUnreadCountChanged = (newCount: number) => {
+      setUnreadCount(newCount);
+    };
+
+    // Add event listeners
+    notificationEvents.on(NOTIFICATION_EVENTS.NOTIFICATION_READ, handleNotificationRead);
+    notificationEvents.on(NOTIFICATION_EVENTS.NOTIFICATION_DELETED, handleNotificationDeleted);
+    notificationEvents.on(NOTIFICATION_EVENTS.UNREAD_COUNT_CHANGED, handleUnreadCountChanged);
+
+    // Cleanup listeners
+    return () => {
+      notificationEvents.off(NOTIFICATION_EVENTS.NOTIFICATION_READ, handleNotificationRead);
+      notificationEvents.off(NOTIFICATION_EVENTS.NOTIFICATION_DELETED, handleNotificationDeleted);
+      notificationEvents.off(NOTIFICATION_EVENTS.UNREAD_COUNT_CHANGED, handleUnreadCountChanged);
+    };
   }, []);
 
   return (

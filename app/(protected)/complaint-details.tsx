@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Image, ActivityIndicator, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { Feather, MaterialCommunityIcons, FontAwesome6, Octicons, SimpleLineIcons, Entypo, FontAwesome5, MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons,  Ionicons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
 
 import { complaintsApi, Complaint } from '../../utils/complaintsApi';
 import { getRelativeTime, getFormattedDateTime, getDurationBetweenDates } from '../../utils/dateUtils';
 
 export default function ComplaintDetails() {
-  const { complaint: complaintParam } = useLocalSearchParams();
+  const { id, complaint: complaintParam } = useLocalSearchParams();
   const router = useRouter();
   const [complaint, setComplaint] = useState<Complaint | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,15 +63,38 @@ export default function ComplaintDetails() {
     return iconMap[option] || { icon: 'more-horizontal', iconSet: 'Feather' };
   };
 
-  const loadComplaintData = () => {
-    if (!complaintParam) return;
-    
+  const loadComplaintData = async () => {
     try {
       setLoading(true);
-      const complaintData = JSON.parse(complaintParam as string);
+      
+      // Check if complaint object is passed directly (from complaint list)
+      if (complaintParam) {
+        console.log('Loading complaint from passed object');
+        const complaintData = JSON.parse(complaintParam as string);
+        setComplaint(complaintData);
+        return;
+      }
+      
+      // Otherwise, fetch by ID (from notifications)
+      if (!id) {
+        throw new Error('No complaint ID or object provided');
+      }
+      
+      console.log('Loading complaint with ID:', id);
+      const complaintId = parseInt(id as string);
+      console.log('Parsed complaint ID:', complaintId);
+      
+      if (isNaN(complaintId)) {
+        throw new Error('Invalid complaint ID format');
+      }
+      
+      const complaintData = await complaintsApi.getComplaintById(complaintId);
+      console.log('Fetched complaint data:', complaintData);
       setComplaint(complaintData);
     } catch (error) {
-      console.error('Error parsing complaint data:', error);
+      console.error('Error fetching complaint data:', error);
+      // Set complaint to null to show error state
+      setComplaint(null);
     } finally {
       setLoading(false);
     }
@@ -99,7 +122,7 @@ export default function ComplaintDetails() {
 
   useEffect(() => {
     loadComplaintData();
-  }, [complaintParam]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -134,8 +157,12 @@ export default function ComplaintDetails() {
         />
         <View className="flex-1 bg-white">
           <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-600 font-okra">Complaint not found</Text>
+          <View className="flex-1 justify-center items-center px-8">
+            <Ionicons name="alert-circle-outline" size={64} color="#EF4444" />
+            <Text className="text-gray-800 font-okra text-lg font-semibold mt-4 text-center">
+              Complaint Not Found
+            </Text>
+          
           </View>
         </View>
       </>

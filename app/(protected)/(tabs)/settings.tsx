@@ -44,13 +44,13 @@ const settingsItems: {
   label: string;
   route?: SettingsRoute;
 }[] = [
-    { icon: 'user', label: 'Profile Information', route: '/(protected)/editprofile' },
-    { icon: 'home', label: 'Hostel Details', route: '/(protected)/hostel-details' },
-    { icon: 'lock', label: 'Change Password' },
-    { icon: 'bell', label: 'Notifications', route: '/(protected)/notification-settings' },
-    { icon: 'file-text', label: 'Privacy Policy', route: '/(protected)/privacy-policy' },
-    { icon: 'help-circle', label: 'Help & Support', route: '/(protected)/help-support' },
-  ];
+  { icon: 'user', label: 'Profile Information', route: '/(protected)/editprofile' },
+  { icon: 'home', label: 'Hostel Details', route: '/(protected)/hostel-details' },
+  { icon: 'lock', label: 'Change Password' },
+  { icon: 'bell', label: 'Notifications', route: '/(protected)/notification-settings' },
+  { icon: 'file-text', label: 'Privacy Policy', route: '/(protected)/privacy-policy' },
+  { icon: 'help-circle', label: 'Help & Support', route: '/(protected)/help-support' },
+];
 
 const SettingsContent: React.FC = () => {
   const [student, setStudent] = useState<Student | null>(null);

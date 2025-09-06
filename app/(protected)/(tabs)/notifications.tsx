@@ -1,209 +1,393 @@
-import { StyleSheet, Text, View, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, RefreshControl, Pressable, Image, Linking, Alert } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import { getNotifications, markNotificationAsRead, deleteMultipleNotifications, type Notification } from '../../../utils/notificationsApi';
+import { notificationEvents, NOTIFICATION_EVENTS } from '../../../utils/notificationEvents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Remove initial notifications - will fetch from API
 
-const initialNotifications = [
-  {
-    id: 1,
-    expoNotificationId: 'expo-notification-001',
-    complaintId: 'COMP-2024-001',
-    title: 'Water Issue in Room 205',
-    description: 'No water supply in bathroom since morning. Please check the plumbing.',
-    status: 'in_progress',
-    statusText: 'In Progress',
-    date: 'Today',
-    time: '10:30 AM',
-    read: false,
-  },
-  {
-    id: 2,
-    expoNotificationId: 'expo-notification-002',
-    complaintId: 'COMP-2024-002',
-    title: 'Electrical Problem - Room 312',
-    description: 'Power socket not working properly. Need immediate attention.',
-    status: 'resolved',
-    statusText: 'Resolved',
-    date: 'Today',
-    time: '2:15 PM',
-    read: true,
-  },
-  {
-    id: 3,
-    expoNotificationId: 'expo-notification-003',
-    complaintId: 'COMP-2024-003',
-    title: 'Cleaning Request - Common Area',
-    description: 'Common area needs cleaning. Trash bins are full.',
-    status: 'rejected',
-    statusText: 'Rejected',
-    date: 'Yesterday',
-    time: '9:45 AM',
-    read: false,
-  },
-  {
-    id: 4,
-    expoNotificationId: 'expo-notification-004',
-    complaintId: 'COMP-2024-004',
-    title: 'WiFi Connectivity Issue',
-    description: 'Internet connection is very slow in room 401. Cannot study properly.',
-    status: 'pending',
-    statusText: 'Pending',
-    date: '12 Aug, 2025',
-    time: '11:20 AM',
-    read: false,
-  },
-  {
-    id: 5,
-    expoNotificationId: 'expo-notification-005',
-    complaintId: 'COMP-2024-005',
-    title: 'Plumbing Problem - Bathroom',
-    description: 'Water leakage from ceiling in bathroom. Urgent repair needed.',
-    status: 'resolved',
-    statusText: 'Resolved',
-    date: '12 Aug, 2025',
-    time: '4:30 PM',
-    read: true,
-  },
-];
+// Group header label (Today / Yesterday / Normal Date)
+const formatDateGroup = (timestamp: string) => {
+  // Parse the timestamp - API sends "2025-09-06 20:55:28" which is in UTC
+  // Convert UTC to IST (UTC+5:30)
+  const utcDate = new Date(timestamp + 'Z'); // Add Z to indicate UTC
+  const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000)); // Add 5.5 hours for IST
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'pending':
-      return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: '⏳' };
-    case 'in_progress':
-      return { bg: 'bg-blue-100', text: 'text-blue-700', icon: '🔄' };
-    case 'resolved':
-      return { bg: 'bg-green-100', text: 'text-green-700', icon: '✅' };
-    case 'rejected':
-      return { bg: 'bg-red-100', text: 'text-red-700', icon: '❌' };
-    default:
-      return { bg: 'bg-gray-100', text: 'text-gray-700', icon: '📋' };
-  }
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const isToday =
+    istDate.getDate() === today.getDate() &&
+    istDate.getMonth() === today.getMonth() &&
+    istDate.getFullYear() === today.getFullYear();
+
+  const isYesterday =
+    istDate.getDate() === yesterday.getDate() &&
+    istDate.getMonth() === yesterday.getMonth() &&
+    istDate.getFullYear() === yesterday.getFullYear();
+
+  if (isToday) return 'Today';
+  if (isYesterday) return 'Yesterday';
+
+  return istDate.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+// Relative time like 1 sec ago, 2 hours ago
+const formatRelativeTime = (timestamp: string) => {
+  // Parse the timestamp - API sends "2025-09-06 20:55:28" which is in UTC
+  const utcDate = new Date(timestamp + 'Z'); // Add Z to indicate UTC
+  
+  // Get current time
+  const now = new Date();
+  
+  // Calculate difference in milliseconds
+  const diffMs = now.getTime() - utcDate.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+  const diffWeek = Math.floor(diffDay / 7);
+  const diffMonth = Math.floor(diffDay / 30);
+  const diffYear = Math.floor(diffDay / 365);
+
+  if (diffSec < 60) return `${diffSec <= 1 ? 1 : diffSec} sec ago`;
+  if (diffMin < 60) return `${diffMin} min ago`;
+  if (diffHour < 24) return `${diffHour} hour${diffHour > 1 ? 's' : ''} ago`;
+  if (diffDay === 1) return 'Yesterday';
+  if (diffDay < 7) return `${diffDay} days ago`;
+  if (diffWeek < 4) return `${diffWeek} week${diffWeek > 1 ? 's' : ''} ago`;
+  if (diffMonth < 12) return `${diffMonth} month${diffMonth > 1 ? 's' : ''} ago`;
+  return `${diffYear} year${diffYear > 1 ? 's' : ''} ago`;
 };
 
 function NotificationsTabContent() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [pressedId, setPressedId] = useState<number | null>(null);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [student, setStudent] = useState<any>(null);
+  const router = useRouter();
 
-  // Group notifications by date
+  // Fetch student data and notifications
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Get student data from AsyncStorage
+        const studentData = await AsyncStorage.getItem('student');
+        if (studentData) {
+          const parsedStudent = JSON.parse(studentData);
+          setStudent(parsedStudent);
+          
+          // Fetch notifications
+          await fetchNotifications(parsedStudent.roll_no);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Fetch notifications from API
+  const fetchNotifications = async (rollNo: string) => {
+    try {
+      const response = await getNotifications(rollNo, 50, 0);
+      if (response.success) {
+        setNotifications(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  // Group notifications by date (Today/Yesterday/Date)
   const groupedNotifications = notifications.reduce((groups, notification) => {
-    const date = notification.date;
+    const date = formatDateGroup(notification.created_at);
     if (!groups[date]) {
       groups[date] = [];
     }
     groups[date].push(notification);
     return groups;
-  }, {} as Record<string, typeof notifications>);
+  }, {} as Record<string, Notification[]>);
 
-  const handleNotificationPress = (notificationId: number) => {
-    setNotifications(prevNotifications =>
-      prevNotifications.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
+  const handleNotificationPress = async (notification: Notification) => {
+    // Mark notification as read via API
+    if (!notification.read) {
+      try {
+        await markNotificationAsRead(notification.id);
+        setNotifications(prev =>
+          prev.map(n => (n.id === notification.id ? { ...n, read: true } : n))
+        );
+        // Emit event to update tab badge
+        notificationEvents.emit(NOTIFICATION_EVENTS.NOTIFICATION_READ);
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
+
+    // Navigate based on notification channel
+    if (notification.channel === 'complaint_status' && notification.complaintId) {
+      // Convert complaintId to number if it's a string
+      const complaintId = typeof notification.complaintId === 'string' 
+        ? parseInt(notification.complaintId) 
+        : notification.complaintId;
+      router.push(`/complaint-details?id=${complaintId}`);
+    } else if (notification.channel === 'promotion' && notification.externalLink) {
+      // Open external link for promotional notifications
+      try {
+        await Linking.openURL(notification.externalLink);
+      } catch (error) {
+        console.error('Error opening external link:', error);
+      }
+    }
+    // Missing product notifications - no navigation, just mark as read
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-
-    // Simulate API call or data refresh
-    setTimeout(() => {
-      // You can add actual API call here to fetch new notifications
-      setRefreshing(false);
-    }, 1000);
+    if (student?.roll_no) {
+      await fetchNotifications(student.roll_no);
+      // Emit event to refresh badge count
+      notificationEvents.emit(NOTIFICATION_EVENTS.UNREAD_COUNT_CHANGED, notifications.filter(n => !n.read).length);
+    }
+    setRefreshing(false);
   };
+
+  // Handle long press to enter selection mode
+  const handleLongPress = (notificationId: number) => {
+    if (!isSelectionMode) {
+      setIsSelectionMode(true);
+      // Haptic feedback when entering selection mode
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    toggleNotificationSelection(notificationId);
+  };
+
+  // Toggle notification selection
+  const toggleNotificationSelection = (notificationId: number) => {
+    setSelectedNotifications(prev => {
+      const newSelection = prev.includes(notificationId)
+        ? prev.filter(id => id !== notificationId)
+        : [...prev, notificationId];
+
+      // If no notifications selected, exit selection mode
+      if (newSelection.length === 0) {
+        setIsSelectionMode(false);
+      }
+
+      return newSelection;
+    });
+  };
+
+  // Handle notification press (normal tap)
+  const handleNotificationTap = (notification: any) => {
+    if (isSelectionMode) {
+      toggleNotificationSelection(notification.id);
+    } else {
+      handleNotificationPress(notification);
+    }
+  };
+
+  // Delete selected notifications
+  const handleDeleteSelected = () => {
+    if (selectedNotifications.length === 0) return;
+
+    Alert.alert(
+      'Delete Notifications',
+      `Are you sure you want to delete ${selectedNotifications.length} notification${selectedNotifications.length > 1 ? 's' : ''}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteMultipleNotifications(selectedNotifications);
+              setNotifications(prev => 
+                prev.filter(notification => !selectedNotifications.includes(notification.id))
+              );
+              // Emit events for each deleted notification
+              selectedNotifications.forEach(() => {
+                notificationEvents.emit(NOTIFICATION_EVENTS.NOTIFICATION_DELETED);
+              });
+              setSelectedNotifications([]);
+              setIsSelectionMode(false);
+            } catch (error) {
+              console.error('Error deleting notifications:', error);
+              Alert.alert('Error', 'Failed to delete notifications. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Cancel selection mode
+  const cancelSelection = () => {
+    setIsSelectionMode(false);
+    setSelectedNotifications([]);
+  };
+
+  if (loading) {
+    return (
+      <>
+        <CustomHeader title="Notifications" />
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-gray-500">Loading notifications...</Text>
+        </View>
+      </>
+    );
+  }
 
   return (
     <>
-      <CustomHeader title="Notifications" />
+      <CustomHeader 
+        title={isSelectionMode ? `${selectedNotifications.length} selected` : "Notifications"}
+        showBackButton={isSelectionMode}
+        onBackPress={isSelectionMode ? cancelSelection : undefined}
+        showCancelText={isSelectionMode}
+        rightComponent={
+          isSelectionMode ? (
+            <Pressable 
+              onPress={handleDeleteSelected}
+              disabled={selectedNotifications.length === 0}
+            >
+              <Text className={`font-medium ${selectedNotifications.length === 0 ? 'text-gray-400' : 'text-red-600'}`}>
+                Delete
+              </Text>
+            </Pressable>
+          ) : null
+        }
+      />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
-        bounces={true}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#000000']} // Black color for Android
-            tintColor="#000000" // Black color for iOS
+            colors={['#000000']}
+            tintColor="#000000"
           />
         }
       >
-        {Object.entries(groupedNotifications).map(([date, dateNotifications]) => (
+        {notifications.length === 0 ? (
+          <View className="flex-1 justify-center items-center py-20">
+            <Ionicons name="notifications-outline" size={64} color="#9CA3AF" />
+            <Text className="text-gray-500 text-lg font-medium mt-4">No notifications</Text>
+            <Text className="text-gray-400 text-sm mt-2 text-center px-8">
+              You're all caught up! New notifications will appear here.
+            </Text>
+          </View>
+        ) : (
+          Object.entries(groupedNotifications).map(([date, dateNotifications]) => (
           <View key={date}>
+            {/* Group header */}
             <View className="w-full px-4 py-2">
-              <Text className="text-lg font-semibold text-gray-800 mb-2">
-                {date}
-              </Text>
+              <View className="flex-row items-center">
+                <Text className="text-lg font-semibold text-gray-500 mr-3">{date}</Text>
+                <View className="flex-1 h-px bg-gray-300" />
+              </View>
             </View>
 
-            {dateNotifications.map((item, index) => {
-              const statusColors = getStatusColor(item.status);
-              const isLastItem = index === dateNotifications.length - 1;
+            {/* Notifications */}
+            {dateNotifications.map((item) => {
+              const relativeTime = formatRelativeTime(item.created_at);
+
+              const isSelected = selectedNotifications.includes(item.id);
 
               return (
                 <Pressable
                   key={item.id}
-                  onPress={() => handleNotificationPress(item.id)}
-                  className={`w-full px-4 ${!item.read ? 'bg-blue-50' : 'bg-white'}`}
+                  onPress={() => handleNotificationTap(item)}
+                  onLongPress={() => handleLongPress(item.id)}
+                  className={`w-full px-4 ${isSelected ? 'bg-red-50' : !item.read ? 'bg-blue-50' : 'bg-white'}`}
                 >
-                  <View>
-                    <View className="flex-row py-4">
-                      {/* Status Icon */}
-                      <View className={`w-12 h-12 items-center justify-center rounded-full ${statusColors.bg} mr-4`}>
-                        <Text className="text-xl">
-                          {statusColors.icon}
-                        </Text>
-                      </View>
-
-                      {/* Content */}
-                      <View className="flex-1">
-                        {/* Title and Time */}
-                        <View className="flex-row items-center justify-between mb-2">
-                          <Text className={`text-base font-semibold ${!item.read ? 'text-gray-900' : 'text-gray-800'}`}>
-                            {item.title}
-                          </Text>
-                        </View>
-
-                        {/* Description */}
-                        <Text className={`text-sm ${!item.read ? 'text-gray-700' : 'text-gray-600'} mb-2 leading-5`}>
-                          {item.description}
-                        </Text>
-
-                        {/* Date and Time */}
-                        <View className="flex-row items-center justify-between">
-                          <Text className={`text-xs ${!item.read ? 'text-gray-600' : 'text-gray-500'}`}>
-                            {item.date} • {item.time}
-                          </Text>
-                        </View>
-                      </View>
+                  <View className="flex-row py-4">
+                    {/* Dynamic Icon based on channel */}
+                    <View className={`w-12 h-12 items-center justify-center rounded-full mr-4 ${isSelectionMode && isSelected ? 'bg-red-500' :
+                      item.channel === 'complaint_status' ? 'bg-purple-100' :
+                        item.channel === 'missing_product' ? 'bg-orange-100' :
+                          item.channel === 'promotion' ? 'bg-yellow-100' : 'bg-blue-100'
+                      }`}>
+                      {isSelectionMode && isSelected ? (
+                        <Ionicons name="checkmark" size={20} color="white" />
+                      ) : item.channel === 'complaint_status' ? (
+                        <Ionicons name="document-text-outline" size={20} color="black" />
+                      ) : item.channel === 'missing_product' ? (
+                        <Ionicons name="search-outline" size={20} color="black" />
+                      ) : item.channel === 'promotion' ? (
+                        <Ionicons name="megaphone-outline" size={20} color="black" />
+                      ) : (
+                        <Ionicons name="notifications-outline" size={20} color="black" />
+                      )}
                     </View>
 
-                    {/* Bottom border - only if not last item */}
-                    {!isLastItem && <View className="border-b border-gray-200 ml-16" />}
+                    {/* Content */}
+                    <View className="flex-1">
+                      <Text
+                        className={`text-base font-semibold ${!item.read ? 'text-gray-900' : 'text-gray-800'
+                          }`}
+                      >
+                        {item.title}
+                      </Text>
+
+                      <Text
+                        className={`text-sm ${!item.read ? 'text-gray-700' : 'text-gray-600'
+                          } mb-2 leading-5`}
+                      >
+                        {item.description}
+                        <Text
+                          className={`text-xs ${!item.read ? 'text-gray-600' : 'text-gray-500'
+                            } ml-2`}
+                        >
+                          {' • '}{relativeTime}
+                        </Text>
+                      </Text>
+                    </View>
+
+                    {/* Image Section */}
+                    {item.image && (
+                      <View className="ml-3">
+                        <Image
+                          source={{ uri: item.image }}
+                          className="w-16 h-16 rounded-lg border-[.5px] border-gray-300"
+                          resizeMode="cover"
+                        />
+                      </View>
+                    )}
                   </View>
                 </Pressable>
               );
             })}
           </View>
-        ))}
+        ))
+        )}
       </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  contentContainer: {
-    paddingBottom: 20, // Add bottom padding for better scrolling experience
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  contentContainer: { paddingBottom: 20 },
 });
 
 export default NotificationsTabContent;

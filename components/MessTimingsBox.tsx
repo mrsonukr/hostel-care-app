@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { AppColors } from '../constants/colors';
 
 export default function MessTimingsBox() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -131,9 +132,13 @@ export default function MessTimingsBox() {
                 className="border-b border-gray-200 pb-3 mb-3 last:border-b-0 last:pb-0 last:mb-0"
               >
                 <View className="flex-row items-center">
-                  {/* Icon black circle with white icon */}
-                  <View className="w-10 h-10 rounded-full bg-black justify-center items-center mr-3">
-                    <Feather name={timing.icon as any} size={20} color="white" />
+                  {/* Icon with primary background and icon */}
+                  <View className={`w-10 h-10 rounded-full ${AppColors.primary.background} justify-center items-center mr-3`}>
+                    <Feather 
+                      name={timing.icon as any} 
+                      size={20} 
+                      color={AppColors.primary.icon}
+                    />
                   </View>
 
                   {/* Title + Time */}

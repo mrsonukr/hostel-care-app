@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, View } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Button } from 'react-native-paper';
+import { AppColors } from '../constants/colors';
 
 interface CategoryItemProps {
   iconSet: string;
@@ -12,17 +13,27 @@ interface CategoryItemProps {
 }
 
 function CategoryItem({ iconSet, icon, label, onPress }: CategoryItemProps) {
+  // Get background color based on label
+  const getBackgroundColor = (label: string) => {
+    return AppColors.primary.background;
+  };
+
+  // Get icon color based on label
+  const getIconColor = (label: string) => {
+    return AppColors.primary.icon;
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       className="flex-1 bg-white rounded-xl p-4 mx-1 items-center justify-center"
       onPress={onPress}
     >
-      <View className="w-12 h-12 bg-black rounded-full justify-center items-center mb-2">
+      <View className={`w-12 h-12 ${getBackgroundColor(label)} rounded-full justify-center items-center mb-2`}>
         {iconSet === 'Feather' ? (
-          <Feather name={icon as any} size={24} color="white" />
+          <Feather name={icon as any} size={24} color={getIconColor(label)} />
         ) : (
-          <MaterialCommunityIcons name={icon as any} size={24} color="white" />
+          <MaterialCommunityIcons name={icon as any} size={24} color={getIconColor(label)} />
         )}
       </View>
       <Text className="text-xs font-semibold text-gray-700 text-center font-okra" numberOfLines={2}>

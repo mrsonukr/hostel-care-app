@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { AppColors } from '../constants/colors';
 
 export default function HostelEntryTimeBox() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -99,9 +100,13 @@ export default function HostelEntryTimeBox() {
       {/* Parent Box */}
       <View className="bg-white rounded-2xl p-4">
         <View className="flex-row items-center">
-          {/* Icon */}
-          <View className="w-10 h-10 rounded-full bg-black justify-center items-center mr-3">
-            <Feather name="clock" size={20} color="white" />
+          {/* Icon with primary background */}
+          <View className={`w-10 h-10 rounded-full ${AppColors.primary.background} justify-center items-center mr-3`}>
+            <Feather 
+              name="clock" 
+              size={20} 
+              color={AppColors.primary.icon}
+            />
           </View>
 
           {/* Content */}

@@ -10,6 +10,8 @@ interface CustomHeaderProps {
   showBackButton?: boolean;
   onBackPress?: () => void;
   isHomeHeader?: boolean;
+  rightComponent?: React.ReactNode; // Right side component for custom actions
+  showCancelText?: boolean; // Show "Cancel" text instead of back arrow
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({
@@ -17,6 +19,8 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
   showBackButton = false,
   onBackPress,
   isHomeHeader = false,
+  rightComponent,
+  showCancelText = false,
 }) => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -83,10 +87,14 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
             {showBackButton ? (
               <TouchableOpacity
                 onPress={onBackPress}
-                className="w-8 h-8 justify-center items-start"
+                className={showCancelText ? "justify-center items-center" : "w-8 h-8 justify-center items-start"}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="chevron-back" size={24} color="#000000" />
+                {showCancelText ? (
+                  <Text className="text-gray-600 font-medium">Cancel</Text>
+                ) : (
+                  <Ionicons name="chevron-back" size={24} color="#000000" />
+                )}
               </TouchableOpacity>
             ) : (
               <View className="w-8 h-8" />
@@ -99,7 +107,11 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
               {title}
             </Text>
 
-            <View className="w-8" />
+            {rightComponent ? (
+              rightComponent
+            ) : (
+              <View className="w-8" />
+            )}
           </>
         )}
       </View>
