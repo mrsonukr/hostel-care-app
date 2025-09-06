@@ -10,6 +10,7 @@ import { AuthProvider } from '../contexts/AuthContext';
 import { OfflineProvider } from '../contexts/OfflineContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { OfflineIndicator } from '../components/OfflineIndicator';
+import { setupNotificationHandlers, checkAndUpdateToken } from '../utils/notificationApi';
 
 import "../global.css"
 
@@ -43,10 +44,31 @@ export default function RootLayout() {
       StatusBar.setHidden(false);
     }
     
+    // Setup notification handlers
+    const cleanup = setupNotificationHandlers();
+    
     checkAuthStatus();
     // Check auth status less frequently to avoid performance issues
     const interval = setInterval(checkAuthStatus, 5000);
-    return () => clearInterval(interval);
+    
+    // Check for token updates every 30 seconds
+    const tokenUpdateInterval = setInterval(async () => {
+      try {
+        const studentData = await AsyncStorage.getItem('student');
+        if (studentData) {
+          const student = JSON.parse(studentData);
+          await checkAndUpdateToken(student.roll_no);
+        }
+      } catch (error) {
+        console.error('Error checking token update:', error);
+      }
+    }, 30000);
+    
+    return () => {
+      clearInterval(interval);
+      clearInterval(tokenUpdateInterval);
+      cleanup();
+    };
   }, []);
 
   useEffect(() => {

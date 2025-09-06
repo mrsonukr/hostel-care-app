@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
 import { OfflineCheck } from '../../components/withOfflineCheck';
+import { registerDevice, checkNotificationPermissions, checkAndUpdateToken, getExpoPushToken } from '../../utils/notificationApi';
 
 function LoginScreenContent() {
   const router = useRouter();
@@ -55,7 +56,34 @@ function LoginScreenContent() {
         await AsyncStorage.setItem('student', JSON.stringify(data.student));
         setIsAuthenticated(true);
         
-
+        // Register device for push notifications
+        try {
+          console.log('Student data received:', data.student);
+          if (data.student && data.student.roll_no) {
+            console.log('Registering device for user:', data.student.roll_no);
+            const hasPermission = await checkNotificationPermissions();
+            if (hasPermission) {
+              const deviceResult = await registerDevice(data.student.roll_no);
+              if (deviceResult.success) {
+                console.log('Device registered successfully for notifications');
+                // Store the token for future update checks
+                const token = await getExpoPushToken();
+                if (token) {
+                  await AsyncStorage.setItem('expo_push_token', token);
+                }
+              } else {
+                console.warn('Failed to register device for notifications:', deviceResult.error);
+              }
+            } else {
+              console.warn('Notification permissions not granted');
+            }
+          } else {
+            console.warn('Student data missing roll_no, skipping device registration');
+          }
+        } catch (notificationError) {
+          console.error('Error setting up notifications:', notificationError);
+          // Don't block login if notification setup fails
+        }
         
         // Use a small delay to ensure navigation is ready
         setTimeout(() => {

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1091185401714",
-    "project_id": "hostelcare-12e77",
-    "storage_bucket": "hostelcare-12e77.firebasestorage.app"
+    "project_number": "1042567977401",
+    "project_id": "hostelcare-84d91",
+    "storage_bucket": "hostelcare-84d91.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1091185401714:android:a010806ce5da2edb4347eb",
+        "mobilesdk_app_id": "1:1042567977401:android:f24b3ea7fdeb5279c9fe68",
         "android_client_info": {
           "package_name": "com.hostelcare.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAZ9_uC3SwWq0y1LUhJqykDmvHoCOYImxY"
+          "current_key": "AIzaSyDZ0BP5R2-cLTLmLkXhiKBxjVzwghjCyXU"
         }
       ],
       "services": {
