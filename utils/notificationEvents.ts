@@ -27,4 +27,5 @@ export const NOTIFICATION_EVENTS = {
   UNREAD_COUNT_CHANGED: 'unreadCountChanged',
   NOTIFICATION_READ: 'notificationRead',
   NOTIFICATION_DELETED: 'notificationDeleted',
+  PUSH_NOTIFICATION_RECEIVED: 'pushNotificationReceived',
 } as const;

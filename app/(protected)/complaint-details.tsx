@@ -69,7 +69,6 @@ export default function ComplaintDetails() {
       
       // Check if complaint object is passed directly (from complaint list)
       if (complaintParam) {
-        console.log('Loading complaint from passed object');
         const complaintData = JSON.parse(complaintParam as string);
         setComplaint(complaintData);
         return;

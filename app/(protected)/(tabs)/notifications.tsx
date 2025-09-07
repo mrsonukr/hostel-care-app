@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, ScrollView, RefreshControl, Pressable, Image, Linking, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, RefreshControl, Pressable, Image, Linking, Alert, ActivityIndicator } from 'react-native';
 import CustomHeader from '../../../components/CustomHeader';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { getNotifications, markNotificationAsRead, deleteMultipleNotifications, type Notification } from '../../../utils/notificationsApi';
+import * as Notifications from 'expo-notifications';
+import { getNotifications, markNotificationAsRead, deleteMultipleNotifications, type Notification, type NotificationsResponse } from '../../../utils/notificationsApi';
 import { notificationEvents, NOTIFICATION_EVENTS } from '../../../utils/notificationEvents';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -75,8 +76,14 @@ function NotificationsTabContent() {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedNotifications, setSelectedNotifications] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalNotifications, setTotalNotifications] = useState(0);
   const [student, setStudent] = useState<any>(null);
   const router = useRouter();
+
+  const PAGE_SIZE = 10;
 
   // Fetch student data and notifications
   useEffect(() => {
@@ -88,8 +95,8 @@ function NotificationsTabContent() {
           const parsedStudent = JSON.parse(studentData);
           setStudent(parsedStudent);
           
-          // Fetch notifications
-          await fetchNotifications(parsedStudent.roll_no);
+          // Fetch notifications (first page)
+          await fetchNotifications(parsedStudent.roll_no, 0, true);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -99,19 +106,77 @@ function NotificationsTabContent() {
     };
 
     fetchData();
-  }, []);
 
-  // Fetch notifications from API
-  const fetchNotifications = async (rollNo: string) => {
+    // Listen for push notifications to auto-refresh
+    const notificationListener = Notifications.addNotificationReceivedListener(async (notification) => {
+      console.log('Push notification received, refreshing notifications...');
+      // Refresh notifications when push notification is received
+      if (student?.roll_no) {
+        // Reset pagination and load first page
+        setCurrentPage(0);
+        setHasMore(true);
+        await fetchNotifications(student.roll_no, 0, true);
+      }
+    });
+
+    return () => {
+      notificationListener.remove();
+    };
+  }, [student?.roll_no]);
+
+  // Update badge count when notifications change
+  useEffect(() => {
+    if (notifications.length > 0) {
+      const unreadCount = notifications.filter(n => !n.read).length;
+      notificationEvents.emit(NOTIFICATION_EVENTS.UNREAD_COUNT_CHANGED, unreadCount);
+    }
+  }, [notifications]);
+
+  // Fetch notifications from API with pagination
+  const fetchNotifications = async (rollNo: string, page: number = 0, isRefresh: boolean = false) => {
     try {
-      const response = await getNotifications(rollNo, 50, 0);
+      const offset = page * PAGE_SIZE;
+      const response = await getNotifications(rollNo, PAGE_SIZE, offset);
+      
       if (response.success) {
-        setNotifications(response.data);
+        const newNotifications = isRefresh || page === 0 ? response.data : [...notifications, ...response.data];
+        
+        if (isRefresh || page === 0) {
+          // For refresh or first load, replace all notifications
+          setNotifications(response.data);
+        } else {
+          // For pagination, append new notifications
+          setNotifications(prev => [...prev, ...response.data]);
+        }
+        
+        // Update pagination state
+        setTotalNotifications(response.pagination.total);
+        setCurrentPage(page);
+        
+        // Calculate hasMore based on total loaded notifications vs total available
+        // Since backend total count is unreliable, we'll check if we got a full page
+        const hasMoreData = response.data.length === PAGE_SIZE && response.data.length > 0;
+        
+        setHasMore(hasMoreData);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
   };
+
+  // Load more notifications (for infinite scroll)
+  const loadMoreNotifications = useCallback(async () => {
+    if (loadingMore || !hasMore || !student?.roll_no) return;
+    
+    setLoadingMore(true);
+    try {
+      await fetchNotifications(student.roll_no, currentPage + 1, false);
+    } catch (error) {
+      console.error('Error loading more notifications:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, student?.roll_no, currentPage]);
 
   // Group notifications by date (Today/Yesterday/Date)
   const groupedNotifications = notifications.reduce((groups, notification) => {
@@ -159,7 +224,10 @@ function NotificationsTabContent() {
   const onRefresh = async () => {
     setRefreshing(true);
     if (student?.roll_no) {
-      await fetchNotifications(student.roll_no);
+      // Reset pagination state
+      setCurrentPage(0);
+      setHasMore(true);
+      await fetchNotifications(student.roll_no, 0, true);
       // Emit event to refresh badge count
       notificationEvents.emit(NOTIFICATION_EVENTS.UNREAD_COUNT_CHANGED, notifications.filter(n => !n.read).length);
     }
@@ -287,6 +355,16 @@ function NotificationsTabContent() {
             tintColor="#000000"
           />
         }
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const paddingToBottom = 20;
+          const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+          
+          if (isCloseToBottom && hasMore && !loadingMore) {
+            loadMoreNotifications();
+          }
+        }}
+        scrollEventThrottle={16}
       >
         {notifications.length === 0 ? (
           <View className="flex-1 justify-center items-center py-20">
@@ -379,6 +457,22 @@ function NotificationsTabContent() {
             })}
           </View>
         ))
+        )}
+        
+        
+        {/* Loading more indicator */}
+        {loadingMore && (
+          <View className="py-4 items-center">
+            <ActivityIndicator size="small" color="#000000" />
+            <Text className="text-gray-500 text-sm mt-2">Loading more notifications...</Text>
+          </View>
+        )}
+        
+        {/* End of list indicator */}
+        {!hasMore && notifications.length > 0 && (
+          <View className="py-4 items-center">
+            <Text className="text-gray-400 text-sm">You've reached the end of notifications</Text>
+          </View>
         )}
       </ScrollView>
     </>

@@ -6,6 +6,7 @@ import Constants from 'expo-constants';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import CustomHeader from '../../components/CustomHeader';
+import { notificationEvents, NOTIFICATION_EVENTS } from '../../utils/notificationEvents';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -109,15 +110,26 @@ export default function NotificationSettings() {
 
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);
+      // Emit event to refresh last notification section
+      notificationEvents.emit(NOTIFICATION_EVENTS.PUSH_NOTIFICATION_RECEIVED, notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
       console.log('Notification response:', response);
     });
 
+    // Listen for push notification events to refresh last notification
+    const handlePushNotificationReceived = (notification: Notifications.Notification) => {
+      setNotification(notification);
+    };
+
+    // Add event listener for push notifications
+    notificationEvents.on(NOTIFICATION_EVENTS.PUSH_NOTIFICATION_RECEIVED, handlePushNotificationReceived);
+
     return () => {
       notificationListener.remove();
       responseListener.remove();
+      notificationEvents.off(NOTIFICATION_EVENTS.PUSH_NOTIFICATION_RECEIVED, handlePushNotificationReceived);
     };
   }, []);
 
@@ -126,6 +138,18 @@ export default function NotificationSettings() {
       try {
         await sendPushNotification(expoPushToken);
         Alert.alert('Success', 'Test notification sent!');
+        
+        // Emit event to refresh last notification section
+        // This will trigger the event listener we added above
+        notificationEvents.emit(NOTIFICATION_EVENTS.PUSH_NOTIFICATION_RECEIVED, {
+          request: {
+            content: {
+              title: 'Test Notification',
+              body: 'This is a test notification from HostelCare!',
+              data: { someData: 'goes here' }
+            }
+          }
+        });
       } catch (error) {
         Alert.alert('Error', 'Failed to send notification');
       }

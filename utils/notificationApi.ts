@@ -300,13 +300,41 @@ export const setupNotificationHandlers = () => {
 
   // Handle notification responses (when user taps on notification)
   const notificationListener = Notifications.addNotificationResponseReceivedListener(response => {
-    console.log('Notification response received:', response);
+    // Get notification data
+    const notification = response.notification;
+    const data = notification.request.content.data;
+    
     // Handle navigation based on notification data
+    if (data) {
+      try {
+        // Import router dynamically to avoid circular dependencies
+        import('expo-router').then(({ router }) => {
+          // Navigate to notifications tab first
+          router.push('/(protected)/(tabs)/notifications');
+          
+          if (data.channel === 'complaint_status' && (data.complaintId || data.complaint_id)) {
+            const complaintId = data.complaintId || data.complaint_id;
+            // Navigate to complaint details
+            const id = typeof complaintId === 'string' 
+              ? parseInt(complaintId) 
+              : complaintId;
+            setTimeout(() => {
+              router.push(`/complaint-details?id=${id}`);
+            }, 1000);
+          }
+          // Other notification types stay on notifications page
+        }).catch(error => {
+          console.error('Error handling notification navigation:', error);
+        });
+      } catch (error) {
+        console.error('Error processing notification data:', error);
+      }
+    }
   });
 
   // Handle notifications received while app is running
   const notificationReceivedListener = Notifications.addNotificationReceivedListener(notification => {
-    console.log('Notification received:', notification);
+    // Handle notifications received while app is running
   });
 
   return () => {
