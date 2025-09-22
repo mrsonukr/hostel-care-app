@@ -5,11 +5,23 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "tabtest",
+    "scheme": "hostelcare",
+    "linking": {
+      "prefixes": ["hostelcare://"],
+      "config": {
+        "screens": {
+          "notifications": "notifications",
+          "complaints": "complaints",
+          "profile": "profile",
+          "settings": "settings"
+        }
+      }
+    },
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hostelcare.app"
     },
     "android": {
       "package": "com.hostelcare.app",
@@ -18,7 +30,22 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": false
+      "edgeToEdgeEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "hostelcare"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",

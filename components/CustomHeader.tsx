@@ -62,16 +62,18 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
       <View className={`flex-row items-center justify-between px-4 ${isHomeHeader ? 'h-16' : 'h-11'}`}>
         {isHomeHeader ? (
           <>
-            <Text className="text-2xl font-bold text-black">
-              HostelCare
-            </Text>
-            <TouchableOpacity 
+            <Image
+              source={require('../assets/images/applogo.png')}
+              className="h-12 w-28"
+              resizeMode="contain"
+            />
+            <TouchableOpacity
               onPress={() => router.push('/(protected)/(tabs)/settings')}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <View className="w-12 h-12 justify-center items-center border-2 border-gray-300 rounded-full">
-                <Image 
+                <Image
                   source={
                     student?.profile_pic_url?.startsWith('http')
                       ? { uri: student.profile_pic_url }

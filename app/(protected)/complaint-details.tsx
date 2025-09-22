@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Image, ActivityIndicator, RefreshControl } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { Feather, MaterialCommunityIcons,  Ionicons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import CustomHeader from '../../components/CustomHeader';
 
 import { complaintsApi, Complaint } from '../../utils/complaintsApi';
@@ -66,27 +66,27 @@ export default function ComplaintDetails() {
   const loadComplaintData = async () => {
     try {
       setLoading(true);
-      
+
       // Check if complaint object is passed directly (from complaint list)
       if (complaintParam) {
         const complaintData = JSON.parse(complaintParam as string);
         setComplaint(complaintData);
         return;
       }
-      
+
       // Otherwise, fetch by ID (from notifications)
       if (!id) {
         throw new Error('No complaint ID or object provided');
       }
-      
+
       console.log('Loading complaint with ID:', id);
       const complaintId = parseInt(id as string);
       console.log('Parsed complaint ID:', complaintId);
-      
+
       if (isNaN(complaintId)) {
         throw new Error('Invalid complaint ID format');
       }
-      
+
       const complaintData = await complaintsApi.getComplaintById(complaintId);
       console.log('Fetched complaint data:', complaintData);
       setComplaint(complaintData);
@@ -101,7 +101,7 @@ export default function ComplaintDetails() {
 
   const refreshComplaintData = async () => {
     if (!complaint) return;
-    
+
     try {
       setRefreshing(true);
       // Fetch fresh data from API using the complaint ID
@@ -126,7 +126,7 @@ export default function ComplaintDetails() {
   if (loading) {
     return (
       <>
-        <Stack.Screen 
+        <Stack.Screen
           options={{
             headerShown: false,
             gestureEnabled: true,
@@ -147,7 +147,7 @@ export default function ComplaintDetails() {
   if (!complaint) {
     return (
       <>
-        <Stack.Screen 
+        <Stack.Screen
           options={{
             headerShown: false,
             gestureEnabled: true,
@@ -161,7 +161,7 @@ export default function ComplaintDetails() {
             <Text className="text-gray-800 font-okra text-lg font-semibold mt-4 text-center">
               Complaint Not Found
             </Text>
-          
+
           </View>
         </View>
       </>
@@ -173,7 +173,7 @@ export default function ComplaintDetails() {
 
   return (
     <>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: false,
           gestureEnabled: true,
@@ -182,244 +182,238 @@ export default function ComplaintDetails() {
       />
       <View className="flex-1 bg-white">
         <CustomHeader title="Complaint Details" showBackButton onBackPress={() => router.back()} />
-      
-      <ScrollView 
-        className="flex-1 bg-[#f4f4f4]" 
-        contentContainerStyle={{ padding: 20 }}
-        refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh}
-            tintColor="#000"
-            colors={["#000"]}
-          />
-        }
-      >
-                 {/* Status Progress Card */}
-         <View className="bg-white rounded-xl p-4 mb-4">
-           <Text className="text-lg font-semibold text-black font-okra mb-4">Complaint Status</Text>
-           
-           <View className="flex-row items-center justify-between">
-             {/* Submitted Step */}
-             <View className="items-center">
-               <View className="w-10 h-10 rounded-full bg-green-500 justify-center items-center mb-2">
-                 <Feather name="check" size={18} color="white" />
-               </View>
-               <Text className="text-black font-semibold font-okra text-xs text-center">Submitted</Text>
-               <Text className="text-gray-500 font-okra text-xs text-center">{getRelativeTime(complaint.created_at)}</Text>
-             </View>
 
-             {/* Connecting Line 1 */}
-             <View className={`flex-1 h-0.5 mx-2 ${
-               complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
-                 ? 'bg-green-500' : 'bg-gray-300'
-             }`} style={{ marginTop: -30 }} />
+        <ScrollView
+          className="flex-1 bg-[#f4f4f4]"
+          contentContainerStyle={{ padding: 20 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#000"
+              colors={["#000"]}
+            />
+          }
+        >
+          {/* Status Progress Card */}
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <Text className="text-lg font-semibold text-black font-okra mb-4">Complaint Status</Text>
 
-             {/* In Progress Step */}
-             <View className="items-center">
-               <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${
-                 complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
-                   ? 'bg-green-500' : 'bg-gray-300'
-               }`}>
-                 {complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' ? (
-                   <Feather name="check" size={18} color="white" />
-                 ) : (
-                   <Feather name="clock" size={18} color="white" />
-                 )}
-               </View>
-               <Text className={`font-semibold font-okra text-xs text-center ${
-                 complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' 
-                   ? 'text-black' : 'text-gray-400'
-               }`}>
-                 In Progress
-               </Text>
-               <Text className="text-gray-500 font-okra text-xs text-center">
-                 {complaint.in_progress_at ? getRelativeTime(complaint.in_progress_at) : '--'}
-               </Text>
-             </View>
+            <View className="flex-row items-center justify-between">
+              {/* Submitted Step */}
+              <View className="items-center">
+                <View className="w-10 h-10 rounded-full bg-green-500 justify-center items-center mb-2">
+                  <Feather name="check" size={18} color="white" />
+                </View>
+                <Text className="text-black font-semibold font-okra text-xs text-center">Submitted</Text>
+                <Text className="text-gray-500 font-okra text-xs text-center">{getRelativeTime(complaint.created_at)}</Text>
+              </View>
 
-             {/* Connecting Line 2 */}
-             <View className={`flex-1 h-0.5 mx-2 ${
-               complaint.status === 'resolved' || complaint.status === 'rejected' ? 'bg-green-500' : 'bg-gray-300'
-             }`} style={{ marginTop: -30 }} />
+              {/* Connecting Line 1 */}
+              <View className={`flex-1 h-0.5 mx-2 ${complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected'
+                  ? 'bg-green-500' : 'bg-gray-300'
+                }`} style={{ marginTop: -30 }} />
 
-             {/* Resolved Step */}
-             <View className="items-center">
-               <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${
-                 complaint.status === 'resolved' ? 'bg-green-500' : 
-                 complaint.status === 'rejected' ? 'bg-red-500' : 'bg-gray-300'
-               }`}>
-                 {complaint.status === 'resolved' ? (
-                   <Feather name="check" size={18} color="white" />
-                 ) : complaint.status === 'rejected' ? (
-                   <Feather name="x" size={18} color="white" />
-                 ) : (
-                   <Feather name="clock" size={18} color="white" />
-                 )}
-               </View>
-               <Text className={`font-semibold font-okra text-xs text-center ${
-                 complaint.status === 'resolved' || complaint.status === 'rejected' ? 'text-black' : 'text-gray-400'
-               }`}>
-                 {complaint.status === 'rejected' ? 'Rejected' : 'Resolved'}
-               </Text>
-               <Text className="text-gray-500 font-okra text-xs text-center">
-                 {complaint.resolved_at ? getRelativeTime(complaint.resolved_at) : 
-                  complaint.rejected_at ? getRelativeTime(complaint.rejected_at) : '--'}
-               </Text>
-             </View>
-           </View>
-           
-           {/* Resolution Time Display */}
-           {complaint.status === 'resolved' && complaint.resolved_at && (
-             <View className="mt-4 pt-4 border-t border-gray-100">
-               <View className="bg-green-50 rounded-lg p-3">
-                 <View className="flex-row items-center justify-center">
-                   <MaterialCommunityIcons name="check-decagram" size={20} color="#10B981" />
-                   <Text className="text-green-700 font-semibold font-okra ml-2">
-                     Resolved in {getDurationBetweenDates(complaint.created_at, complaint.resolved_at)}
-                   </Text>
-                 </View>
-               </View>
-             </View>
-           )}
-         </View>
+              {/* In Progress Step */}
+              <View className="items-center">
+                <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected'
+                    ? 'bg-green-500' : 'bg-gray-300'
+                  }`}>
+                  {complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected' ? (
+                    <Feather name="check" size={18} color="white" />
+                  ) : (
+                    <Feather name="clock" size={18} color="white" />
+                  )}
+                </View>
+                <Text className={`font-semibold font-okra text-xs text-center ${complaint.status === 'in_progress' || complaint.status === 'resolved' || complaint.status === 'rejected'
+                    ? 'text-black' : 'text-gray-400'
+                  }`}>
+                  In Progress
+                </Text>
+                <Text className="text-gray-500 font-okra text-xs text-center">
+                  {complaint.in_progress_at ? getRelativeTime(complaint.in_progress_at) : '--'}
+                </Text>
+              </View>
 
-         {/* Complaint Info Card */}
-         <View className="bg-white rounded-xl p-4 mb-4">
-           <View className="flex-row items-center mb-3">
-             <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
-               {categoryIcon.iconSet === 'Feather' && (
-                 <Feather name={categoryIcon.icon as any} size={20} color="#000" />
-               )}
-               {categoryIcon.iconSet === 'MaterialCommunityIcons' && (
-                 <MaterialCommunityIcons name={categoryIcon.icon as any} size={20} color="#000" />
-               )}
-             </View>
-             <View className="flex-1">
-               <Text className="text-lg font-semibold text-black font-okra">
-                 {complaint.category}
-               </Text>
-               <Text className="text-base text-gray-600 font-okra">
-                 {complaint.subcategory || 'No subcategory'}
-               </Text>
-             </View>
-           </View>
-           
-           {/* Complaint ID and Timestamps */}
-           <View className="mt-4 pt-4 border-t border-gray-100">
-             <View className="space-y-3 gap-2">
-               <View className="flex-row items-center justify-between">
-                 <View className="flex-row items-center">
-                   <Feather name="hash" size={16} color="#666" />
-                   <Text className="text-gray-600 font-okra ml-2">Complaint ID:</Text>
-                 </View>
-                 <Text className="text-black font-semibold font-okra">#{complaint.id}</Text>
-               </View>
-               
-               <View className="flex-row items-center justify-between">
-                 <View className="flex-row items-center">
-                   <Feather name="calendar" size={16} color="#666" />
-                   <Text className="text-gray-600 font-okra ml-2">Submitted:</Text>
-                 </View>
-                 <Text className="text-black font-okra">{getFormattedDateTime(complaint.created_at)}</Text>
-               </View>
-               
-               {complaint.in_progress_at && (
-                 <View className="flex-row items-center justify-between">
-                   <View className="flex-row items-center">
-                     <Feather name="clock" size={16} color="#666" />
-                     <Text className="text-gray-600 font-okra ml-2">In Progress:</Text>
-                   </View>
-                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.in_progress_at)}</Text>
-                 </View>
-               )}
-               
-               {complaint.resolved_at && (
-                 <View className="flex-row items-center justify-between">
-                   <View className="flex-row items-center">
-                     <Feather name="check-circle" size={16} color="#666" />
-                     <Text className="text-gray-600 font-okra ml-2">Resolved:</Text>
-                   </View>
-                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.resolved_at)}</Text>
-                 </View>
-               )}
-               
-               {complaint.rejected_at && (
-                 <View className="flex-row items-center justify-between">
-                   <View className="flex-row items-center">
-                     <Feather name="x-circle" size={16} color="#666" />
-                     <Text className="text-gray-600 font-okra ml-2">Rejected:</Text>
-                   </View>
-                   <Text className="text-black font-okra">{getFormattedDateTime(complaint.rejected_at)}</Text>
-                 </View>
-               )}
-             </View>
-           </View>
-         </View>
+              {/* Connecting Line 2 */}
+              <View className={`flex-1 h-0.5 mx-2 ${complaint.status === 'resolved' || complaint.status === 'rejected' ? 'bg-green-500' : 'bg-gray-300'
+                }`} style={{ marginTop: -30 }} />
 
-        {/* Details Card */}
-        <View className="bg-white rounded-xl p-4 mb-4">
-          <Text className="text-lg font-semibold text-black font-okra mb-3">Complaint From</Text>
-          
-          <View className="space-y-3 gap-2">
-            <View className="flex-row items-center">
-              <Feather name="user" size={16} color="#666" />
-              <Text className="text-gray-600 font-okra ml-2">Student: {complaint.student_name}</Text>
+              {/* Resolved Step */}
+              <View className="items-center">
+                <View className={`w-10 h-10 rounded-full justify-center items-center mb-2 ${complaint.status === 'resolved' ? 'bg-green-500' :
+                    complaint.status === 'rejected' ? 'bg-red-500' : 'bg-gray-300'
+                  }`}>
+                  {complaint.status === 'resolved' ? (
+                    <Feather name="check" size={18} color="white" />
+                  ) : complaint.status === 'rejected' ? (
+                    <Feather name="x" size={18} color="white" />
+                  ) : (
+                    <Feather name="clock" size={18} color="white" />
+                  )}
+                </View>
+                <Text className={`font-semibold font-okra text-xs text-center ${complaint.status === 'resolved' || complaint.status === 'rejected' ? 'text-black' : 'text-gray-400'
+                  }`}>
+                  {complaint.status === 'rejected' ? 'Rejected' : 'Resolved'}
+                </Text>
+                <Text className="text-gray-500 font-okra text-xs text-center">
+                  {complaint.resolved_at ? getRelativeTime(complaint.resolved_at) :
+                    complaint.rejected_at ? getRelativeTime(complaint.rejected_at) : '--'}
+                </Text>
+              </View>
             </View>
-            
-            <View className="flex-row items-center">
-              <Feather name="hash" size={16} color="#666" />
-              <Text className="text-gray-600 font-okra ml-2">Roll No: {complaint.student_roll}</Text>
+
+            {/* Resolution Time Display */}
+            {complaint.status === 'resolved' && complaint.resolved_at && (
+              <View className="mt-4 pt-4 border-t border-gray-100">
+                <View className="bg-green-50 rounded-lg p-3">
+                  <View className="flex-row items-center justify-center">
+                    <MaterialCommunityIcons name="check-decagram" size={20} color="#10B981" />
+                    <Text className="text-green-700 font-semibold font-okra ml-2">
+                      Resolved in {getDurationBetweenDates(complaint.created_at, complaint.resolved_at)}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Complaint Info Card */}
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <View className="flex-row items-center mb-3">
+              <View className="w-10 h-10 rounded-full bg-gray-100 justify-center items-center mr-3">
+                {categoryIcon.iconSet === 'Feather' && (
+                  <Feather name={categoryIcon.icon as any} size={20} color="#000" />
+                )}
+                {categoryIcon.iconSet === 'MaterialCommunityIcons' && (
+                  <MaterialCommunityIcons name={categoryIcon.icon as any} size={20} color="#000" />
+                )}
+              </View>
+              <View className="flex-1">
+                <Text className="text-lg font-semibold text-black font-okra">
+                  {complaint.category}
+                </Text>
+                <Text className="text-base text-gray-600 font-okra">
+                  {complaint.subcategory || 'No subcategory'}
+                </Text>
+              </View>
             </View>
-            
-            <View className="flex-row items-center">
-              <Feather name="home" size={16} color="#666" />
-              <Text className="text-gray-600 font-okra ml-2">Hostel: {complaint.hostel_name}</Text>
-            </View>
-            
-            <View className="flex-row items-center">
-              <Feather name="map-pin" size={16} color="#666" />
-              <Text className="text-gray-600 font-okra ml-2">Room: {complaint.room_number}</Text>
+
+            {/* Complaint ID and Timestamps */}
+            <View className="mt-4 pt-4 border-t border-gray-100">
+              <View className="space-y-3 gap-2">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <Feather name="hash" size={16} color="#666" />
+                    <Text className="text-gray-600 font-okra ml-2">Complaint ID:</Text>
+                  </View>
+                  <Text className="text-black font-semibold font-okra">#{complaint.id}</Text>
+                </View>
+
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <Feather name="calendar" size={16} color="#666" />
+                    <Text className="text-gray-600 font-okra ml-2">Submitted:</Text>
+                  </View>
+                  <Text className="text-black font-okra">{getFormattedDateTime(complaint.created_at)}</Text>
+                </View>
+
+                {complaint.in_progress_at && (
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Feather name="clock" size={16} color="#666" />
+                      <Text className="text-gray-600 font-okra ml-2">In Progress:</Text>
+                    </View>
+                    <Text className="text-black font-okra">{getFormattedDateTime(complaint.in_progress_at)}</Text>
+                  </View>
+                )}
+
+                {complaint.resolved_at && (
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Feather name="check-circle" size={16} color="#666" />
+                      <Text className="text-gray-600 font-okra ml-2">Resolved:</Text>
+                    </View>
+                    <Text className="text-black font-okra">{getFormattedDateTime(complaint.resolved_at)}</Text>
+                  </View>
+                )}
+
+                {complaint.rejected_at && (
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Feather name="x-circle" size={16} color="#666" />
+                      <Text className="text-gray-600 font-okra ml-2">Rejected:</Text>
+                    </View>
+                    <Text className="text-black font-okra">{getFormattedDateTime(complaint.rejected_at)}</Text>
+                  </View>
+                )}
+              </View>
             </View>
           </View>
-        </View>
 
-                 {/* Description Card */}
-         <View className="bg-white rounded-xl p-4 mb-4">
-           <Text className="text-lg font-semibold text-black font-okra mb-3">Description</Text>
-           {complaint.description ? (
-             <Text className="text-gray-700 font-okra leading-6">
-               {complaint.description}
-             </Text>
-           ) : (
-             <Text className="text-gray-500 font-okra italic">
-               No description provided
-             </Text>
-           )}
-         </View>
+          {/* Details Card */}
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <Text className="text-lg font-semibold text-black font-okra mb-3">Complaint From</Text>
 
-                 {/* Photos Card */}
-         <View className="bg-white rounded-xl p-4 mb-4">
-           <Text className="text-lg font-semibold text-black font-okra mb-3">Photos</Text>
-           {complaint.photos && complaint.photos.length > 0 ? (
-             <View className="flex-row flex-wrap gap-3">
-               {complaint.photos.map((photo, index) => (
-                 <Image
-                   key={index}
-                   source={{ uri: photo }}
-                   className="w-24 h-24 rounded-xl"
-                   resizeMode="cover"
-                 />
-               ))}
-             </View>
-           ) : (
-             <Text className="text-gray-500 font-okra italic">
-               No photos uploaded
-             </Text>
-           )}
-         </View>
-       </ScrollView>
-     </View>
-     </>
-   );
- }
+            <View className="space-y-3 gap-2">
+              <View className="flex-row items-center">
+                <Feather name="user" size={16} color="#666" />
+                <Text className="text-gray-600 font-okra ml-2">Student: {complaint.student_name}</Text>
+              </View>
+
+              <View className="flex-row items-center">
+                <Feather name="hash" size={16} color="#666" />
+                <Text className="text-gray-600 font-okra ml-2">Roll No: {complaint.student_roll}</Text>
+              </View>
+
+              <View className="flex-row items-center">
+                <Feather name="home" size={16} color="#666" />
+                <Text className="text-gray-600 font-okra ml-2">Hostel: {complaint.hostel_name}</Text>
+              </View>
+
+              <View className="flex-row items-center">
+                <Feather name="map-pin" size={16} color="#666" />
+                <Text className="text-gray-600 font-okra ml-2">Room: {complaint.room_number}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Description Card */}
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <Text className="text-lg font-semibold text-black font-okra mb-3">Description</Text>
+            {complaint.description ? (
+              <Text className="text-gray-700 font-okra leading-6">
+                {complaint.description}
+              </Text>
+            ) : (
+              <Text className="text-gray-500 font-okra italic">
+                No description provided
+              </Text>
+            )}
+          </View>
+
+          {/* Photos Card */}
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <Text className="text-lg font-semibold text-black font-okra mb-3">Photos</Text>
+            {complaint.photos && complaint.photos.length > 0 ? (
+              <View className="flex-row flex-wrap gap-3">
+                {complaint.photos.map((photo, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: photo }}
+                    className="w-24 h-24 rounded-xl"
+                    resizeMode="cover"
+                  />
+                ))}
+              </View>
+            ) : (
+              <Text className="text-gray-500 font-okra italic">
+                No photos uploaded
+              </Text>
+            )}
+          </View>
+        </ScrollView>
+      </View>
+    </>
+  );
+}

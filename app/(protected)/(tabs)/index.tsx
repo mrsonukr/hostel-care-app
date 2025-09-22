@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../../../components/CustomHeader';
 import ImageSlider from '../../../components/ImageSlider';
+import BannerSlider from '../../../components/BannerSlider';
 import HomeCategoriesBox from '../../../components/HomeCategoriesBox';
 import MessTimingsBox from '../../../components/MessTimingsBox';
 import HostelEntryTimeBox from '../../../components/HostelEntryTimeBox';
 import EmergencyContactsBox from '../../../components/EmergencyContactsBox';
 import ImageSliderSkeleton from '../../../components/ImageSliderSkeleton';
+import { fetchBanners, Banner } from '../../../utils/bannerApi';
 
 function HomeTabContent() {
   const [isLoading, setIsLoading] = useState(true);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   
   // Sample hostel images for the slider - replace with actual hostel images
   const hostelImages = [
     {
       id: '1',
-      url: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJlZSUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D'
+      url: 'https://blog.mmumullana.org/wp-content/uploads/2018/09/Major-Highlights-of-UniversuMM-2018-A-Jamboree-of-fun-and-frolic-1.jpg'
     },
     {
       id: '2',
-      url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZnJlZSUyMGltYWdlc3xlbnwwfHwwfHx8MA%3D%3D'
+      url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeZEucUuX-18959G03c8PCkw3p_fxS1TVFdQ&s'
     },
     {
       id: '3',
@@ -27,11 +32,42 @@ function HomeTabContent() {
     }
   ];
 
+  // Fetch banners for the current hostel
+  const fetchBannersData = async () => {
+    try {
+      const studentData = await AsyncStorage.getItem('student');
+      if (studentData) {
+        const student = JSON.parse(studentData);
+        const hostelName = student.hostel_no;
+        
+        console.log('Current hostel name:', hostelName);
+        
+        if (hostelName) {
+          const bannerData = await fetchBanners(hostelName);
+          console.log('Banner data received:', bannerData);
+          setBanners(bannerData.banners);
+        } else {
+          console.log('No hostel name found in student data');
+        }
+      } else {
+        console.log('No student data found');
+      }
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+      setBanners([]);
+    } finally {
+      setBannersLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
+    
+    // Fetch banners
+    fetchBannersData();
     
     return () => clearTimeout(timer);
   }, []);
@@ -45,17 +81,30 @@ function HomeTabContent() {
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Image Slider */}
-        {isLoading ? (
-          <ImageSliderSkeleton />
-        ) : (
-          <ImageSlider 
-            images={hostelImages}
+        {/* Banner Slider - Show banners if available, otherwise show image slider */}
+        {banners.length > 0 ? (
+          <BannerSlider 
+            banners={banners}
             autoPlay={true}
             autoPlayInterval={4000}
-            showDots={true}
-            showTitles={false}
+            showDots={false}
+            height={180}
           />
+        ) : (
+          <>
+            {/* Image Slider */}
+            {isLoading ? (
+              <ImageSliderSkeleton />
+            ) : (
+              <ImageSlider 
+                images={hostelImages}
+                autoPlay={true}
+                autoPlayInterval={4000}
+                showDots={false}
+                showTitles={false}
+              />
+            )}
+          </>
         )}
         
         {/* Complaint Categories Box */}

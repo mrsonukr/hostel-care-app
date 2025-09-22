@@ -6,6 +6,7 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEditProfile } from '../../hooks/useEditProfile';
 import CustomHeader from '../../components/CustomHeader';
 import InputField from '../../components/InputField';
+import BirthdayInputField from '../../components/BirthdayInputField';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { OfflineCheck } from '../../components/withOfflineCheck';
 
@@ -15,13 +16,19 @@ const EditProfileContent = () => {
     student,
     loading,
     submitting,
+    verifying,
+    timer,
+    resendCount,
+    timerEmail,
     formData,
     setFormData,
     errors,
     hasChanges,
     handleUpdate,
+    handleResendVerification,
     pickImage,
     fetchStudentData,
+    originalData,
   } = useEditProfile();
 
   const getDefaultProfileImage = (gender?: string) =>
@@ -36,8 +43,16 @@ const EditProfileContent = () => {
     }, [fetchStudentData])
   );
 
-  if (loading) return <Text className="text-center text-lg text-neutral-500 mt-10">Loading...</Text>;
-  if (!student) return <Text className="text-center text-lg text-neutral-500 mt-10">No data found.</Text>;
+  if (loading) return (
+    <View className="flex-1 justify-center items-center">
+      <Text className="text-center text-lg text-neutral-500 mt-10">Loading...</Text>
+    </View>
+  );
+  if (!student) return (
+    <View className="flex-1 justify-center items-center">
+      <Text className="text-center text-lg text-neutral-500 mt-10">No data found.</Text>
+    </View>
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -87,10 +102,16 @@ const EditProfileContent = () => {
         />
         <InputField
           label="Email"
-          value={formData.email.toLowerCase()}
+          value={formData.email ? formData.email.toLowerCase() : ''}
           onChangeText={(v) => setFormData((p) => ({ ...p, email: v.toLowerCase() }))}
           keyboardType="email-address"
           error={errors.email}
+          verified={Boolean(student?.email_verified && formData.email === originalData.email)}
+          showVerifyButton={Boolean(!student?.email_verified && formData.email === originalData.email)}
+          onVerifyPress={handleResendVerification}
+          verifying={Boolean(verifying)}
+          timer={timerEmail === formData.email ? Number(timer) : 0}
+          resendCount={timerEmail === formData.email ? Number(resendCount) : 0}
         />
         <InputField
           label="Gender"
@@ -98,6 +119,13 @@ const EditProfileContent = () => {
           onChangeText={(v) => setFormData((p) => ({ ...p, gender: v }))}
           options={['Male', 'Female', 'Others']}
           error={errors.gender}
+        />
+        <BirthdayInputField
+          label="Birthday"
+          value={formData.birthday}
+          onChangeText={(v) => setFormData((p) => ({ ...p, birthday: v }))}
+          placeholder="DD-MM-YYYY"
+          error={errors.birthday}
         />
 
         <Button
@@ -108,7 +136,11 @@ const EditProfileContent = () => {
           contentStyle={{ height: 50 }}
           labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
         >
-          {submitting ? <ActivityIndicator color="white" size="small" /> : 'Update'}
+          {submitting ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Update</Text>
+          )}
         </Button>
       </ScrollView>
     </View>
