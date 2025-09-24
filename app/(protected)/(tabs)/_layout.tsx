@@ -1,4 +1,4 @@
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { Tabs, useFocusEffect } from 'expo-router';
 import { Text, Pressable, View, Platform } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
@@ -144,7 +144,7 @@ export default function TabLayout() {
           name="ComplaintScreen"
           options={{
             title: 'Complaint',
-            tabBarIcon: ({ color }) => <AntDesign name="pluscircleo" size={24} color={color} />,
+            tabBarIcon: ({ color }) => <FontAwesome name="plus-square-o" size={24} color={color} />,
             tabBarLabel: ({ focused }) => renderLabel('Complaint', focused),
           }}
         />

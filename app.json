@@ -6,17 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hostelcare",
-    "linking": {
-      "prefixes": ["hostelcare://"],
-      "config": {
-        "screens": {
-          "notifications": "notifications",
-          "complaints": "complaints",
-          "profile": "profile",
-          "settings": "settings"
-        }
-      }
-    },
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

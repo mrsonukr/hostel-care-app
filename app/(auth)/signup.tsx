@@ -125,8 +125,8 @@ function SignupScreenContent() {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-5 pt-16">
-            <Text className="text-[28px] font-bold text-[#0B2447] mb-2">Sign Up</Text>
-            <Text className="text-base text-[#666] mb-8">Create your account</Text>
+            <Text className="text-[28px] font-semibold text-[#0B2447] mb-2">Sign Up</Text>
+            <Text className="text-base font-okra text-[#666] mb-8">Create your account</Text>
 
             {/* Roll No */}
             <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
@@ -136,7 +136,7 @@ function SignupScreenContent() {
                 placeholderTextColor="#999"
                 value={formData.rollNo}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, rollNo: text }))}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
             </View>
@@ -151,7 +151,7 @@ function SignupScreenContent() {
                 onChangeText={(text) => setFormData(prev => ({ ...prev, mobileNo: text }))}
                 keyboardType="phone-pad"
                 maxLength={10}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
             </View>
@@ -166,7 +166,7 @@ function SignupScreenContent() {
                 onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
             </View>
@@ -180,7 +180,7 @@ function SignupScreenContent() {
                 value={formData.password}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
                 secureTextEntry={!showPassword}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -201,7 +201,7 @@ function SignupScreenContent() {
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
                 secureTextEntry={!showConfirmPassword}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
@@ -231,9 +231,9 @@ function SignupScreenContent() {
 
             {/* Sign In Link */}
             <View className="flex-row justify-center">
-              <Text className="text-[#666]">Already have an account? </Text>
+              <Text className="text-[#666] font-okra">Already have an account? </Text>
               <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-                <Text className="text-[#0B2447] font-bold">Sign In</Text>
+                <Text className="text-[#0B2447] font-semibold">Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>

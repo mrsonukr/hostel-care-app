@@ -16,6 +16,7 @@ import {
 import { Banner } from '../utils/bannerApi';
 
 const { width } = Dimensions.get('window');
+const bannerHeight = width / 2; // 2:1 aspect ratio
 
 interface BannerSliderProps {
   banners: Banner[];
@@ -30,7 +31,7 @@ export default function BannerSlider({
   autoPlay = true,
   autoPlayInterval = 4000,
   showDots = true,
-  height = 180,
+  height = bannerHeight, // Use calculated 2:1 aspect ratio
 }: BannerSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -201,7 +202,7 @@ export default function BannerSlider({
             <Image 
               source={{ uri: banner.img_url }} 
               style={[styles.image, { height }]}
-              resizeMode="cover"
+              resizeMode="contain"
               onLoad={() => setIsLoading(false)}
               onError={() => setIsLoading(false)}
             />

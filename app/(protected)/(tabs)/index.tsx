@@ -40,14 +40,9 @@ function HomeTabContent() {
         const student = JSON.parse(studentData);
         const hostelName = student.hostel_no;
         
-        console.log('Current hostel name:', hostelName);
-        
         if (hostelName) {
           const bannerData = await fetchBanners(hostelName);
-          console.log('Banner data received:', bannerData);
           setBanners(bannerData.banners);
-        } else {
-          console.log('No hostel name found in student data');
         }
       } else {
         console.log('No student data found');
@@ -81,30 +76,14 @@ function HomeTabContent() {
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Banner Slider - Show banners if available, otherwise show image slider */}
-        {banners.length > 0 ? (
+        {/* Banner Slider - Only show if banners are available */}
+        {banners.length > 0 && (
           <BannerSlider 
             banners={banners}
             autoPlay={true}
             autoPlayInterval={4000}
             showDots={false}
-            height={180}
           />
-        ) : (
-          <>
-            {/* Image Slider */}
-            {isLoading ? (
-              <ImageSliderSkeleton />
-            ) : (
-              <ImageSlider 
-                images={hostelImages}
-                autoPlay={true}
-                autoPlayInterval={4000}
-                showDots={false}
-                showTitles={false}
-              />
-            )}
-          </>
         )}
         
         {/* Complaint Categories Box */}

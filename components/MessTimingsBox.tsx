@@ -107,8 +107,8 @@ export default function MessTimingsBox() {
     <View className="mx-4 mb-6">
       {/* Parent Box */}
       <View className="bg-white rounded-2xl p-4">
-        <Text className="text-lg font-bold text-black mb-4  font-okra">
-        Today’s Mess Timings
+        <Text className="text-lg font-semibold text-black mb-4  font-okra">
+        Today's Mess Timings
         </Text>
 
         <View className="gap-4">

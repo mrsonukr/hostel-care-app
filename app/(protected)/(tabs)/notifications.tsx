@@ -317,7 +317,7 @@ function NotificationsTabContent() {
       <>
         <CustomHeader title="Notifications" />
         <View className="flex-1 justify-center items-center">
-          <Text className="text-gray-500">Loading notifications...</Text>
+          <Text className="text-gray-500 font-okra">Loading notifications...</Text>
         </View>
       </>
     );
@@ -369,8 +369,8 @@ function NotificationsTabContent() {
         {notifications.length === 0 ? (
           <View className="flex-1 justify-center items-center py-20">
             <Ionicons name="notifications-outline" size={64} color="#9CA3AF" />
-            <Text className="text-gray-500 text-lg font-medium mt-4">No notifications</Text>
-            <Text className="text-gray-400 text-sm mt-2 text-center px-8">
+            <Text className="text-gray-500 text-lg font-medium font-okra mt-4">No notifications</Text>
+            <Text className="text-gray-400 text-sm font-okra mt-2 text-center px-8">
               You're all caught up! New notifications will appear here.
             </Text>
           </View>
@@ -380,7 +380,7 @@ function NotificationsTabContent() {
             {/* Group header */}
             <View className="w-full px-4 py-2">
               <View className="flex-row items-center">
-                <Text className="text-lg font-semibold text-gray-500 mr-3">{date}</Text>
+                <Text className="text-lg font-semibold font-okra text-gray-500 mr-3">{date}</Text>
                 <View className="flex-1 h-px bg-gray-300" />
               </View>
             </View>
@@ -421,19 +421,19 @@ function NotificationsTabContent() {
                     {/* Content */}
                     <View className="flex-1">
                       <Text
-                        className={`text-base font-semibold ${!item.read ? 'text-gray-900' : 'text-gray-800'
+                        className={`text-base font-semibold font-okra ${!item.read ? 'text-gray-900' : 'text-gray-800'
                           }`}
                       >
                         {item.title}
                       </Text>
 
                       <Text
-                        className={`text-sm ${!item.read ? 'text-gray-700' : 'text-gray-600'
+                        className={`text-sm font-okra ${!item.read ? 'text-gray-700' : 'text-gray-600'
                           } mb-2 leading-5`}
                       >
                         {item.description}
                         <Text
-                          className={`text-xs ${!item.read ? 'text-gray-600' : 'text-gray-500'
+                          className={`text-xs font-okra ${!item.read ? 'text-gray-600' : 'text-gray-500'
                             } ml-2`}
                         >
                           {' • '}{relativeTime}
@@ -464,14 +464,14 @@ function NotificationsTabContent() {
         {loadingMore && (
           <View className="py-4 items-center">
             <ActivityIndicator size="small" color="#000000" />
-            <Text className="text-gray-500 text-sm mt-2">Loading more notifications...</Text>
+            <Text className="text-gray-500 text-sm font-okra mt-2">Loading more notifications...</Text>
           </View>
         )}
         
         {/* End of list indicator */}
         {!hasMore && notifications.length > 0 && (
           <View className="py-4 items-center">
-            <Text className="text-gray-400 text-sm">You've reached the end of notifications</Text>
+            <Text className="text-gray-400 text-sm font-okra">You've reached the end of notifications</Text>
           </View>
         )}
       </ScrollView>

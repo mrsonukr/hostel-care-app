@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Alert,
@@ -142,8 +142,8 @@ function LoginScreenContent() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 px-5 pt-16">
             {/* Heading */}
-            <Text className="text-[28px] font-bold text-[#0B2447] mb-2">Login</Text>
-            <Text className="text-base text-[#666] mb-8">Please sign in to continue</Text>
+            <Text className="text-[28px] font-semibold text-[#0B2447] mb-2">Login</Text>
+            <Text className="text-base font-okra text-[#666] mb-8">Please sign in to continue</Text>
 
             {/* Username Input */}
             <View className="flex-row items-center bg-[#f2f4f7] rounded-xl px-4 h-[50px] mb-4">
@@ -153,7 +153,7 @@ function LoginScreenContent() {
                 placeholderTextColor="#999"
                 value={username}
                 onChangeText={setUsername}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
             </View>
@@ -167,7 +167,7 @@ function LoginScreenContent() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
-                className="flex-1 ml-3 text-[16px] text-black"
+                className="flex-1 ml-3 text-[16px] font-okra text-black"
                 selectionColor="#0B2447"
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -191,11 +191,21 @@ function LoginScreenContent() {
               {loading ? <RNActivityIndicator color="#fff" /> : 'Sign In'}
             </Button>
 
+            {/* Forgot Password Button */}
+            <TouchableOpacity 
+              onPress={() => router.push('/(auth)/forgot-password')}
+              className="items-center mb-4"
+            >
+              <Text className="text-[#0B2447] font-semibold">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+
             {/* Sign up */}
             <View className="flex-row justify-center">
-              <Text className="text-[#666]">Don'have an account? </Text>
+              <Text className="text-[#666] font-okra">Don'have an account? </Text>
               <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-                <Text className="text-[#0B2447] font-bold">Sign Up</Text>
+                <Text className="text-[#0B2447] font-semibold">Sign Up</Text>
               </TouchableOpacity>
             </View>
           </View>

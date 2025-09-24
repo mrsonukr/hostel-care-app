@@ -79,7 +79,7 @@ export default function HomeCategoriesBox() {
   return (
     <View className="mx-4 mt-4 mb-6">
       <View className="bg-white rounded-2xl p-4 ">
-        <Text className="text-lg font-bold text-gray-800 mb-2 font-okra">
+        <Text className="text-lg font-semibold text-gray-800 mb-2 font-okra">
           Raise New Complaint
         </Text>
 
@@ -95,22 +95,18 @@ export default function HomeCategoriesBox() {
           ))}
         </View>
 
-        <Button
-          mode="contained"
+        <TouchableOpacity
+          activeOpacity={1}
           onPress={() => router.push({
             pathname: '/(protected)/(tabs)/ComplaintScreen',
             params: { activeTab: 'status' }
           })}
-          style={{
-            backgroundColor: '#0D0D0D',
-            marginTop: 4,
-            borderRadius: 10
-          }}
-          contentStyle={{ height: 40 }}
-          labelStyle={{ fontSize: 14, fontWeight: '600', color: 'white' }}
+          className="bg-[#0D0D0D] mt-1 rounded-[10px] h-10 justify-center items-center"
         >
-          View Complaint Status
-        </Button>
+          <Text className="text-white text-sm font-semibold font-okra">
+            View Complaint Status
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

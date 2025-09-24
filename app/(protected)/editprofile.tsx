@@ -128,20 +128,18 @@ const EditProfileContent = () => {
           error={errors.birthday}
         />
 
-        <Button
-          mode="contained"
+        <TouchableOpacity
+          activeOpacity={0.8}
           onPress={handleUpdate}
           disabled={submitting}
-          style={{ borderRadius: 12, marginTop: 24, backgroundColor: '#0D0D0D' }}
-          contentStyle={{ height: 50 }}
-          labelStyle={{ fontSize: 16, fontWeight: 'bold', color: 'white' }}
+          className="bg-[#0D0D0D] mt-6 rounded-xl h-12 justify-center items-center"
         >
           {submitting ? (
             <ActivityIndicator color="white" size="small" />
           ) : (
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Update</Text>
+            <Text className="text-white text-base font-semibold font-okra">Update</Text>
           )}
-        </Button>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
